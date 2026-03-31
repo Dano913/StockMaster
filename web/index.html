@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Simulación Mercado</title>
+</head>
+<body>
+
+<div style="margin-bottom:10px;">
+  <button onclick="zoomIn()">Zoom +</button>
+  <button onclick="zoomOut()">Zoom -</button>
+</div>
+
+<canvas id="canvas" 
+        width="1900" 
+        height="850" 
+        style="border:1px solid black; background-color: rgb(0, 0, 0);">
+</canvas>
+
+<script>
+class Activo {
+    constructor(precio, tendencia, volatilidad, factorFib) { // Constructor con los parámetros que afectan al precio del activo
+        this.precio = precio;
+        this.tendencia = tendencia;
+        this.volatilidad = volatilidad;
+        this.factorFib = factorFib;
+
+        this.fibA = 0; // Caso 0 de fibonacci
+        this.fibB = 1; // Caso 1 de fibonacci
+    }
+
+    siguienteFib() {                       // Genera la sucesión de fibonacci
+        let next = this.fibA + this.fibB;
+        this.fibA = this.fibB;
+        this.fibB = (this.fibA + this.fibB) % 1000;
+        return next;
+    }
+
+    actualizar() {
+        let fib = this.siguienteFib();                            // Valor de fibonacci que va cambiando a lo largo de la secuencia
+   
+        let fibImpact = (Math.random() * 2 - 1) * Math.log(fib + 1) * this.factorFib;     // Hace que Fibonacci influya con suavizado logarítmico
+        let ruido = (Math.random() * 2 - 1) * this.volatilidad;  // Genera la volatilidad
+
+        let cambio = this.tendencia + ruido;                     // Combina ruido y tendencia
+        cambio = Math.max(Math.min(cambio, 0.1), -0.1);          // Limita el movimiento a un % máximo
+
+        this.precio = this.precio * (1 + cambio) + fibImpact;    // Actualiza el precio sumando las variables
+
+        return this.precio;
+    }
+
+    cambiarTendencia() {
+        let fase = Math.random();
+
+        if (fase < 0.33) {
+            this.tendencia = 0.001;
+            this.volatilidad = 0.03;
+        } else if (fase < 0.66) {
+            this.tendencia = 0;
+            this.volatilidad = 0.01;
+        } else {
+            this.tendencia = -0.001;
+            this.volatilidad = 0.02;
+        }
+    }
+}
+
+// --------------------
+// CONFIG
+// --------------------
+const activo = new Activo(30000, 0.003, 0.02, 1.5);
+let historico = [];
+
+// Canvas
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d");
+
+// Zoom (temporalidad horizontal)
+let zoom = 2;
+
+// --------------------
+// ACTUALIZAR DATOS
+// --------------------
+function actualizarDatos() {
+    historico.push(activo.actualizar());
+}
+
+// --------------------
+// DIBUJAR GRÁFICO
+// --------------------
+function dibujar() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    if (historico.length < 2) return;
+
+    // ventana visible (scroll)
+    let visiblePoints = Math.floor(canvas.width / zoom);
+    let offset = Math.max(0, historico.length - visiblePoints);
+    let data = historico.slice(offset);
+
+    let max = Math.max(...data);
+    let min = Math.min(...data);
+    let rango = max - min || 1;
+
+    // --------------------
+    // 📊 EJE Y (precio)
+    // --------------------
+    ctx.strokeStyle = "rgba(255,255,255,0.15)";
+    ctx.fillStyle = "white";
+    ctx.font = "12px Arial";
+
+    for (let i = 0; i <= 6; i++) {
+        let y = (canvas.height / 6) * i;
+        let price = max - (rango * (i / 6));
+
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(canvas.width, y);
+        ctx.stroke();
+
+        ctx.fillText(price.toFixed(2), 10, y - 5);
+    }
+
+    // --------------------
+    // 📈 GRÁFICA (VERDE)
+    // --------------------
+    ctx.beginPath();
+    ctx.strokeStyle = "#00ff66";
+    ctx.lineWidth = 2;
+
+    data.forEach((valor, x) => {
+        let y = canvas.height - ((valor - min) / rango) * canvas.height;
+        let px = x * zoom;
+
+        if (x === 0) ctx.moveTo(px, y);
+        else ctx.lineTo(px, y);
+    });
+
+    ctx.stroke();
+}
+
+// --------------------
+// ZOOM
+// --------------------
+function zoomIn() {
+    zoom = Math.min(zoom + 1, 10);
+}
+
+function zoomOut() {
+    zoom = Math.max(zoom - 1, 1);
+}
+
+// --------------------
+// LOOP
+// --------------------
+let velocidad = 10;
+let contador = 0;
+
+setInterval(() => {
+    actualizarDatos();
+    dibujar();
+
+    contador++;
+    if (contador % 40 === 0) {
+        activo.cambiarTendencia();
+    }
+
+}, velocidad);
+
+</script>
+
+</body>
+</html>
