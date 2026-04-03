@@ -1,6 +1,6 @@
 <mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36">
   <diagram name="Página-1" id="5RlpNKZC-xJL6oQ-u8wS">
-    <mxGraphModel dx="2056" dy="2204" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+    <mxGraphModel dx="1798" dy="1986" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -220,7 +220,7 @@
         <mxCell id="8p9t-0dlwUWH2-mj4NlP-99" parent="1" style="ellipse;whiteSpace=wrap;html=1;strokeColor=light-dark(#000000,#FFFF00);" value="tipo" vertex="1">
           <mxGeometry height="30" width="120" x="295" y="288.12" as="geometry" />
         </mxCell>
-        <mxCell id="8p9t-0dlwUWH2-mj4NlP-100" parent="1" style="ellipse;whiteSpace=wrap;html=1;strokeColor=light-dark(#000000,#FFFF00);" value="participaciones" vertex="1">
+        <mxCell id="8p9t-0dlwUWH2-mj4NlP-100" parent="1" style="ellipse;whiteSpace=wrap;html=1;strokeColor=light-dark(#000000,#FFFF00);" value="cantidad" vertex="1">
           <mxGeometry height="26.25" width="120" x="295" y="323.87" as="geometry" />
         </mxCell>
         <mxCell id="8p9t-0dlwUWH2-mj4NlP-101" parent="1" style="ellipse;whiteSpace=wrap;html=1;strokeColor=light-dark(#000000,#FFFF00);" value="importe" vertex="1">
@@ -259,7 +259,7 @@
         <mxCell id="8p9t-0dlwUWH2-mj4NlP-110" parent="1" style="ellipse;whiteSpace=wrap;html=1;strokeColor=light-dark(#000000,#FFFF00);" value="fecha_constitucion" vertex="1">
           <mxGeometry height="26.25" width="120" x="968" y="-284.13" as="geometry" />
         </mxCell>
-        <mxCell id="8p9t-0dlwUWH2-mj4NlP-111" parent="1" style="ellipse;whiteSpace=wrap;html=1;strokeColor=light-dark(#000000,#FFFF00);" value="tamaño" vertex="1">
+        <mxCell id="8p9t-0dlwUWH2-mj4NlP-111" parent="1" style="ellipse;whiteSpace=wrap;html=1;strokeColor=light-dark(#000000,#FFFF00);" value="tamanio" vertex="1">
           <mxGeometry height="30" width="120" x="968" y="-251.88" as="geometry" />
         </mxCell>
         <mxCell id="8p9t-0dlwUWH2-mj4NlP-112" parent="1" style="ellipse;whiteSpace=wrap;html=1;strokeColor=light-dark(#000000,#FFFF00);" value="web" vertex="1">
