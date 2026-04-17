@@ -1,6 +1,6 @@
 <mxfile host="app.diagrams.net">
   <diagram name="Página-1" id="Xy8-NN_s_JA2xdUXy-wF">
-    <mxGraphModel dx="1099" dy="1312" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+    <mxGraphModel dx="2315" dy="1951" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -403,8 +403,8 @@
         <mxCell id="UhA2L_tzzB3qBd2g4g87-119" parent="1" style="ellipse;whiteSpace=wrap;html=1;strokeColor=light-dark(#000000,#FFFF00);" value="id_precio_activo(PK)" vertex="1">
           <mxGeometry height="30" width="120" x="1307" y="323" as="geometry" />
         </mxCell>
-        <mxCell id="UhA2L_tzzB3qBd2g4g87-120" parent="1" style="ellipse;whiteSpace=wrap;html=1;strokeColor=light-dark(#000000,#FFFF00);" value="timeframe" vertex="1">
-          <mxGeometry height="26.25" width="120" x="1307" y="525.75" as="geometry" />
+        <mxCell id="UhA2L_tzzB3qBd2g4g87-120" parent="1" style="ellipse;whiteSpace=wrap;html=1;strokeColor=light-dark(#000000,#FFFF00);" value="temporalidad" vertex="1">
+          <mxGeometry height="24.25" width="120" x="1307" y="525.75" as="geometry" />
         </mxCell>
         <mxCell id="UhA2L_tzzB3qBd2g4g87-121" parent="1" style="ellipse;whiteSpace=wrap;html=1;strokeColor=light-dark(#000000,#FFFF00);" value="id_activo(FK)" vertex="1">
           <mxGeometry height="26.25" width="120" x="1307" y="358.87" as="geometry" />
@@ -421,7 +421,7 @@
         <mxCell id="UhA2L_tzzB3qBd2g4g87-125" parent="1" style="ellipse;whiteSpace=wrap;html=1;strokeColor=light-dark(#000000,#FFFF00);" value="precio_minimo" vertex="1">
           <mxGeometry height="30" width="120" x="1307" y="491.12" as="geometry" />
         </mxCell>
-        <mxCell id="UhA2L_tzzB3qBd2g4g87-126" parent="1" style="ellipse;whiteSpace=wrap;html=1;strokeColor=light-dark(#000000,#FFFF00);" value="timestamp" vertex="1">
+        <mxCell id="UhA2L_tzzB3qBd2g4g87-126" parent="1" style="ellipse;whiteSpace=wrap;html=1;strokeColor=light-dark(#000000,#FFFF00);" value="fecha_creacion" vertex="1">
           <mxGeometry height="26.25" width="120" x="1307" y="557.75" as="geometry" />
         </mxCell>
         <mxCell id="UhA2L_tzzB3qBd2g4g87-127" parent="1" style="shape=curlyBracket;whiteSpace=wrap;html=1;rounded=1;labelPosition=left;verticalLabelPosition=middle;align=right;verticalAlign=middle;strokeColor=light-dark(#000000,#FFFF00);" value="" vertex="1">
