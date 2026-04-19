@@ -1,10 +1,125 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <title>Title</title>
+  <meta charset="UTF-8">
+  <title>Contacto</title>
 </head>
+
 <body>
+
+  <header>
+    <h1>Contacta con Nosotros</h1>
+    <p>
+      Estamos aquí para ayudarte. Envíanos tu consulta y nuestro equipo te responderá lo antes posible.
+    </p>
+  </header>
+
+  <main>
+
+    <!-- Formulario -->
+    <section>
+      <h2>Envíanos un Mensaje</h2>
+
+      <form>
+
+        <label>Nombre Completo *</label>
+        <input type="text" name="nombre" placeholder="Juan Pérez" required>
+
+        <br><br>
+
+        <label>Email *</label>
+        <input type="email" name="email" placeholder="juan@ejemplo.com" required>
+
+        <br><br>
+
+        <label>Teléfono</label>
+        <input type="tel" name="telefono" placeholder="+34 600 123 456">
+
+        <br><br>
+
+        <label>Asunto *</label>
+        <input type="text" name="asunto" placeholder="Consulta sobre fondos" required>
+
+        <br><br>
+
+        <label>Mensaje *</label>
+        <br>
+        <textarea name="mensaje" rows="6" placeholder="Cuéntanos en qué podemos ayudarte..." required></textarea>
+
+        <br><br>
+
+        <button type="submit">Enviar Mensaje</button>
+
+      </form>
+    </section>
+
+    <!-- Información de contacto -->
+    <section>
+      <h2>Información de Contacto</h2>
+
+      <div>
+        <h3>Teléfono</h3>
+        <p>+34 91 123 45 67</p>
+        <p>+34 93 765 43 21</p>
+      </div>
+
+      <div>
+        <h3>Email</h3>
+        <p>info@stockmaster.com</p>
+        <p>asesores@stockmaster.com</p>
+      </div>
+
+      <div>
+        <h3>Oficina Principal</h3>
+        <p>Paseo de la Castellana, 123</p>
+        <p>28046 Madrid, España</p>
+      </div>
+
+      <div>
+        <h3>Horario</h3>
+        <p>Lunes a Viernes: 9:00 - 18:00</p>
+        <p>Sábados: 10:00 - 14:00</p>
+      </div>
+
+    </section>
+
+    <!-- Mapa -->
+    <section>
+      <h2>Encuéntranos</h2>
+
+      <iframe
+        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3036.5985098705574!2d-3.6896796!3d40.4378698"
+        width="100%"
+        height="300"
+        style="border:0;"
+        loading="lazy"
+        title="Ubicación">
+      </iframe>
+
+    </section>
+
+    <!-- FAQ -->
+    <section>
+      <h2>Preguntas Frecuentes</h2>
+
+      <article>
+        <h3>¿Tiempo de respuesta?</h3>
+        <p>Respondemos en menos de 24 horas laborables.</p>
+      </article>
+
+      <article>
+        <h3>¿Reuniones presenciales?</h3>
+        <p>Sí, en Madrid y Barcelona bajo cita previa.</p>
+      </article>
+
+      <article>
+        <h3>¿Asesoría gratuita?</h3>
+        <p>La primera consulta es gratuita y sin compromiso.</p>
+      </article>
+
+    </section>
+
+  </main>
 
 </body>
 </html>

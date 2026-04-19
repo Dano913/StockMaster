@@ -1,38 +1,26 @@
-target/
-!.mvn/wrapper/maven-wrapper.jar
-!**/src/main/**/target/
-!**/src/test/**/target/
+# Dependencias (si usas npm)
+node_modules/
 
-### IntelliJ IDEA ###
-.idea/modules.xml
-.idea/jarRepositories.xml
-.idea/compiler.xml
-.idea/libraries/
-*.iws
-*.iml
-*.ipr
-
-### Eclipse ###
-.apt_generated
-.classpath
-.factorypath
-.project
-.settings
-.springBeans
-.sts4-cache
-
-### NetBeans ###
-/nbproject/private/
-/nbbuild/
-/dist/
-/nbdist/
-/.nb-gradle/
+# Build de Tailwind / outputs
+dist/
 build/
-!**/src/main/**/build/
-!**/src/test/**/build/
+output/
+*.min.css
 
-### VS Code ###
-.vscode/
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
 
-### Mac OS ###
+# Sistema
 .DS_Store
+Thumbs.db
+
+# IDEs
+.vscode/
+.idea/
+
+# Archivos temporales
+*.log
+*.cache
+.env

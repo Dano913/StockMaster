@@ -1,0 +1,59 @@
+/* =========================
+   STOCKMASTER THEME SIMPLE
+   ========================= */
+
+:root {
+  --bg: #ffffff;
+  --text: #1a1a1a;
+  --primary: #0a2540;
+  --accent: #10b981;
+  --card: #f8fafc;
+  --border: #e5e7eb;
+}
+
+/* DARK MODE SIMPLE */
+.dark {
+  --bg: #0f172a;
+  --text: #f1f5f9;
+  --primary: #10b981;
+  --accent: #f59e0b;
+  --card: #1e293b;
+  --border: #334155;
+}
+
+/* =========================
+   BASE STYLES
+   ========================= */
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: system-ui, sans-serif;
+}
+
+/* LINKS */
+a {
+  color: var(--primary);
+}
+
+/* BUTTONS */
+button {
+  background: var(--primary);
+  color: white;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+button:hover {
+  opacity: 0.9;
+}
+
+/* CARDS */
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  padding: 16px;
+  border-radius: 12px;
+}
