@@ -2,6 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>StockMaster</title>
   <link rel="stylesheet" href="../styles/index.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
@@ -11,7 +12,7 @@
   <div id="header"></div>
 
   <header class="bg-primary text-white py-16">
-    <div class="w-[1500px] mx-auto px-4">
+    <div class="max-w-6xl h-[200px] mx-auto px-4 flex flex-col justify-end">
       <h1 class="text-4xl md:text-5xl mb-4 font-bold">Tarifas Transparentes</h1>
       <p class="text-white/80 max-w-3xl text-lg">
         Creemos en la transparencia total. Aquí encontrarás todas nuestras comisiones de forma clara y sin sorpresas.
@@ -35,7 +36,7 @@
         <div class="overflow-x-auto">
           <table class="min-w-full border">
 
-            <thead class="bg-[color:var(--secondary)] text-white">
+            <thead class="bg-[color:var(--secondary)] text-black">
               <tr>
                 <th class="p-3 text-left">Fondo</th>
                 <th class="p-3 text-left">Tipo</th>
@@ -106,25 +107,36 @@
 
         <div class="grid md:grid-cols-2 gap-6">
 
-          <div class="flex gap-3">
-            <span class="text-[color:var(--accent)]">✔</span>
-            <p>Sin comisiones de entrada ni salida</p>
-          </div>
+           <!-- Item -->
+        <div class="flex items-start gap-3">
+          <i class="fa-solid fa-circle-check text-accent text-xl mt-1"></i>
+          <p class="text-lg">Sin comisiones de suscripción ni reembolso</p>
+        </div>
 
-          <div class="flex gap-3">
-            <span class="text-[color:var(--accent)]">✔</span>
-            <p>Transparencia total</p>
-          </div>
+        <div class="flex items-start gap-3">
+          <i class="fa-solid fa-circle-check text-accent text-xl mt-1"></i>
+          <p class="text-lg">Transparencia total en costes</p>
+        </div>
 
-          <div class="flex gap-3">
-            <span class="text-[color:var(--accent)]">✔</span>
-            <p>Sin costes ocultos</p>
-          </div>
+        <div class="flex items-start gap-3">
+          <i class="fa-solid fa-circle-check text-accent text-xl mt-1"></i>
+          <p class="text-lg">Sin gastos ocultos ni sorpresas</p>
+        </div>
 
-          <div class="flex gap-3">
-            <span class="text-[color:var(--accent)]">✔</span>
-            <p>Comisiones competitivas</p>
-          </div>
+        <div class="flex items-start gap-3">
+          <i class="fa-solid fa-circle-check text-accent text-xl mt-1"></i>
+          <p class="text-lg">Comisiones competitivas del mercado</p>
+        </div>
+
+        <div class="flex items-start gap-3">
+          <i class="fa-solid fa-circle-check text-accent text-xl mt-1"></i>
+          <p class="text-lg">Informe trimestral gratuito de rendimiento</p>
+        </div>
+
+        <div class="flex items-start gap-3">
+          <i class="fa-solid fa-circle-check text-accent text-xl mt-1"></i>
+          <p class="text-lg">Acceso a plataforma online sin coste adicional</p>
+        </div>
 
         </div>
 
@@ -141,7 +153,7 @@
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
 
           <!-- CARD -->
-          <div class="bg-white border rounded-lg p-6 hover:shadow-lg transition">
+          <div class="bg-white border-2 border-muted rounded-lg p-6 hover:shadow-lg hover:border-accent transition">
             <h3 class="text-xl font-semibold mb-3">Comisión de Gestión</h3>
             <p class="text-gray-500">
               Remunera el trabajo de análisis, selección de valores y gestión activa del fondo.
@@ -149,8 +161,8 @@
             </p>
           </div>
 
-          <!-- CARD -->
-          <div class="bg-white border rounded-lg p-6 hover:shadow-lg transition">
+          <!-- CARD --> 
+          <div class="bg-white border-2 border-muted rounded-lg p-6 hover:shadow-lg hover:border-accent transition">
             <h3 class="text-xl font-semibold mb-3">Comisión Depositaria</h3>
             <p class="text-gray-500">
               Cubre la custodia y administración de los activos del fondo por parte de la entidad depositaria.
@@ -158,7 +170,7 @@
           </div>
 
           <!-- CARD -->
-          <div class="bg-white border rounded-lg p-6 hover:shadow-lg transition">
+          <div class="bg-white border-2 border-muted rounded-lg p-6 hover:shadow-lg hover:border-accent transition">
             <h3 class="text-xl font-semibold mb-3">Comisión de Suscripción</h3>
             <p class="text-gray-500">
               Cobrada al entrar en el fondo. En StockMaster:
@@ -168,7 +180,7 @@
           </div>
 
           <!-- CARD -->
-          <div class="bg-white border rounded-lg p-6 hover:shadow-lg transition">
+          <div class="bg-white border-2 border-muted rounded-lg p-6 hover:shadow-lg hover:border-accent transition">
             <h3 class="text-xl font-semibold mb-3">Comisión de Reembolso</h3>
             <p class="text-gray-500">
               Cobrada al salir del fondo. En StockMaster:
@@ -190,11 +202,18 @@
 
         <div class="space-y-4 text-gray-600">
 
-          <p>Las comisiones se reflejan en la rentabilidad.</p>
-
-          <p>La rentabilidad pasada no garantiza resultados futuros.</p>
-
-          <p>Consulta siempre el DFI antes de invertir.</p>
+          <p>
+            Las comisiones se deducen automáticamente del valor liquidativo del fondo 
+            y están reflejadas en la rentabilidad publicada.
+          </p>
+          <p>
+            La rentabilidad pasada no garantiza rentabilidades futuras. 
+            Los fondos de inversión están sujetos a fluctuaciones del mercado.
+          </p>
+          <p>
+            Para información detallada, consulta el Documento de Datos Fundamentales 
+            para el Inversor (DFI) de cada fondo, disponible en nuestra web.
+          </p>
 
         </div>
 
@@ -214,8 +233,8 @@
         </p>
 
         <a href="contacto.html">
-          <button class="bg-accent text-white px-6 py-3 rounded hover:opacity-90">
-            Contactar
+          <button class="bg-accent text-white px-6 py-3 rounded-lg hover:opacity-90 cursor-pointer">
+            Contacta con Nosotros
           </button>
         </a>
 

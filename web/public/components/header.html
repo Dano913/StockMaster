@@ -1,41 +1,58 @@
-<header class="bg-primary text-primary-foreground fixed top-0 z-50 p-3 justify-center flex w-full">
-  <div class="flex items-center justify-between w-[1500px]">
+<header class="bg-primary text-primary-foreground fixed top-0 z-50 w-full">
+  
+  <!-- Barra principal -->
+  <div class="flex items-center justify-between w-full px-6 py-3">
 
     <!-- Logo -->
     <a href="index.html" class="flex items-center gap-2 text-2xl font-bold hover:opacity-80 transition">
-      📈 <span>StockMaster</span>
+      <img src="/assets/images/logo-stockmaster.png" alt="Logo-Stockmaster" class="h-[50px]" />
     </a>
 
     <!-- Desktop nav -->
-    <nav class="hidden md:flex items-center gap-8 text-sm">
-      <a href="index.html" class="hover:text-accent">Inicio</a>
-      <a href="fondos.html" class="hover:text-accent">Fondos</a>
-      <a href="sobre-nosotros.html" class="hover:text-accent">Sobre Nosotros</a>
-      <a href="tarifas.html" class="hover:text-accent">Tarifas</a>
-      <a href="contacto.html" class="hover:text-accent">Contacto</a>
+    <nav class="hidden md:flex items-center gap-8 text-lg">
+      <a href="index.html" class="nav-link hover:text-accent transition-colors">Inicio</a>
+      <a href="fondos.html" class="nav-link hover:text-accent transition-colors">Fondos</a>
+      <a href="sobre-nosotros.html" class="nav-link hover:text-accent transition-colors">Sobre Nosotros</a>
+      <a href="tarifas.html" class="nav-link hover:text-accent transition-colors">Tarifas</a>
+      <a href="contacto.html" class="nav-link hover:text-accent transition-colors">Contacto</a>
     </nav>
 
     <!-- Mobile button -->
-    <button class="md:hidden text-2xl" onclick="toggleMenu()">
+    <button class="md:hidden text-2xl w-8 text-center" onclick="toggleMenu()" id="menuBtn" aria-label="Toggle menu">
       ☰
     </button>
 
   </div>
 
-  <!-- Mobile nav -->
-  <nav class="md:hidden hidden flex-col gap-4 mt-4 pb-4">
-    <a href="index.html">Inicio</a>
-    <a href="fondos.html">Fondos</a>
-    <a href="sobre-nosotros.html">Sobre Nosotros</a>
-    <a href="tarifas.html">Tarifas</a>
-    <a href="contacto.html">Contacto</a>
+  <!-- Mobile nav — debajo de toda la barra -->
+  <nav id="mobileMenu" class="md:hidden hidden flex-col w-full border-t border-white/20">
+    <a href="index.html" class="nav-link hover:text-accent hover:bg-white/10 transition-colors px-6 py-3">Inicio</a>
+    <a href="fondos.html" class="nav-link hover:text-accent hover:bg-white/10 transition-colors px-6 py-3">Fondos</a>
+    <a href="sobre-nosotros.html" class="nav-link hover:text-accent hover:bg-white/10 transition-colors px-6 py-3">Sobre Nosotros</a>
+    <a href="tarifas.html" class="nav-link hover:text-accent hover:bg-white/10 transition-colors px-6 py-3">Tarifas</a>
+    <a href="contacto.html" class="nav-link hover:text-accent hover:bg-white/10 transition-colors px-6 py-3">Contacto</a>
   </nav>
+
 </header>
 
 <script>
+  // Activar link actual con borde inferior (igual que React)
+  const currentPage = window.location.pathname.split("/").pop() || "index.html";
+  document.querySelectorAll(".nav-link").forEach(link => {
+    const linkPage = link.getAttribute("href").split("/").pop();
+    if (linkPage === currentPage) {
+      link.classList.add("text-accent", "border-b-2", "border-accent", "pb-1");
+    }
+  });
+
+  // Menú móvil con toggle ☰ / ✕
   function toggleMenu() {
     const menu = document.getElementById("mobileMenu");
+    const btn = document.getElementById("menuBtn");
+    const isOpen = !menu.classList.contains("hidden");
+
     menu.classList.toggle("hidden");
     menu.classList.toggle("flex");
+    btn.textContent = isOpen ? "☰" : "✕";
   }
 </script>
