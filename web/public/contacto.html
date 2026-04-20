@@ -2,124 +2,158 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Contacto</title>
+  <title>StockMaster</title>
+  <link rel="stylesheet" href="../styles/index.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
+<body class="bg-white text-black">
+  <div id="header"></div>
 
-<body>
-
-  <header>
-    <h1>Contacta con Nosotros</h1>
-    <p>
-      Estamos aquí para ayudarte. Envíanos tu consulta y nuestro equipo te responderá lo antes posible.
-    </p>
+  <!-- HEADER -->
+  <header class="bg-secondary py-16">
+    <div class="w-[1500px] mx-auto px-4">
+      <h1 class="text-4xl md:text-5xl mb-4 font-bold">Contacta con Nosotros</h1>
+      <p class=" max-w-3xl text-lg">
+        Estamos aquí para ayudarte. Envíanos tu consulta y te responderemos lo antes posible.
+      </p>
+    </div>
   </header>
 
   <main>
+    <!-- CONTACT -->
+    <section class="py-16">
+      <div class="w-[1500px] mx-auto px-4 grid lg:grid-cols-3 gap-8">
 
-    <!-- Formulario -->
-    <section>
-      <h2>Envíanos un Mensaje</h2>
+        <!-- FORM -->
+        <div class="lg:col-span-2 bg-white border rounded-lg p-8 shadow">
 
-      <form>
+          <h2 class="text-2xl font-bold mb-2">Envíanos un Mensaje</h2>
+          <p class="text-gray-500 mb-6">
+            Respuesta en menos de 24h
+          </p>
 
-        <label>Nombre Completo *</label>
-        <input type="text" name="nombre" placeholder="Juan Pérez" required>
+          <form class="space-y-6">
 
-        <br><br>
+            <div class="grid md:grid-cols-2 gap-4">
+              <input type="text" placeholder="Nombre completo"
+                class="w-full border rounded p-3 focus:outline-none focus:ring-2 focus:ring-[color:var(--accent)]">
 
-        <label>Email *</label>
-        <input type="email" name="email" placeholder="juan@ejemplo.com" required>
+              <input type="email" placeholder="Email"
+                class="w-full border rounded p-3 focus:outline-none focus:ring-2 focus:ring-[color:var(--accent)]">
+            </div>
 
-        <br><br>
+            <div class="grid md:grid-cols-2 gap-4">
+              <input type="tel" placeholder="Teléfono"
+                class="w-full border rounded p-3 focus:outline-none focus:ring-2 focus:ring-[color:var(--accent)]">
 
-        <label>Teléfono</label>
-        <input type="tel" name="telefono" placeholder="+34 600 123 456">
+              <input type="text" placeholder="Asunto"
+                class="w-full border rounded p-3 focus:outline-none focus:ring-2 focus:ring-[color:var(--accent)]">
+            </div>
 
-        <br><br>
+            <textarea rows="6" placeholder="Mensaje"
+              class="w-full border rounded p-3 resize-none focus:outline-none focus:ring-2 focus:ring-[color:var(--accent)]"></textarea>
 
-        <label>Asunto *</label>
-        <input type="text" name="asunto" placeholder="Consulta sobre fondos" required>
+            <button
+              class="bg-[color:var(--accent)] text-white px-6 py-3 rounded hover:opacity-90">
+              Enviar Mensaje
+            </button>
 
-        <br><br>
+          </form>
+        </div>
 
-        <label>Mensaje *</label>
-        <br>
-        <textarea name="mensaje" rows="6" placeholder="Cuéntanos en qué podemos ayudarte..." required></textarea>
+        <!-- INFO -->
+        <div class="space-y-6">
 
-        <br><br>
+          <div class="border rounded-lg p-6 flex gap-4">
+            <i class="fa-solid fa-phone text-[color:var(--accent)] text-xl mt-1"></i>
+            <div>
+              <h3 class="font-semibold mb-1">Teléfono</h3>
+              <p class="text-sm text-gray-500">+34 91 123 45 67</p>
+              <p class="text-sm text-gray-500">+34 93 765 43 21</p>
+            </div>
+          </div>
 
-        <button type="submit">Enviar Mensaje</button>
+          <div class="border rounded-lg p-6 flex gap-4">
+            <i class="fa-solid fa-envelope text-[color:var(--accent)] text-xl mt-1"></i>
+            <div>
+              <h3 class="font-semibold mb-1">Email</h3>
+              <p class="text-sm text-gray-500">info@stockmaster.com</p>
+              <p class="text-sm text-gray-500">asesores@stockmaster.com</p>
+            </div>
+          </div>
 
-      </form>
+          <div class="border rounded-lg p-6 flex gap-4">
+            <i class="fa-solid fa-location-dot text-[color:var(--accent)] text-xl mt-1"></i>
+            <div>
+              <h3 class="font-semibold mb-1">Oficina</h3>
+              <p class="text-sm text-gray-500">Paseo de la Castellana, 123</p>
+              <p class="text-sm text-gray-500">Madrid, España</p>
+            </div>
+          </div>
+
+          <div class="border rounded-lg p-6 flex gap-4">
+            <i class="fa-solid fa-clock text-[color:var(--accent)] text-xl mt-1"></i>
+            <div>
+              <h3 class="font-semibold mb-1">Horario</h3>
+              <p class="text-sm text-gray-500">L-V: 9:00 - 18:00</p>
+              <p class="text-sm text-gray-500">Sábado: 10:00 - 14:00</p>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
     </section>
 
-    <!-- Información de contacto -->
-    <section>
-      <h2>Información de Contacto</h2>
+    <!-- MAP -->
+    <section class="py-16 bg-seondary">
+      <div class="w-[1500px] mx-auto px-4">
 
-      <div>
-        <h3>Teléfono</h3>
-        <p>+34 91 123 45 67</p>
-        <p>+34 93 765 43 21</p>
+        <h2 class="text-3xl text-center mb-8 font-bold">Encuéntranos</h2>
+
+        <div class="aspect-video rounded-lg overflow-hidden shadow">
+          <iframe
+            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d551.034111233306!2d-3.691927791640795!3d40.45172357738652!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0xd4228e2de8ec137%3A0x847b05a212809f1e!2sGlobal%20Financiera!5e1!3m2!1ses!2ses!4v1776690183014!5m2!1ses!2ses"
+            class="w-full h-full border-0">
+          </iframe>
+        </div>
+
       </div>
-
-      <div>
-        <h3>Email</h3>
-        <p>info@stockmaster.com</p>
-        <p>asesores@stockmaster.com</p>
-      </div>
-
-      <div>
-        <h3>Oficina Principal</h3>
-        <p>Paseo de la Castellana, 123</p>
-        <p>28046 Madrid, España</p>
-      </div>
-
-      <div>
-        <h3>Horario</h3>
-        <p>Lunes a Viernes: 9:00 - 18:00</p>
-        <p>Sábados: 10:00 - 14:00</p>
-      </div>
-
-    </section>
-
-    <!-- Mapa -->
-    <section>
-      <h2>Encuéntranos</h2>
-
-      <iframe
-        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3036.5985098705574!2d-3.6896796!3d40.4378698"
-        width="100%"
-        height="300"
-        style="border:0;"
-        loading="lazy"
-        title="Ubicación">
-      </iframe>
-
     </section>
 
     <!-- FAQ -->
-    <section>
-      <h2>Preguntas Frecuentes</h2>
+    <section class="py-16">
+      <div class="max-w-3xl mx-auto px-4">
 
-      <article>
-        <h3>¿Tiempo de respuesta?</h3>
-        <p>Respondemos en menos de 24 horas laborables.</p>
-      </article>
+        <h2 class="text-3xl text-center mb-10 font-bold">Preguntas Frecuentes</h2>
 
-      <article>
-        <h3>¿Reuniones presenciales?</h3>
-        <p>Sí, en Madrid y Barcelona bajo cita previa.</p>
-      </article>
+        <div class="space-y-6">
 
-      <article>
-        <h3>¿Asesoría gratuita?</h3>
-        <p>La primera consulta es gratuita y sin compromiso.</p>
-      </article>
+          <div class="border rounded-lg p-6">
+            <h3 class="font-semibold mb-2">¿Tiempo de respuesta?</h3>
+            <p class="text-gray-500">Menos de 24h laborables.</p>
+          </div>
 
+          <div class="border rounded-lg p-6">
+            <h3 class="font-semibold mb-2">¿Reuniones presenciales?</h3>
+            <p class="text-gray-500">Sí, en Madrid y Barcelona.</p>
+          </div>
+
+          <div class="border rounded-lg p-6">
+            <h3 class="font-semibold mb-2">¿Asesoría gratuita?</h3>
+            <p class="text-gray-500">Primera consulta sin coste.</p>
+          </div>
+
+        </div>
+
+      </div>
     </section>
 
   </main>
+
+  <div id="footer"></div>
+
+  <script type="module" src="/js/components.js"></script>
 
 </body>
 </html>

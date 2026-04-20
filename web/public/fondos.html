@@ -2,108 +2,230 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Fondos de Inversión</title>
+  <title>StockMaster</title>
+  <link rel="stylesheet" href="../styles/index.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
+<body class="bg-white text-slate-900">
+  <div id="header"></div>
 
-<body>
+  <header class="bg-primary text-white py-16">
+    <div class="w-[1500px] mx-auto px-4">
+      <div class="flex items-center gap-3 mb-4">
+        📈
+        <h1 class="text-4xl md:text-5xl font-bold">
+          Nuestros Fondos de Inversión
+        </h1>
+      </div>
 
-  <header>
-    <h1>Nuestros Fondos de Inversión</h1>
-    <p>
-      Explora nuestra selección de fondos diseñados para diferentes perfiles de inversor.
-      Filtra por riesgo, rentabilidad y tipo de fondo.
-    </p>
+      <p class="text-white/80 max-w-3xl text-lg">
+        Explora nuestra selección de fondos diseñados para diferentes perfiles de inversor.
+        Filtra por riesgo, rentabilidad y tipo de fondo.
+      </p>
+    </div>
   </header>
 
   <main>
 
-    <section>
-      <h2>Filtros</h2>
+    <section class="bg-secondary py-8">
+      <div class="max-w-6xl mx-auto px-4">
 
-      <label>Riesgo:</label>
-      <select>
-        <option value="todos">Todos los Riesgos</option>
-        <option value="Bajo">Bajo</option>
-        <option value="Medio">Medio</option>
-        <option value="Alto">Alto</option>
-      </select>
+        <div class="flex flex-col md:flex-row gap-4 items-start md:items-center">
 
-      <label>Tipo:</label>
-      <select>
-        <option value="todos">Todos los Tipos</option>
-        <option value="Renta Variable">Renta Variable</option>
-        <option value="Renta Fija">Renta Fija</option>
-        <option value="Mixto">Mixto</option>
-        <option value="Sectorial">Sectorial</option>
-      </select>
+          <div class="flex items-center gap-2 text-slate-600">
+            <span class="font-medium">Filtrar por:</span>
+          </div>
+
+          <select class="border p-2 rounded w-full md:w-48">
+            <option>Todos los Riesgos</option>
+            <option>Bajo</option>
+            <option>Medio</option>
+            <option>Alto</option>
+          </select>
+
+          <select class="border p-2 rounded w-full md:w-48">
+            <option>Todos los Tipos</option>
+            <option>Renta Variable</option>
+            <option>Renta Fija</option>
+            <option>Mixto</option>
+            <option>Sectorial</option>
+          </select>
+
+        </div>
+
+      </div>
     </section>
 
-    <section>
+    <!-- FUNDS GRID -->
+    <section class="py-16">
+      <div class="w-[1500px] mx-auto px-4">
 
-      <article>
-        <h3>Fondo Global Equity</h3>
-        <p>Tipo: Renta Variable</p>
-        <p>Riesgo: Alto</p>
-        <p>Fondo de inversión en acciones globales de gran capitalización.</p>
-        <p>Rentabilidad: +15.3%</p>
-        <p>Comisión: 1.5%</p>
-        <p>Inversión mínima: €10,000</p>
-        <button>Invertir</button>
-      </article>
+        <div class="grid lg:grid-cols-2 gap-6">
 
-      <article>
-        <h3>Fondo Renta Fija Plus</h3>
-        <p>Tipo: Renta Fija</p>
-        <p>Riesgo: Bajo</p>
-        <p>Bonos y obligaciones de alta calidad crediticia.</p>
-        <p>Rentabilidad: +8.7%</p>
-        <p>Comisión: 0.8%</p>
-        <p>Inversión mínima: €5,000</p>
-        <button>Invertir</button>
-      </article>
+          <!-- CARD 1 -->
+          <div class="border-2 rounded-lg p-6 hover:border-accent hover:shadow-xl transition">
 
-      <article>
-        <h3>Fondo Mixto Balanceado</h3>
-        <p>Tipo: Mixto</p>
-        <p>Riesgo: Medio</p>
-        <p>60% renta variable y 40% renta fija.</p>
-        <p>Rentabilidad: +11.5%</p>
-        <p>Comisión: 1.2%</p>
-        <p>Inversión mínima: €7,500</p>
-        <button>Invertir</button>
-      </article>
+            <div class="flex justify-between items-start">
+              <div>
+                <h2 class="text-2xl font-bold mb-1">Fondo Global Equity</h2>
+                <p class="text-slate-500">Renta Variable</p>
+              </div>
 
-      <article>
-        <h3>Fondo Tecnología Global</h3>
-        <p>Tipo: Renta Variable</p>
-        <p>Riesgo: Alto</p>
-        <p>Empresas tecnológicas internacionales.</p>
-        <p>Rentabilidad: +22.1%</p>
-        <p>Comisión: 2.0%</p>
-        <p>Inversión mínima: €15,000</p>
-        <button>Invertir</button>
-      </article>
+              <span class="px-3 py-1 text-sm rounded-full bg-red-100 text-red-700">
+                Alto
+              </span>
+            </div>
 
-      <article>
-        <h3>Fondo Inmobiliario Europe</h3>
-        <p>Tipo: Sectorial</p>
-        <p>Riesgo: Medio</p>
-        <p>Inversión en activos inmobiliarios europeos.</p>
-        <p>Rentabilidad: +9.8%</p>
-        <p>Comisión: 1.3%</p>
-        <p>Inversión mínima: €8,000</p>
-        <button>Invertir</button>
-      </article>
+            <p class="text-slate-500 mt-4">
+              Fondo de inversión en acciones de empresas globales de alta capitalización.
+            </p>
 
+            <div class="grid grid-cols-2 gap-4 mt-6 border-t pt-4">
+
+              <div>
+                <p class="text-sm text-slate-500">Rentabilidad</p>
+                <p class="text-2xl text-accent">+15.3%</p>
+              </div>
+
+              <div>
+                <p class="text-sm text-slate-500">Comisión</p>
+                <p class="text-2xl">1.5%</p>
+              </div>
+
+            </div>
+
+            <div class="flex justify-between items-center mt-4">
+              <div>
+                <p class="text-sm text-slate-500">Inversión mínima</p>
+                <p class="font-semibold">€10,000</p>
+              </div>
+
+              <button class="bg-slate-900 text-white px-4 py-2 rounded hover:bg-slate-800">
+                Invertir Ahora
+              </button>
+            </div>
+
+          </div>
+
+          <!-- CARD 2 -->
+          <div class="border-2 rounded-lg p-6 hover:border-accent hover:shadow-xl transition">
+
+            <div class="flex justify-between items-start">
+              <div>
+                <h2 class="text-2xl font-bold mb-1">Fondo Renta Fija Plus</h2>
+                <p class="text-slate-500">Renta Fija</p>
+              </div>
+
+              <span class="px-3 py-1 text-sm rounded-full bg-green-100 text-green-700">
+                Bajo
+              </span>
+            </div>
+
+            <p class="text-slate-500 mt-4">
+              Inversión en bonos y obligaciones de gobiernos y empresas AAA.
+            </p>
+
+            <div class="grid grid-cols-2 gap-4 mt-6 border-t pt-4">
+
+              <div>
+                <p class="text-sm text-slate-500">Rentabilidad</p>
+                <p class="text-2xl text-accent">+8.7%</p>
+              </div>
+
+              <div>
+                <p class="text-sm text-slate-500">Comisión</p>
+                <p class="text-2xl">0.8%</p>
+              </div>
+
+            </div>
+
+            <div class="flex justify-between items-center mt-4">
+              <div>
+                <p class="text-sm text-slate-500">Inversión mínima</p>
+                <p class="font-semibold">€5,000</p>
+              </div>
+
+              <button class="bg-slate-900 text-white px-4 py-2 rounded hover:bg-slate-800">
+                Invertir Ahora
+              </button>
+            </div>
+
+          </div>
+
+          <!-- CARD 3 -->
+          <div class="border-2 rounded-lg p-6 hover:border-accent hover:shadow-xl transition">
+
+            <div class="flex justify-between items-start">
+              <div>
+                <h2 class="text-2xl font-bold mb-1">Fondo Mixto Balanceado</h2>
+                <p class="text-slate-500">Mixto</p>
+              </div>
+
+              <span class="px-3 py-1 text-sm rounded-full bg-yellow-100 text-yellow-700">
+                Medio
+              </span>
+            </div>
+
+            <p class="text-slate-500 mt-4">
+              Combinación equilibrada de renta variable y renta fija.
+            </p>
+
+            <div class="grid grid-cols-2 gap-4 mt-6 border-t pt-4">
+
+              <div>
+                <p class="text-sm text-slate-500">Rentabilidad</p>
+                <p class="text-2xl text-accent">+11.5%</p>
+              </div>
+
+              <div>
+                <p class="text-sm text-slate-500">Comisión</p>
+                <p class="text-2xl">1.2%</p>
+              </div>
+
+            </div>
+
+            <div class="flex justify-between items-center mt-4">
+              <div>
+                <p class="text-sm text-slate-500">Inversión mínima</p>
+                <p class="font-semibold">€7,500</p>
+              </div>
+
+              <button class="bg-slate-900 text-white px-4 py-2 rounded hover:bg-slate-800">
+                Invertir Ahora
+              </button>
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
     </section>
 
-    <section>
-      <h2>¿Necesitas ayuda?</h2>
-      <p>Contacta con un asesor financiero para elegir el fondo adecuado.</p>
-      <button>Solicitar asesoría</button>
+    <section class="py-16 bg-secondary">
+      <div class="max-w-3xl mx-auto text-center px-4">
+
+        <h2 class="text-3xl font-bold mb-4">
+          ¿Necesitas Ayuda para Elegir?
+        </h2>
+
+        <p class="text-slate-500 mb-6">
+          Nuestros asesores te ayudan a encontrar el fondo ideal para ti.
+        </p>
+
+        <button class="bg-accent text-white px-6 py-3 rounded">
+          Solicitar Asesoría Gratuita
+        </button>
+
+      </div>
     </section>
+
 
   </main>
+
+  <div id="footer"></div>
+
+  <script type="module" src="/js/components.js"></script>
 
 </body>
 </html>

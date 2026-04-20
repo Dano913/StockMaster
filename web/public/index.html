@@ -3,103 +3,151 @@
 <head>
     <meta charset="UTF-8">
     <title>StockMaster</title>
-    <link rel="stylesheet" href="../styles/output.css">
-    <link rel="stylesheet" href="../styles/theme.css">
+    <link rel="stylesheet" href="../styles/index.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
-<body>
+<body class="">
 
     <div id="header"></div>
 
-    <main class="main">
+    <main class="">
         <section>
-            <div>
-                <h1 class="">
-                    Inversión inteligente para gente diferente
-                </h1>
-
-                <p>
-
-                </p>
-
-                <div>
-                    <a href='#'>
-                        <button>
-                            Ver fondos →
-                        </button>
-                    </a>
-
-                    <a href='#'>
-                        <button>
-                            Solicitar asesoría
-                        </button>
-                    </a>
-                </div>
-            </div>
-        </section>
-
-        <section>
-            <div>
-                <h2>Nuestros servicios</h2>
             
-                <div>
-                    <div>
-                        <h3>Inversión Inteligente</h3>
-                        <p>Estrategias personalizadas basadas en análisis de mercado.</p>
-                    </div>
-                    <div>
-                        <h3>Gestión Segura</h3>
-                        <p>Protección de activos con las mejoras prácticas.</p>
-                    </div>
-                    <div>
-                        <h3>Rnedimiento Óptimo</h3>
-                        <p>Maximiza tus retornos con fondos diversificados.</p>
-                    </div>
-                    <div>
-                        <h3>Asesoría Experta</h3>
-                        <p>Más de 20 años de experiencia en el mercado</p>
+            <div class="h-[500px] overflow-hidden relative flex items-center justify-center">
+                <img
+                    src="/assets/images/rascacielo.jpg"
+                    alt="StockMaster"
+                    class="w-[2000px] absolute inset-0 w-full h-full object-cover -z-10"
+                />
+
+                <div class="absolute inset-0 bg-primary/80"></div>
+                <div class="w-[1500px] mx-auto px-4 relative z-10 flex justify-start">
+                    <div class="max-w-3xl">
+
+                    <h1 class="text-4xl md:text-6xl font-bold mb-6 text-white">
+                        Inversión Inteligente para tu Futuro Financiero
+                    </h1>
+
+                    <p class="text-xl md:text-2xl text-white/80 mb-8 text-white">
+                        Gestiona tu patrimonio con los mejores fondos de inversión del mercado.
+                    </p>
+
+                    <div class="flex flex-col sm:flex-row gap-4">
+
+                        <a href="/fondos"
+                        class="bg-accent rounded-lg font-semibold h-[40px] w-[140px] flex items-center justify-center">
+                        Ver Fondos →
+                        </a>
+
+                        <a href="/contacto"
+                        class="text-white border border-white rounded-lg font-semibold h-[40px] w-[140px] flex items-center justify-center">
+                        Solicitar Asesoría
+                        </a>
+
                     </div>
                 </div>
             </div>
         </section>
 
-        <section>
-            <div>
-                <h2>Fondos destacados</h2>
+        <section class="py-20 bg-secondary">
+            <div class="w-[1500px] mx-auto px-4">
 
-                <div>
-                    <div>
-                        <h3>Fondo 1</h3>
-                        <p>Rentabilidad anual</p>
-                        <div>%</div>
-                    </div>
-                    <div>
-                        <h3>Fondo 2</h3>
-                        <p>Rentabilidad anual</p>
-                        <div>%</div>
-                    </div>
-                    <div>
-                        <h3>Fondo 3</h3>
-                        <p>Rentabilidad anual</p>
-                        <div>%</div>
-                    </div>
-                    <div>
-                        <h3>Fondo 4</h3>
-                        <p>Rentabilidad anual</p>
-                        <div>%</div>
-                    </div>
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl md:text-4xl font-bold mb-3">Nuestros Servicios</h2>
+                    <p class="text-slate-500">Ofrecemos soluciones integrales de inversión diseñadas para cada tipo de inversor</p>
                 </div>
+
+                <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+
+                <div class="bg-white p-6 rounded shadow">
+                    <i class="fa-solid fa-arrow-trend-up text-4xl text-accent"></i>
+                    <h3 class="font-bold mt-3">Inversión Inteligente</h3>
+                    <p class="text-sm text-slate-500 mt-2">Estrategias personalizadas basadas en análisis de mercado y tu perfil de riesgo.</p>
+                </div>
+
+                <div class="bg-white p-6 rounded shadow">
+                    <i class="fa-solid fa-shield text-4xl text-accent"></i>
+                    <h3 class="font-bold mt-3">Gestión Segura</h3>
+                    <p class="text-sm text-slate-500 mt-2">Protección de activos con las mejores prácticas de seguridad financiera.</p>
+                </div>
+
+                <div class="bg-white p-6 rounded shadow">
+                    <i class="fa-solid fa-chart-column text-4xl text-accent"></i>
+                    <h3 class="font-bold mt-3">Rendimiento Óptimo</h3>
+                    <p class="text-sm text-slate-500 mt-2">Maximiza tus retornos con fondos diversificados y alta rentabilidad</p>
+                </div>
+
+                <div class="bg-white p-6 rounded shadow">
+                    <i class="fa-solid fa-users text-4xl text-accent"></i>
+                    <h3 class="font-bold mt-3">Asesoría Experta</h3>
+                    <p class="text-sm text-slate-500 mt-2">Equipo de gestores con más de 20 años de experiencia en el mercado</p>
+                </div>
+
+                </div>
+            </div>
+            </section>
+
+        <section class="py-20">
+            <div class="w-[1500px] mx-auto px-4">
+
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl md:text-4xl font-bold mb-3">Fondos Destacados</h2>
+                    <p class="text-slate-500">Selección de nuestros fondos con mejor desempeño durante el último año</p>
+                </div>
+
+                <div class="grid md:grid-cols-3 gap-6">
+
+                    <div class="border p-6 rounded-xl hover:border-accent">
+                        <h3 class="font-bold">Global Equity</h3>
+                        <p class="text-accent text-2xl mt-3">+15.3%</p>
+                        <p class="text-sm text-slate-500 mt-2">Riesgo: Alto</p>
+                    </div>
+
+                    <div class="border p-6 rounded-xl hover:border-accent">
+                        <h3 class="font-bold">Renta Fija Plus</h3>
+                        <p class="text-accent text-2xl mt-3">+8.7%</p>
+                        <p class="text-sm text-slate-500 mt-2">Riesgo: Bajo</p>
+                    </div>
+
+                    <div class="border p-6 rounded-xl hover:border-accent">
+                        <h3 class="font-bold">Mixto Balanceado</h3>
+                        <p class="text-accent text-2xl mt-3">+11.5%</p>
+                        <p class="text-sm text-slate-500 mt-2">Riesgo: Medio</p>
+                    </div>
+
+                </div>
+
+                <div class="text-center mt-10">
+
+                    <a href="/fondos"
+                        class="bg-primary text-white px-6 py-3 rounded-lg font-semibold transition">
+                        Ver Todos los Fondos
+                    </a>
+
+                </div>
+
             </div>
         </section>
 
-        <section>
-            <h2>¿Listo para Invertar?</h2>
+        <section class="py-20 bg-accent text-white text-center">
 
-            <button>Empiza ahora →</button>
+            <h2 class="text-3xl md:text-4xl font-bold mb-6">
+                ¿Listo para comenzar a Invertir?
+            </h2>
+
+            <p class="mb-8 max-w-2xl mx-auto text-xl">
+                Únete a más de 10.000 inversores que confian en StockMaster para gestionar su patrimonio
+            </p>
+
+            <a href="/contacto"
+                class="bg-slate-900 px-6 py-3 rounded font-semibold">
+                Empieza Ahora →
+            </a>
         </section>
     </main>
     
     <div id="footer"></div>
 
-    <script src="/js/components.js"></script>
+    <script type="module" src="/js/components.js"></script>
 </body>
 </html>
