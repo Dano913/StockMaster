@@ -2,6 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>StockMaster</title>
   <link rel="stylesheet" href="../styles/index.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
@@ -10,8 +11,8 @@
   <div id="header"></div>
 
   <!-- HEADER -->
-  <header class="bg-secondary py-16">
-    <div class="w-[1500px] mx-auto px-4">
+  <header class="bg-primary text-white py-16">
+    <div class="max-w-6xl h-[200px] mx-auto px-4 flex flex-col justify-end">
       <h1 class="text-4xl md:text-5xl mb-4 font-bold">Contacta con Nosotros</h1>
       <p class=" max-w-3xl text-lg">
         Estamos aquí para ayudarte. Envíanos tu consulta y te responderemos lo antes posible.
@@ -22,7 +23,7 @@
   <main>
     <!-- CONTACT -->
     <section class="py-16">
-      <div class="w-[1500px] mx-auto px-4 grid lg:grid-cols-3 gap-8">
+      <div class="max-w-6xl mx-auto px-4 grid lg:grid-cols-3 gap-8">
 
         <!-- FORM -->
         <div class="lg:col-span-2 bg-white border rounded-lg p-8 shadow">
@@ -54,7 +55,7 @@
               class="w-full border rounded p-3 resize-none focus:outline-none focus:ring-2 focus:ring-[color:var(--accent)]"></textarea>
 
             <button
-              class="bg-[color:var(--accent)] text-white px-6 py-3 rounded hover:opacity-90">
+              class="bg-accent text-white px-6 py-3 rounded-lg hover:opacity-90 cursor-pointer">
               Enviar Mensaje
             </button>
 
@@ -65,7 +66,7 @@
         <div class="space-y-6">
 
           <div class="border rounded-lg p-6 flex gap-4">
-            <i class="fa-solid fa-phone text-[color:var(--accent)] text-xl mt-1"></i>
+            <i class="fa-solid fa-phone text-accent text-xl mt-1"></i>
             <div>
               <h3 class="font-semibold mb-1">Teléfono</h3>
               <p class="text-sm text-gray-500">+34 91 123 45 67</p>
@@ -107,7 +108,7 @@
 
     <!-- MAP -->
     <section class="py-16 bg-seondary">
-      <div class="w-[1500px] mx-auto px-4">
+      <div class="max-w-6xl mx-auto px-4">
 
         <h2 class="text-3xl text-center mb-8 font-bold">Encuéntranos</h2>
 
@@ -123,7 +124,7 @@
 
     <!-- FAQ -->
     <section class="py-16">
-      <div class="max-w-3xl mx-auto px-4">
+      <div class="max-w-6xl mx-auto px-4">
 
         <h2 class="text-3xl text-center mb-10 font-bold">Preguntas Frecuentes</h2>
 
