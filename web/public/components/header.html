@@ -1,0 +1,41 @@
+<header class="bg-primary text-primary-foreground fixed top-0 z-50 p-3 justify-center flex w-full">
+  <div class="flex items-center justify-between w-[1500px]">
+
+    <!-- Logo -->
+    <a href="index.html" class="flex items-center gap-2 text-2xl font-bold hover:opacity-80 transition">
+      📈 <span>StockMaster</span>
+    </a>
+
+    <!-- Desktop nav -->
+    <nav class="hidden md:flex items-center gap-8 text-sm">
+      <a href="index.html" class="hover:text-accent">Inicio</a>
+      <a href="fondos.html" class="hover:text-accent">Fondos</a>
+      <a href="sobre-nosotros.html" class="hover:text-accent">Sobre Nosotros</a>
+      <a href="tarifas.html" class="hover:text-accent">Tarifas</a>
+      <a href="contacto.html" class="hover:text-accent">Contacto</a>
+    </nav>
+
+    <!-- Mobile button -->
+    <button class="md:hidden text-2xl" onclick="toggleMenu()">
+      ☰
+    </button>
+
+  </div>
+
+  <!-- Mobile nav -->
+  <nav class="md:hidden hidden flex-col gap-4 mt-4 pb-4">
+    <a href="index.html">Inicio</a>
+    <a href="fondos.html">Fondos</a>
+    <a href="sobre-nosotros.html">Sobre Nosotros</a>
+    <a href="tarifas.html">Tarifas</a>
+    <a href="contacto.html">Contacto</a>
+  </nav>
+</header>
+
+<script>
+  function toggleMenu() {
+    const menu = document.getElementById("mobileMenu");
+    menu.classList.toggle("hidden");
+    menu.classList.toggle("flex");
+  }
+</script>
