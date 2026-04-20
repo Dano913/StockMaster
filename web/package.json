@@ -1,11 +1,11 @@
 {
   "scripts": {
-    "build": "tailwindcss -i ./styles/index.css -o ./styles/output.css",
-    "watch": "tailwindcss -i ./styles/index.css -o ./styles/output.css --watch"
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
   },
   "devDependencies": {
-    "autoprefixer": "^10.5.0",
-    "postcss": "^8.5.3",
-    "tailwindcss": "^3.4.19"
+    "@tailwindcss/vite": "^4.0.0",
+    "vite": "^6.0.0"
   }
 }
