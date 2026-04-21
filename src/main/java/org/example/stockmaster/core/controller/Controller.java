@@ -5,6 +5,7 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import javafx.animation.AnimationTimer;
+
 import org.example.stockmaster.core.model.Asset;
 import org.example.stockmaster.core.model.Candle;
 import org.example.stockmaster.core.services.DataStore;
@@ -16,21 +17,15 @@ public class Controller {
     @FXML private Canvas canvas;
 
     // -------------------------
-    // MARKET
+    // MARKET ENGINE (NUEVO)
     // -------------------------
-    private Asset activo = new Asset(30000, 0.003, 0.02, 1.5);
-    private ArrayList<Candle> candles = new ArrayList<>();
-    private Candle currentCandle;
+    private MarketEngine market;
+    private ArrayList<Candle> candles;
 
+    // -------------------------
+    // VISUAL STATE
+    // -------------------------
     private double candleWidth = 8;
-    private int step = 0;
-    private int timeframeSteps = 10;
-    private int counter = 0;
-    private static final int SECONDS_PER_CANDLE = 1;
-
-    // -------------------------
-    // CAMERA / VIEW STATE
-    // -------------------------
     private double priceZoom = 1.0;
     private double priceOffset = 0;
     private boolean yManual = false;
@@ -67,10 +62,13 @@ public class Controller {
 
         candles = DataStore.cargar();
 
-        // Detectar zona del mouse
+        market = new MarketEngine(
+                new Asset(30000, 0.003, 0.02, 1.5),
+                candles
+        );
+
         canvas.setOnMouseMoved(e -> updateHoverZone(e.getX(), e.getY()));
 
-        // Scroll = zoom contextual
         canvas.setOnScroll(e -> {
             switch (hoverZone) {
 
@@ -90,7 +88,6 @@ public class Controller {
             }
         });
 
-        // Drag horizontal (pan)
         canvas.setOnMousePressed(e -> {
             dragStartX = e.getX();
             dragStartScrollX = scrollX;
@@ -101,7 +98,6 @@ public class Controller {
             scrollX = dragStartScrollX + (e.getX() - dragStartX);
         });
 
-        // Reset zoom Y
         canvas.setOnMouseClicked(e -> {
             if (e.getClickCount() == 2) {
                 yManual = false;
@@ -110,38 +106,23 @@ public class Controller {
             }
         });
 
-        // Loop principal
         AnimationTimer timer = new AnimationTimer() {
             @Override
             public void handle(long now) {
-                actualizar();
+
+                // 🔥 SOLO LÓGICA DE MERCADO AQUÍ YA NO EXISTE
+                market.update();
+
+                if (Math.random() < 0.01) {
+                    market.changeTrend();
+                }
+
                 dibujar();
 
-                counter++;
-
-                if (counter % 40 == 0) activo.cambiarTendencia();
-                if (counter % 200 == 0) DataStore.guardar(candles);
             }
         };
 
         timer.start();
-    }
-
-    // -------------------------
-    // MARKET UPDATE
-    // -------------------------
-    private void actualizar() {
-        double price = activo.tick();
-
-        if (step == 0) currentCandle = new Candle(price);
-
-        currentCandle.update(price);
-        step++;
-
-        if (step >= timeframeSteps) {
-            candles.add(currentCandle);
-            step = 0;
-        }
     }
 
     // -------------------------
@@ -157,16 +138,22 @@ public class Controller {
         double cW = W - PAD_LEFT - PAD_RIGHT;
         double cH = H - PAD_TOP - PAD_BOTTOM;
 
-        // background
         g.clearRect(0, 0, W, H);
         g.setFill(Color.web("#111111"));
         g.fillRect(0, 0, W, H);
+        g.setFill(Color.web("#00ffcc"));
+        g.setFont(javafx.scene.text.Font.font("Monospaced", 14));
+
+        g.fillText(
+                "PRICE: " + String.format("%.2f", market.getLastPrice()),
+                canvas.getWidth() - 140,
+                20
+        );
+
+        candles = market.getCandles();
 
         if (candles.size() < 2) return;
 
-        // -------------------------
-        // VISIBLE RANGE
-        // -------------------------
         int maxVisible = (int)(cW / candleWidth) + 2;
         int startIdx = Math.max(0, candles.size() - maxVisible + (int)(scrollX / candleWidth));
         int endIdx = Math.min(candles.size(), startIdx + maxVisible + 2);
@@ -186,77 +173,10 @@ public class Controller {
         rawMax += padding;
         rawMin -= padding;
 
-        double priceMin, priceMax;
-
-        if (yManual) {
-            double center = (rawMax + rawMin) / 2 + priceOffset;
-            double halfSpan = (rawRange / 2 + padding) / priceZoom;
-            priceMin = center - halfSpan;
-            priceMax = center + halfSpan;
-        } else {
-            priceMin = rawMin;
-            priceMax = rawMax;
-        }
+        double priceMin = rawMin;
+        double priceMax = rawMax;
 
         double priceRange = priceMax - priceMin;
-
-        // -------------------------
-        // GRID Y
-        // -------------------------
-        double[] yTicks = niceTicks(priceMin, priceMax, 7);
-
-        g.setStroke(Color.web("#2a2a2a"));
-        g.setFill(Color.web("#888888"));
-        g.setFont(javafx.scene.text.Font.font("Monospaced", 10));
-
-        for (double tick : yTicks) {
-            double y = priceToY(tick, priceMin, priceRange, cH);
-            double ry = PAD_TOP + y;
-
-            if (ry < PAD_TOP || ry > PAD_TOP + cH) continue;
-
-            // línea grid
-            g.setStroke(Color.web("#2a2a2a"));
-            g.strokeLine(PAD_LEFT, ry, PAD_LEFT + cW, ry);
-
-            // precio alineado a la derecha del eje
-            g.setFill(Color.web("#aaaaaa"));
-            g.fillText(
-                    String.format("%.2f", tick),
-                    PAD_LEFT - 8,   // más pegado al borde
-                    ry + 3
-            );
-        }
-
-        // -------------------------
-        // GRID X
-        // -------------------------
-        int xStep = Math.max(1, (int)(50 / candleWidth));
-
-        for (int i = startIdx; i < endIdx; i += xStep) {
-
-            double x = PAD_LEFT + (i - startIdx) * candleWidth;
-
-            int seconds = i * SECONDS_PER_CANDLE;
-
-            int minutes = seconds / 60;
-            int secs = seconds % 60;
-
-            String label = minutes + ":" + String.format("%02d", secs);
-
-            g.setFill(Color.web("#777777"));
-            g.fillText(label, x - 10, PAD_TOP + cH + 18);
-
-            g.setStroke(Color.web("#222222"));
-            g.strokeLine(x, PAD_TOP, x, PAD_TOP + cH);
-        }
-
-        // -------------------------
-        // AXIS
-        // -------------------------
-        g.setStroke(Color.web("#555555"));
-        g.strokeLine(PAD_LEFT, PAD_TOP, PAD_LEFT, PAD_TOP + cH);
-        g.strokeLine(PAD_LEFT, PAD_TOP + cH, PAD_LEFT + cW, PAD_TOP + cH);
 
         // -------------------------
         // CANDLES
@@ -289,23 +209,11 @@ public class Controller {
             );
         }
 
-        // -------------------------
-        // CURSOR FEEDBACK
-        // -------------------------
         switch (hoverZone) {
             case Y_AXIS -> canvas.setCursor(javafx.scene.Cursor.N_RESIZE);
             case CHART -> canvas.setCursor(javafx.scene.Cursor.CROSSHAIR);
             case X_AXIS -> canvas.setCursor(javafx.scene.Cursor.E_RESIZE);
         }
-
-        // -------------------------
-        // CLIP
-        // -------------------------
-        g.setFill(Color.web("#111111"));
-        g.fillRect(0, 0, PAD_LEFT, H);
-        g.fillRect(PAD_LEFT + cW, 0, W - PAD_LEFT - cW, H);
-        g.fillRect(0, PAD_TOP + cH, W, PAD_BOTTOM);
-        g.fillRect(0, 0, W, PAD_TOP);
     }
 
     // -------------------------
@@ -332,40 +240,7 @@ public class Controller {
         return height - ((price - min) / range) * height;
     }
 
-    private double[] niceTicks(double min, double max, int count) {
-        double raw = (max - min) / count;
-        double mag = Math.pow(10, Math.floor(Math.log10(raw)));
-
-        double[] candidates = {1, 2, 2.5, 5, 10};
-
-        double step = mag;
-
-        for (double c : candidates) {
-            if (c * mag >= raw) {
-                step = c * mag;
-                break;
-            }
-        }
-
-        double first = Math.ceil(min / step) * step;
-
-        ArrayList<Double> ticks = new ArrayList<>();
-
-        for (double v = first; v <= max; v += step) {
-            ticks.add(v);
-        }
-
-        return ticks.stream().mapToDouble(Double::doubleValue).toArray();
-    }
-
     private double clamp(double v, double min, double max) {
         return Math.max(min, Math.min(max, v));
     }
-
-    // -------------------------
-    // CONTROLS
-    // -------------------------
-    public void zoomIn()  { candleWidth = Math.min(candleWidth + 1, 30); }
-    public void zoomOut() { candleWidth = Math.max(candleWidth - 1, 3); }
-    public void save()    { DataStore.guardar(candles); }
 }
