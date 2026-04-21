@@ -1,4 +1,4 @@
-package org.example.stockmaster.core.controller;          // Paquete donde se encuentra la clase
+package org.example.stockmaster.core.chart;          // Paquete donde se encuentra la clase
 import org.example.stockmaster.core.model.Candle;        // Importa el modelo de vela (OHLC)
 import java.util.List;                                  // Lista genérica para manejar candles
 
@@ -44,8 +44,8 @@ public class ChartState {                              // Clase que gestiona el 
 
         for (int i = v.startIndex; i < v.endIndex; i++) {    // Recorre solo velas visibles
             Candle c = candles.get(i);                      // Obtiene vela actual
-            max = Math.max(max, c.high);                   // Actualiza máximo
-            min = Math.min(min, c.low);                   // Actualiza mínimo
+            max = Math.max(max, c.getHigh());              // Actualiza máximo
+            min = Math.min(min, c.getLow());              // Actualiza mínimo
         }
 
         double range = (max - min);                    // Calcula rango de precios

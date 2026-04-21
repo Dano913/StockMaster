@@ -1,11 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.Pane?>
 
 <BorderPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
             fx:controller="org.example.stockmaster.javafx.controller.DashboardViewController">
 
+    <!-- CENTRO: zona de gráficos -->
+    <center>
 
+        <ScrollPane fitToWidth="true" fitToHeight="true">
+
+            <content>
+                <Pane fx:id="canvasContainer"/>
+            </content>
+
+        </ScrollPane>
+
+    </center>
 
 </BorderPane>
