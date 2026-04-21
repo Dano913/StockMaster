@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.chart.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="org.example.stockmaster.javafx.controller.AssetViewController">
+
+    <!-- ===================== -->
+    <!-- TOP: HEADER ASSET -->
+    <!-- ===================== -->
+    <top>
+        <VBox spacing="5" style="-fx-padding: 15; -fx-background-color: #1e1e1e;">
+
+            <Label fx:id="assetNameLabel"
+                   text="BTC / USD"
+                   style="-fx-font-size: 22px; -fx-text-fill: white;"/>
+
+            <HBox spacing="20">
+                <Label fx:id="priceLabel"
+                       text="Price: $0"
+                       style="-fx-text-fill: #00ff99; -fx-font-size: 16px;"/>
+
+                <Label fx:id="changeLabel"
+                       text="+0.00%"
+                       style="-fx-text-fill: #00ff99; -fx-font-size: 16px;"/>
+
+                <Label fx:id="typeLabel"
+                       text="Crypto"
+                       style="-fx-text-fill: #aaaaaa;"/>
+            </HBox>
+
+        </VBox>
+    </top>
+
+    <!-- ===================== -->
+    <!-- CENTER: CHART -->
+    <!-- ===================== -->
+    <center>
+        <Pane fx:id="canvasContainer"/>
+    </center>
+
+    <!-- ===================== -->
+    <!-- RIGHT: VARIABLES -->
+    <!-- ===================== -->
+    <right>
+        <VBox spacing="10" style="-fx-padding: 10; -fx-pref-width: 300;">
+
+            <Label text="Variables"
+                   style="-fx-font-size: 16px;"/>
+
+            <TableView fx:id="variablesTable" prefHeight="250">
+
+                <columns>
+                    <TableColumn text="Variable"/>
+                    <TableColumn text="Weight"/>
+                    <TableColumn text="Impact"/>
+                </columns>
+
+            </TableView>
+
+            <Button text="Add Variable"/>
+            <Button text="Recalculate Model"/>
+
+        </VBox>
+    </right>
+
+    <!-- ===================== -->
+    <!-- BOTTOM: IMPACT + COMPARISON -->
+    <!-- ===================== -->
+    <bottom>
+        <HBox spacing="10" style="-fx-padding: 10;">
+
+            <!-- IMPACT SCORE -->
+            <VBox spacing="5" style="-fx-pref-width: 200;">
+                <Label text="Model Score"/>
+                <ProgressBar fx:id="scoreBar"/>
+                <Label fx:id="scoreLabel" text="0 / 100"/>
+            </VBox>
+
+            <!-- RISK -->
+            <VBox spacing="5" style="-fx-pref-width: 200;">
+                <Label text="Risk Level"/>
+                <ProgressBar fx:id="riskBar"/>
+                <Label fx:id="riskLabel" text="Medium"/>
+            </VBox>
+
+            <!-- ACTIONS -->
+            <VBox spacing="5">
+                <Label text="Actions"/>
+                <Button text="Buy"/>
+                <Button text="Sell"/>
+                <Button text="Simulate"/>
+            </VBox>
+
+        </HBox>
+    </bottom>
+
+</BorderPane>

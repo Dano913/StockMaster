@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="org.example.stockmaster.javafx.controller.GestorPanelController">
+
+    <!-- CENTER -->
+    <center>
+        <TabPane tabClosingPolicy="UNAVAILABLE">
+
+            <!-- DASHBOARD -->
+            <Tab text="Dashboard">
+                <content>
+                    <fx:include source="dashboard-view.fxml"/>
+                </content>
+            </Tab>
+
+
+            <!-- FONDO GLOBAL -->
+            <Tab text="Fondo Global">
+                <content>
+                    <fx:include source="fund-view.fxml"/>
+                </content>
+            </Tab>
+
+            <!-- ACTIVOS -->
+            <Tab text="Activos">
+                <content>
+                    <fx:include source="asset-view.fxml"/>
+                </content>
+            </Tab>
+
+            <!-- 👤 NUEVA TAB: PROFILE USER -->
+            <Tab text="User Profile">
+                <content>
+                    <fx:include source="user-view.fxml"/>
+                </content>
+            </Tab>
+
+        </TabPane>
+    </center>
+
+</BorderPane>

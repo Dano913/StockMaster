@@ -95,6 +95,7 @@ public class UserService {
         admin.setEmail("admin@gmail.com");
         admin.setPassword("password1");
         admin.setRole("admin");
+        admin.setProfile("admin");
 
         User user = new User();
         user.setId("2");
@@ -102,6 +103,7 @@ public class UserService {
         user.setEmail("maria@gmail.com");
         user.setPassword("password2");
         user.setRole("user");
+        user.setProfile("user");
 
         users.addAll(admin, user);
     }

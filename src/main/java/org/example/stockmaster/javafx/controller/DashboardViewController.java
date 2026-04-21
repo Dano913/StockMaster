@@ -1,4 +1,4 @@
 package org.example.stockmaster.javafx.controller;
 
-public class DashboardController {
+public class DashboardViewController {
 }
