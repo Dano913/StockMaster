@@ -46,7 +46,7 @@ public class MainApp extends Application {
 
         mainController.setContent(loginView);
 
-        Scene scene = new Scene(root, 900, 600);
+        Scene scene = new Scene(root, 1700, 900);
         stage.setScene(scene);
         stage.setTitle("Login");
         stage.setResizable(false);

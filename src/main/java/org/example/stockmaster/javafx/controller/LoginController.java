@@ -68,7 +68,7 @@ public class LoginController implements Initializable {
 
         switch (profile.toLowerCase()) {
             case "admin" -> view = "/org/example/stockmaster/admin-view.fxml";
-            case "user", "usuario" -> view = "/org/example/stockmaster/user-view.fxml";
+            case "user", "usuario" -> view = "/org/example/stockmaster/gestor-panel-view.fxml";
             default -> {
                 showError("Error", "Unknown profile: " + profile);
                 return;

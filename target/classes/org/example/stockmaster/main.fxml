@@ -10,10 +10,10 @@
            style="-fx-background-color: black;"
            alignment="TOP_CENTER">
 
-    <!-- Contenido dinámico -->
-    <AnchorPane fx:id="contentArea"/>
-
     <!-- Logo -->
     <ImageView fx:id="background"/>
+
+    <!-- Contenido dinámico -->
+    <AnchorPane fx:id="contentArea"/>
 
 </StackPane>
