@@ -12,5 +12,6 @@ module org.example.stockmaster {
     exports org.example.stockmaster.javafx;
     exports org.example.stockmaster.javafx.controller;
     opens org.example.stockmaster.javafx.controller to javafx.fxml;
+    opens org.example.stockmaster.javafx.model to com.google.gson;
     opens org.example.stockmaster.core.model to com.google.gson;
 }

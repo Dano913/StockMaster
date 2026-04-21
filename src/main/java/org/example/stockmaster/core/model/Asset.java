@@ -1,47 +1,84 @@
 package org.example.stockmaster.core.model;
 
-import java.util.Random;
+import lombok.Getter;
+import lombok.Setter;
 
 public class Asset {
 
-    double precio;
-    double tendencia;
-    double volatilidad;
-    double factorFib;
+    // -------------------------
+    // GETTERS
+    // -------------------------
+    // -------------------------
+    // IDENTIDAD
+    // -------------------------
+    @Getter
+    private int id;
+    @Getter
+    private String ticker;
+    @Getter
+    private String name;
+    @Getter
+    private String isin;
 
-    Random rand = new Random();
+    // -------------------------
+    // MERCADO
+    // -------------------------
+    @Getter
+    private String type;
+    @Getter
+    private String sector;
+    private double marketCap;
 
-    public Asset(double precio, double tendencia, double volatilidad, double factorFib) {
-        this.precio = precio;
-        this.tendencia = tendencia;
-        this.volatilidad = volatilidad;
-        this.factorFib = factorFib;
+    // -------------------------
+    // COMPORTAMIENTO
+    // -------------------------
+    @Setter
+    private double volatility;
+
+    @Setter
+    private double initialPrice;
+
+    @Getter
+    @Setter
+    private String risk;
+
+    @Getter
+    @Setter
+    private String liquidity;
+
+    // -------------------------
+    // CONSTRUCTOR
+    // -------------------------
+    public Asset(int id,
+                 String ticker,
+                 String name,
+                 String isin,
+                 String type,
+                 String sector,
+                 double marketCap,
+                 double initialPrice,
+                 double volatility,
+                 String risk,
+                 String liquidity) {
+
+        this.id = id;
+        this.ticker = ticker;
+        this.name = name;
+        this.isin = isin;
+
+        this.type = type;
+        this.sector = sector;
+        this.marketCap = marketCap;
+        this.initialPrice = initialPrice;
+        this.volatility = volatility;
+        this.risk = risk;
+        this.liquidity = liquidity;
     }
 
-    public double tick() {
+    public double getVolatility() { return volatility; }
 
-        double ruido = (rand.nextDouble() * 2 - 1) * volatilidad;
-        double cambio = tendencia + ruido;
-
-        cambio = Math.max(Math.min(cambio, 0.1), -0.1);
-
-        precio = precio * (1 + cambio);
-
-        return precio;
+    public double getInitialPrice() {
+        return 0;
     }
 
-    public void cambiarTendencia() {
-        double fase = rand.nextDouble();
-
-        if (fase < 0.33) {
-            tendencia = 0.001;
-            volatilidad = 0.03;
-        } else if (fase < 0.66) {
-            tendencia = 0;
-            volatilidad = 0.01;
-        } else {
-            tendencia = -0.001;
-            volatilidad = 0.02;
-        }
-    }
 }
