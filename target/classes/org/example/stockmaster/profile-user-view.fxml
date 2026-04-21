@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns:fx="http://javafx.com/fxml"
+      fx:controller="org.example.stockmaster.javafx.controller.ProfileController"
+      spacing="5"
+      prefHeight="500"
+      maxHeight="500"
+      alignment="CENTER"
+      style="-fx-padding: 5;">
+
+    <!-- CARD -->
+    <VBox spacing="15"
+          alignment="CENTER"
+          prefHeight="500"
+          maxHeight="500"
+          style="-fx-background-color: rgba(255,255,255,0.6);
+        -fx-background-radius: 20;
+        -fx-border-radius: 20;
+        -fx-border-color: rgba(255,255,255,0.7);
+        -fx-border-width: 1;
+        -fx-padding: 25;
+        -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 20, 0.3, 0, 4);">
+
+        <Label text="👤 User Profile"
+               style="-fx-font-size: 22px; -fx-font-weight: bold;"/>
+
+        <Separator/>
+
+        <GridPane hgap="15" vgap="10">
+
+            <Label text="ID:" GridPane.rowIndex="0" GridPane.columnIndex="0"
+                   style="-fx-font-size: 16px; -fx-font-weight: bold;"/>
+            <Label fx:id="idLabel" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+
+            <Label text="Name:" GridPane.rowIndex="1" GridPane.columnIndex="0"
+                   style="-fx-font-size: 16px; -fx-font-weight: bold;"/>
+            <Label fx:id="nombreLabel" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+            <TextField fx:id="nombreField" GridPane.rowIndex="1" GridPane.columnIndex="1"
+                       visible="false" managed="false"
+                       style="-fx-background-color: rgba(255,255,255,0.5); -fx-background-radius: 6; -fx-padding: 4 8;"/>
+
+            <Label text="Email:" GridPane.rowIndex="2" GridPane.columnIndex="0"
+                   style="-fx-font-size: 16px; -fx-font-weight: bold;"/>
+            <Label fx:id="emailLabel" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+            <TextField fx:id="emailField" GridPane.rowIndex="2" GridPane.columnIndex="1"
+                       visible="false" managed="false"
+                       style="-fx-background-color: rgba(255,255,255,0.5); -fx-background-radius: 6; -fx-padding: 4 8;"/>
+
+            <Label text="DNI:" GridPane.rowIndex="3" GridPane.columnIndex="0"
+                   style="-fx-font-size: 16px; -fx-font-weight: bold;"/>
+            <Label fx:id="dniLabel" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+            <TextField fx:id="dniField" GridPane.rowIndex="3" GridPane.columnIndex="1"
+                       visible="false" managed="false"
+                       style="-fx-background-color: rgba(255,255,255,0.5); -fx-background-radius: 6; -fx-padding: 4 8;"/>
+
+            <Label text="Age:" GridPane.rowIndex="4" GridPane.columnIndex="0"
+                   style="-fx-font-size: 16px; -fx-font-weight: bold;"/>
+            <Label fx:id="edadLabel" GridPane.rowIndex="4" GridPane.columnIndex="1"/>
+            <TextField fx:id="edadField" GridPane.rowIndex="4" GridPane.columnIndex="1"
+                       visible="false" managed="false"
+                       style="-fx-background-color: rgba(255,255,255,0.5); -fx-background-radius: 6; -fx-padding: 4 8;"/>
+
+            <Label text="Gender:" GridPane.rowIndex="5" GridPane.columnIndex="0"
+                   style="-fx-font-size: 16px; -fx-font-weight: bold;"/>
+            <Label fx:id="generoLabel" GridPane.rowIndex="5" GridPane.columnIndex="1"/>
+            <TextField fx:id="generoField" GridPane.rowIndex="5" GridPane.columnIndex="1"
+                       visible="false" managed="false"
+                       style="-fx-background-color: rgba(255,255,255,0.5); -fx-background-radius: 6; -fx-padding: 4 8;"/>
+
+            <Label text="Phone:" GridPane.rowIndex="6" GridPane.columnIndex="0"
+                   style="-fx-font-size: 16px; -fx-font-weight: bold;"/>
+            <Label fx:id="telefonoLabel" GridPane.rowIndex="6" GridPane.columnIndex="1"/>
+            <TextField fx:id="telefonoField" GridPane.rowIndex="6" GridPane.columnIndex="1"
+                       visible="false" managed="false"
+                       style="-fx-background-color: rgba(255,255,255,0.5); -fx-background-radius: 6; -fx-padding: 4 8;"/>
+
+            <Label text="Role:" GridPane.rowIndex="7" GridPane.columnIndex="0"
+                   style="-fx-font-size: 16px; -fx-font-weight: bold;"/>
+            <Label fx:id="rolLabel" GridPane.rowIndex="7" GridPane.columnIndex="1"/>
+            <TextField fx:id="rolField" GridPane.rowIndex="7" GridPane.columnIndex="1"
+                       visible="false" managed="false"
+                       style="-fx-background-color: rgba(255,255,255,0.5); -fx-background-radius: 6; -fx-padding: 4 8;"/>
+
+            <Label text="Password:" GridPane.rowIndex="8" GridPane.columnIndex="0"
+                   style="-fx-font-size: 13px; -fx-font-weight: bold;"/>
+            <Label fx:id="passwordLabel" GridPane.rowIndex="8" GridPane.columnIndex="1"/>
+            <TextField fx:id="passwordField" GridPane.rowIndex="8" GridPane.columnIndex="1"
+                       visible="false" managed="false"
+                       style="-fx-background-color: rgba(255,255,255,0.5); -fx-background-radius: 6; -fx-padding: 2 6;"/>
+        </GridPane>
+
+        <Separator/>
+
+        <!-- BOTONES -->
+        <HBox spacing="10" alignment="CENTER">
+            <Button fx:id="btnEdit" text="✏️ Edit" onAction="#handleEdit"
+                    style="-fx-background-color: rgba(255,255,255,0.60);
+                    -fx-background-radius: 10;
+                    -fx-border-radius: 10;
+                    -fx-border-color: rgba(255,255,255,0.6);
+                    -fx-border-width: 1;
+                    -fx-padding: 6 18;
+                    -fx-font-weight: bold;
+                    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 10, 0.2, 0, 2);"/>
+
+            <Button fx:id="btnSave" text="💾 Save" onAction="#handleSave"
+                    visible="false" managed="false"
+                    style="-fx-background-color: rgba(255,255,255,0.60);
+                    -fx-background-radius: 10;
+                    -fx-border-radius: 10;
+                    -fx-border-color: rgba(255,255,255,0.6);
+                    -fx-border-width: 1;
+                    -fx-padding: 6 18;
+                    -fx-font-weight: bold;
+                    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 10, 0.2, 0, 2);"/>
+        </HBox>
+
+        <Label fx:id="statusLabel" style="-fx-font-weight: bold;"/>
+
+    </VBox>
+</VBox>
