@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.image.ImageView?>
+
+<StackPane xmlns="http://javafx.com/javafx"
+           xmlns:fx="http://javafx.com/fxml"
+           fx:controller="org.example.stockmaster.javafx.controller.MainController"
+           style="-fx-background-color: black;"
+           alignment="TOP_CENTER">
+
+    <!-- Contenido dinámico -->
+    <AnchorPane fx:id="contentArea"/>
+
+    <!-- Logo -->
+    <ImageView fx:id="background"/>
+
+</StackPane>
