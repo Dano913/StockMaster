@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+
+<BorderPane fx:controller="org.example.paneljavafx.GlobalView"
+            xmlns="http://javafx.com/javafx/25"
+            xmlns:fx="http://javafx.com/fxml/1"
+            prefWidth="1900" prefHeight="1000">
+
+    <!-- 🔝 TOP BAR -->
+    <top>
+        <GridPane hgap="10" vgap="10"
+                  style="-fx-padding: 10; -fx-background-color: #1e1e1e;">
+
+            <columnConstraints>
+                <ColumnConstraints prefWidth="250"/>
+                <ColumnConstraints hgrow="ALWAYS"/>
+                <ColumnConstraints prefWidth="250"/>
+            </columnConstraints>
+
+            <!-- LOGO -->
+            <ImageView fitWidth="50" fitHeight="50" preserveRatio="true"
+                       GridPane.columnIndex="0">
+                <image>
+                    <Image url="@/images/logo-stockmaster.png"/>
+                </image>
+            </ImageView>
+
+            <!-- TITLE -->
+            <Label text="POSICIÓN GLOBAL"
+                   GridPane.columnIndex="1"
+                   style="-fx-text-fill: white;"
+                   alignment="CENTER">
+                <font>
+                    <Font size="28"/>
+                </font>
+            </Label>
+
+            <!-- BUTTONS -->
+            <HBox spacing="10"
+                  alignment="CENTER_RIGHT"
+                  GridPane.columnIndex="2">
+
+                <!-- SIDEBAR TOGGLE -->
+                <Button text="☰"
+                        onAction="#toggleSidebar"
+                        prefWidth="40"
+                        prefHeight="40"/>
+
+                <Button text="User"/>
+                <Button text="Logout"/>
+            </HBox>
+
+        </GridPane>
+    </top>
+
+    <!-- 📌 LEFT SIDEBAR (PLEGABLE) -->
+    <left>
+        <VBox fx:id="leftSidebar"
+              prefWidth="250"
+              spacing="10"
+              style="-fx-background-color: #2c3e50; -fx-padding: 10;">
+
+            <Button text="Dashboard" maxWidth="Infinity"/>
+            <Button text="Crypto" maxWidth="Infinity"/>
+            <Button text="Budget" maxWidth="Infinity"/>
+            <Button text="Calendar" maxWidth="Infinity"/>
+            <Button text="Settings" maxWidth="Infinity"/>
+
+        </VBox>
+    </left>
+
+    <!-- 📊 CONTENIDO CENTRAL -->
+    <center>
+        <AnchorPane fx:id="mainContent"
+                    style="-fx-background-color: #121212;"/>
+    </center>
+
+    <!-- 📌 RIGHT SIDEBAR (FIJA) -->
+    <right>
+        <VBox prefWidth="300"
+              spacing="10"
+              style="-fx-background-color: #1a1a1a; -fx-padding: 10;">
+
+            <Label text="📊 INFO PANEL" style="-fx-text-fill: white;"/>
+            <Label text="Portfolio: 12.4k€" style="-fx-text-fill: white;"/>
+            <Label text="P&amp;L: +3.2%" style="-fx-text-fill: white;"/>
+            <Label text="Status: OK" style="-fx-text-fill: white;"/>
+            <Label text="Alerts: 0" style="-fx-text-fill: white;"/>
+
+        </VBox>
+    </right>
+
+</BorderPane>
