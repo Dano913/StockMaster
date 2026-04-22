@@ -16,14 +16,14 @@
 
     <children>
 
-        <GridPane AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.topAnchor="0">
+        <GridPane AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.topAnchor="0.0">
 
             <columnConstraints>
                 <ColumnConstraints hgrow="ALWAYS" />
             </columnConstraints>
 
             <rowConstraints>
-                <RowConstraints prefHeight="120.0" />
+                <RowConstraints prefHeight="50.0" />
                 <RowConstraints vgrow="ALWAYS" />
             </rowConstraints>
 
@@ -40,13 +40,12 @@
 
                 <HBox alignment="CENTER_RIGHT" spacing="20" HBox.hgrow="ALWAYS">
                     <Button style="-fx-border-color: cyan; -fx-background-color: transparent;" text="PERFIL" />
-                    <Button style="-fx-border-color: cyan; -fx-background-color: transparent;" text="AJUSTES" />
                 </HBox>
 
             </HBox>
 
             <!-- TABPANE -->
-            <TabPane maxHeight="Infinity" maxWidth="Infinity" GridPane.rowIndex="1">
+            <TabPane maxHeight="Infinity" maxWidth="Infinity" prefHeight="837.0" prefWidth="1700.0" GridPane.rowIndex="1">
 
                 <tabs>
                     <Tab closable="false" text="Posicion">
