@@ -94,7 +94,7 @@
                 <version>0.0.8</version>
 
                 <configuration>
-                    <mainClass>org.example.loginpaneladmin/org.example.loginpaneladmin.MainApp</mainClass>
+                    <mainClass>org/example/paneljavafx/HelloApplication.java</mainClass>
                 </configuration>
 
             </plugin>
@@ -102,4 +102,9 @@
         </plugins>
     </build>
 
+    <packaging>pom</packaging>
+
+    <modules>
+        <module>panelJavaFX</module>
+    </modules>
 </project>
