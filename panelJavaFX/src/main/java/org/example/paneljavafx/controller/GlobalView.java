@@ -1,4 +1,4 @@
-package org.example.paneljavafx;
+package org.example.paneljavafx.controller;
 
 import javafx.fxml.FXML;
 import javafx.scene.layout.VBox;
