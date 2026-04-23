@@ -48,31 +48,65 @@
             <TabPane fx:id="tabPane" maxHeight="Infinity" maxWidth="Infinity" prefHeight="837.0" prefWidth="1700.0" GridPane.rowIndex="1">
 
                 <tabs>
-                    <Tab closable="false" text="Posicion">
+                    <Tab fx:id="searchTab" closable="false" text="Posicion">
                         <fx:include source="global-view.fxml" />
                     </Tab>
-                    <Tab fx:id="searchTab" closable="false" text="Buscador Fondo">
-                        <fx:include source="fund-search-view.fxml" />
+                    <!-- FONDOS (TABPANE INTERNO) -->
+                    <Tab fx:id="fundTab"
+                         text="Fondos"
+                         closable="false">
+
+                        <content>
+                            <AnchorPane>
+                                <children>
+                                    <TabPane fx:id="fundTabPane"
+                                             tabClosingPolicy="ALL_TABS"
+                                             AnchorPane.topAnchor="0"
+                                             AnchorPane.bottomAnchor="0"
+                                             AnchorPane.leftAnchor="0"
+                                             AnchorPane.rightAnchor="0"/>
+                                </children>
+                            </AnchorPane>
+                        </content>
+
                     </Tab>
-                    <Tab fx:id="fundTab" closable="false" text="Fondo">
-                        <fx:include source="fund-view.fxml" />
+
+                    <!-- ACTIVOS (TABPANE INTERNO) -->
+                    <Tab fx:id="assetTab"
+                         text="Activos"
+                         closable="false">
+
+                        <content>
+                            <AnchorPane>
+                                <children>
+                                    <TabPane fx:id="assetTabPane"
+                                             tabClosingPolicy="ALL_TABS"
+                                             AnchorPane.topAnchor="0"
+                                             AnchorPane.bottomAnchor="0"
+                                             AnchorPane.leftAnchor="0"
+                                             AnchorPane.rightAnchor="0"/>
+                                </children>
+                            </AnchorPane>
+                        </content>
+
                     </Tab>
-                    <Tab closable="false" text="Activo">
-                        <fx:include source="asset-view.fxml" />
-                    </Tab>
-                    <Tab closable="false" text="Personal">
+                    <Tab fx:id="personalTab" text="Personal" closable="false">
                         <fx:include source="personal-view.fxml" />
                     </Tab>
-                    <Tab closable="false" text="Cliente">
+
+                    <Tab fx:id="clienteTab" text="Cliente" closable="false">
                         <fx:include source="cliente-view.fxml" />
                     </Tab>
-                    <Tab closable="false" text="Cartera">
+
+                    <Tab fx:id="carteraTab" text="Cartera" closable="false">
                         <fx:include source="cartera-cliente-view.fxml" />
                     </Tab>
-                    <Tab closable="false" text="Reportes">
+
+                    <Tab fx:id="reportesTab" text="Reportes" closable="false">
                         <fx:include source="reportes-view.fxml" />
                     </Tab>
-                    <Tab closable="false" text="Analisis">
+
+                    <Tab fx:id="analisisTab" text="Analisis" closable="false">
                         <fx:include source="analisis-view.fxml" />
                     </Tab>
                 </tabs>
