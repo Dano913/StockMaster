@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
@@ -8,13 +10,14 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-<AnchorPane prefHeight="900.0" prefWidth="1900.0" style="-fx-background-color: #121018;" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.paneljavafx.controller.GlobalView">
+<AnchorPane prefHeight="900.0" prefWidth="1900.0" style="-fx-background-color: #121018;" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.paneljavafx.controller.GlobalController">
 
     <children>
       <GridPane prefHeight="900.0" prefWidth="1900.0" AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="10.0">
         <columnConstraints>
           <ColumnConstraints hgrow="SOMETIMES" maxWidth="1053.3333740234375" minWidth="10.0" prefWidth="1053.3333740234375" />
-          <ColumnConstraints hgrow="SOMETIMES" maxWidth="866.0" minWidth="10.0" prefWidth="624.6666259765625" />
+          <ColumnConstraints hgrow="SOMETIMES" maxWidth="866.0" minWidth="10.0" prefWidth="636.0" />
+            <ColumnConstraints hgrow="SOMETIMES" maxWidth="866.0" minWidth="10.0" prefWidth="332.0" />
         </columnConstraints>
         <rowConstraints>
           <RowConstraints maxHeight="344.0" minHeight="10.0" prefHeight="92.00000762939453" vgrow="SOMETIMES" />
@@ -22,7 +25,7 @@
           <RowConstraints maxHeight="328.3333740234375" minHeight="10.0" prefHeight="328.3333740234375" vgrow="SOMETIMES" />
         </rowConstraints>
          <children>
-            <AnchorPane prefHeight="200.0" prefWidth="200.0" style="-fx-border-color: cyan; -fx-border-radius: 10;" GridPane.columnIndex="1" GridPane.rowIndex="2">
+            <AnchorPane prefHeight="200.0" prefWidth="200.0" style="-fx-border-color: cyan; -fx-border-radius: 10;" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="2">
                <GridPane.margin>
                   <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
                </GridPane.margin>
@@ -80,7 +83,7 @@
                   <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
                </GridPane.margin>
                <children>
-                  <GridPane hgap="40.0" layoutX="1.0" layoutY="2.0" prefHeight="128.0" prefWidth="1654.0">
+                  <GridPane hgap="10.0" layoutX="1.0" layoutY="2.0" prefHeight="128.0" prefWidth="1448.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
                     <columnConstraints>
                       <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
                         <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
@@ -91,7 +94,7 @@
                       <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                     </rowConstraints>
                      <children>
-                        <AnchorPane prefHeight="200.0" prefWidth="200.0" style="-fx-border-color: cyan; -fx-border-radius: 10;">
+                        <AnchorPane prefHeight="200.0" prefWidth="0.0" style="-fx-border-color: cyan; -fx-border-radius: 10;">
                            <children>
                               <GridPane layoutX="16.0" layoutY="10.0" prefHeight="89.0" prefWidth="347.0">
                                 <columnConstraints>
@@ -103,17 +106,17 @@
                                   <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                                 </rowConstraints>
                                  <children>
-                                    <Text fill="AQUA" strokeType="OUTSIDE" strokeWidth="0.0" text="CAPITAL TOTAL" wrappingWidth="183.47003936767578">
+                                    <Text fill="AQUA" strokeType="OUTSIDE" strokeWidth="0.0" text="CAPITAL TOTAL" wrappingWidth="163.47003936767578">
                                        <font>
                                           <Font size="20.0" />
                                        </font>
                                     </Text>
-                                    <Text fill="AQUA" strokeType="OUTSIDE" strokeWidth="0.0" text="300M" wrappingWidth="183.47003936767578" GridPane.rowIndex="1">
+                                    <Text fill="AQUA" strokeType="OUTSIDE" strokeWidth="0.0" text="300M" wrappingWidth="159.47003936767578" GridPane.rowIndex="1">
                                        <font>
                                           <Font size="20.0" />
                                        </font>
                                     </Text>
-                                    <Text fill="AQUA" strokeType="OUTSIDE" strokeWidth="0.0" text="+15%" wrappingWidth="183.47003936767578" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                                    <Text fill="AQUA" strokeType="OUTSIDE" strokeWidth="0.0" text="+15%" wrappingWidth="165.47003936767578" GridPane.columnIndex="1" GridPane.rowIndex="1">
                                        <font>
                                           <Font size="20.0" />
                                        </font>
@@ -122,7 +125,7 @@
                               </GridPane>
                            </children>
                         </AnchorPane>
-                        <AnchorPane prefHeight="200.0" prefWidth="200.0" style="-fx-border-color: cyan; -fx-border-radius: 10;" GridPane.columnIndex="3">
+                        <AnchorPane prefHeight="108.0" prefWidth="0.0" style="-fx-border-color: cyan; -fx-border-radius: 10;" GridPane.columnIndex="3">
                            <children>
                               <GridPane layoutX="20.0" layoutY="16.0" prefHeight="77.0" prefWidth="341.0">
                                  <columnConstraints>
@@ -144,7 +147,7 @@
                                           <Font size="20.0" />
                                        </font>
                                     </Text>
-                                    <Text fill="AQUA" strokeType="OUTSIDE" strokeWidth="0.0" text="20%" wrappingWidth="183.47003936767578" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                                    <Text fill="AQUA" strokeType="OUTSIDE" strokeWidth="0.0" text="20%" wrappingWidth="81.47003936767578" GridPane.columnIndex="1" GridPane.rowIndex="1">
                                        <font>
                                           <Font size="20.0" />
                                        </font>
@@ -153,7 +156,7 @@
                               </GridPane>
                            </children>
                         </AnchorPane>
-                        <AnchorPane prefHeight="200.0" prefWidth="200.0" style="-fx-border-color: cyan; -fx-border-radius: 10;" GridPane.columnIndex="2">
+                        <AnchorPane prefHeight="200.0" prefWidth="0.0" style="-fx-border-color: cyan; -fx-border-radius: 10;" GridPane.columnIndex="2">
                            <children>
                               <GridPane layoutX="19.0" layoutY="10.0" prefHeight="79.0" prefWidth="342.0">
                                  <columnConstraints>
@@ -170,12 +173,12 @@
                                           <Font size="20.0" />
                                        </font>
                                     </Text>
-                                    <Text fill="AQUA" strokeType="OUTSIDE" strokeWidth="0.0" text="800" wrappingWidth="183.47003936767578" GridPane.rowIndex="1">
+                                    <Text fill="AQUA" strokeType="OUTSIDE" strokeWidth="0.0" text="800" wrappingWidth="165.47003936767578" GridPane.rowIndex="1">
                                        <font>
                                           <Font size="20.0" />
                                        </font>
                                     </Text>
-                                    <Text fill="AQUA" strokeType="OUTSIDE" strokeWidth="0.0" text="+20" wrappingWidth="183.47003936767578" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                                    <Text fill="AQUA" strokeType="OUTSIDE" strokeWidth="0.0" text="+20" wrappingWidth="165.47003936767578" GridPane.columnIndex="1" GridPane.rowIndex="1">
                                        <font>
                                           <Font size="20.0" />
                                        </font>
@@ -184,7 +187,7 @@
                               </GridPane>
                            </children>
                         </AnchorPane>
-                        <AnchorPane prefHeight="200.0" prefWidth="200.0" style="-fx-border-color: cyan; -fx-border-radius: 10;" GridPane.columnIndex="1">
+                        <AnchorPane prefHeight="200.0" prefWidth="0.0" style="-fx-border-color: cyan; -fx-border-radius: 10;" GridPane.columnIndex="1">
                            <children>
                               <GridPane layoutX="19.0" layoutY="16.0" prefHeight="73.0" prefWidth="342.0">
                                  <columnConstraints>
@@ -196,17 +199,17 @@
                                     <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                                  </rowConstraints>
                                  <children>
-                                    <Text fill="AQUA" strokeType="OUTSIDE" strokeWidth="0.0" text="RENTABILIDAD" wrappingWidth="183.47003936767578">
+                                    <Text fill="AQUA" strokeType="OUTSIDE" strokeWidth="0.0" text="RENTABILIDAD" wrappingWidth="159.47003936767578">
                                        <font>
                                           <Font size="20.0" />
                                        </font>
                                     </Text>
-                                    <Text fill="AQUA" strokeType="OUTSIDE" strokeWidth="0.0" text="12.9%" wrappingWidth="183.47003936767578" GridPane.rowIndex="1">
+                                    <Text fill="AQUA" strokeType="OUTSIDE" strokeWidth="0.0" text="12.9%" wrappingWidth="155.47003936767578" GridPane.rowIndex="1">
                                        <font>
                                           <Font size="20.0" />
                                        </font>
                                     </Text>
-                                    <Text fill="AQUA" strokeType="OUTSIDE" strokeWidth="0.0" text="+2.3%" wrappingWidth="186.13672637939453" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                                    <Text fill="AQUA" strokeType="OUTSIDE" strokeWidth="0.0" text="+2.3%" wrappingWidth="160.13672637939453" GridPane.columnIndex="1" GridPane.rowIndex="1">
                                        <font>
                                           <Font size="20.0" />
                                        </font>
@@ -217,9 +220,18 @@
                         </AnchorPane>
                      </children>
                      <padding>
-                        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                      </padding>
                   </GridPane>
+               </children>
+            </AnchorPane>
+            <AnchorPane prefHeight="200.0" prefWidth="200.0" style="-fx-border-color: cyan; -fx-border-radius: 10;" GridPane.columnIndex="2" GridPane.rowSpan="2">
+               <GridPane.margin>
+                  <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+               </GridPane.margin>
+               <children>
+                  <TextField fx:id="searchField" layoutX="22.0" layoutY="22.0" prefHeight="33.0" prefWidth="223.0" promptText="Buscar..." style="-fx-background-color: transparent; -fx-border-color: cyan; -fx-text-fill: cyan; -fx-border-radius: 10;" AnchorPane.leftAnchor="5.0" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="5.0" />
+                  <ListView fx:id="resultsList" layoutX="33.0" layoutY="76.0" prefHeight="426.0" prefWidth="200.0" style="-fx-background-color: transparent; -fx-border-color: cyan; -fx-border-radius: 10;" AnchorPane.bottomAnchor="5.0" AnchorPane.leftAnchor="5.0" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="45.0" />
                </children>
             </AnchorPane>
          </children>
