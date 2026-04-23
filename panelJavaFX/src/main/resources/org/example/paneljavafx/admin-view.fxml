@@ -12,11 +12,11 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.RowConstraints?>
 
-<AnchorPane prefHeight="900" prefWidth="1700" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.paneljavafx.AdminView">
+<AnchorPane prefHeight="1000.0" prefWidth="1800.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.paneljavafx.AdminView">
 
     <children>
 
-        <GridPane AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.topAnchor="0.0">
+        <GridPane prefHeight="1000.0" prefWidth="1800.0" AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.topAnchor="0.0">
 
             <columnConstraints>
                 <ColumnConstraints hgrow="ALWAYS" />
@@ -51,11 +51,30 @@
                     <Tab closable="false" text="Posicion">
                         <fx:include source="global-view.fxml" />
                     </Tab>
-
-                    <Tab closable="false" text="Fondos" />
-                    <Tab closable="false" text="Assets" />
-                    <Tab closable="false" text="Personal" />
-                    <Tab closable="false" text="Administracion" />
+                    <Tab closable="false" text="Buscador">
+                        <fx:include source="list-view.fxml" />
+                    </Tab>
+                    <Tab closable="false" text="Fondo">
+                        <fx:include source="fund-view.fxml" />
+                    </Tab>
+                    <Tab closable="false" text="Activo">
+                        <fx:include source="asset-view.fxml" />
+                    </Tab>
+                    <Tab closable="false" text="Personal">
+                        <fx:include source="personal-view.fxml" />
+                    </Tab>
+                    <Tab closable="false" text="Cliente">
+                        <fx:include source="cliente-view.fxml" />
+                    </Tab>
+                    <Tab closable="false" text="Cartera">
+                        <fx:include source="cartera-cliente-view.fxml" />
+                    </Tab>
+                    <Tab closable="false" text="Reportes">
+                        <fx:include source="reportes-view.fxml" />
+                    </Tab>
+                    <Tab closable="false" text="Analisis">
+                        <fx:include source="analisis-view.fxml" />
+                    </Tab>
                 </tabs>
 
             </TabPane>
