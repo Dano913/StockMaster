@@ -107,7 +107,7 @@ public class ChartController {
                 // render SOLO el activo seleccionado
                 draw();
 
-                MarketPrinter.print(engines);
+                //MarketPrinter.print(engines);
             }
 
         }.start();
