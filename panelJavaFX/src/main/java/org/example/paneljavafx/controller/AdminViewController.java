@@ -5,10 +5,13 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.layout.AnchorPane;
+import org.example.paneljavafx.data.FundPositionLoader;
 import org.example.paneljavafx.model.Asset;
 import org.example.paneljavafx.model.Fund;
+import org.example.paneljavafx.model.FundPosition;
 
 import java.io.IOException;
+import java.util.List;
 
 public class AdminViewController {
 
@@ -21,15 +24,14 @@ public class AdminViewController {
     @FXML private TabPane fundTabPane;
     @FXML private TabPane assetTabPane;
 
+    private List<FundPosition> cachedPositions;
+
     @FXML
     public void initialize() {
         loadGlobalView();
         System.out.println("INIT ADMIN");
 
-        System.out.println("FXML CLASS = " + getClass());
-
-        System.out.println("fundTabPane = " + fundTabPane);
-        System.out.println("assetTabPane = " + assetTabPane);
+        cachedPositions = FundPositionLoader.load();
     }
 
     // -------------------------
@@ -54,7 +56,7 @@ public class AdminViewController {
     }
 
     // -------------------------
-    // OPEN FUND (TAB DINÁMICO)
+    // OPEN FUND
     // -------------------------
     public void openFund(Fund fund) {
 
@@ -75,7 +77,6 @@ public class AdminViewController {
             fundTabPane.getTabs().add(tab);
             fundTabPane.getSelectionModel().select(tab);
 
-            // 🔥 IMPORTANTE: activar tab padre
             tabPane.getSelectionModel().select(fundTab);
 
         } catch (Exception e) {
@@ -84,7 +85,7 @@ public class AdminViewController {
     }
 
     // -------------------------
-    // OPEN ASSET (TAB DINÁMICO)
+    // OPEN ASSET
     // -------------------------
     public void openAsset(Asset asset) {
 
@@ -96,8 +97,9 @@ public class AdminViewController {
             AnchorPane view = loader.load();
 
             AssetViewController controller = loader.getController();
-            controller.loadAsset(asset);
 
+            controller.loadAssetExposure(asset, cachedPositions);
+            controller.loadAsset(asset);
             Tab tab = new Tab(asset.getName());
             tab.setContent(view);
             tab.setClosable(true);
@@ -105,7 +107,6 @@ public class AdminViewController {
             assetTabPane.getTabs().add(tab);
             assetTabPane.getSelectionModel().select(tab);
 
-            // 🔥 IMPORTANTE: activar tab padre
             tabPane.getSelectionModel().select(assetTab);
 
         } catch (Exception e) {

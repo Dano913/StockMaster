@@ -21,6 +21,9 @@ public class MarketEngine {
     @Getter
     private double lastPrice;
 
+    @Getter
+    private double change;
+
     private double open, high, low;
 
     private int ticks;
@@ -60,20 +63,38 @@ public class MarketEngine {
 
     public void update() {
 
-        // precio base del motor
-        double price = fibModel.tick();
+        double basePrice = fibModel.tick();
 
-        // aplicar “personalidad del activo”
-        price *= behaviorMultiplier();
+        // 🔧 normalizamos el impacto del mercado respecto al precio inicial
+        double normalizedVolatility = volatilityFactor * 0.01; // control global
+
+        double noise = behaviorMultiplier() - 1.0;
+
+        double newPrice = basePrice * (1.0 + noise * normalizedVolatility);
+
+        // -------------------------
+        // CHANGE REAL
+        // -------------------------
+        this.change = (lastPrice == 0)
+                ? 0
+                : ((newPrice - lastPrice) / lastPrice) * 100;
+
+        // 🔧 FIX: evitar expansión progresiva de amplitud
+        double wickFactor = 0.25; // constante estable
+
+        double adjustedPrice = (ticks == 0)
+                ? newPrice
+                : lastPrice + (newPrice - lastPrice) * wickFactor;
+
+        lastPrice = newPrice;
 
         if (ticks == 0) {
-            open = high = low = price;
+            open = high = low = adjustedPrice;
         }
 
-        high = Math.max(high, price);
-        low = Math.min(low, price);
+        high = Math.max(high, adjustedPrice);
+        low = Math.min(low, adjustedPrice);
 
-        lastPrice = price;
         ticks++;
 
         if (ticks >= TICKS_PER_CANDLE) {
@@ -81,7 +102,7 @@ public class MarketEngine {
                     open,
                     high,
                     low,
-                    price,
+                    newPrice,
                     System.currentTimeMillis()
             ));
             ticks = 0;
@@ -95,15 +116,12 @@ public class MarketEngine {
 
         double multiplier = 1.0;
 
-        // 🔥 riesgo → ruido estructural
-        multiplier += (Math.random() - 0.5) * riskFactor;
+        multiplier += (Math.random() - 0.5) * riskFactor * 0.12;
 
-        // 🌊 liquidez → estabilidad o saltos
-        if (liquidityFactor < 0.5 && Math.random() < 0.1) {
-            multiplier += (Math.random() - 0.5) * 0.15;
+        if (liquidityFactor < 0.5 && Math.random() < 0.05) {
+            multiplier += (Math.random() - 0.5) * 0.05;
         }
 
-        // 🧠 sector → comportamiento diferenciado
         switch (asset.getSector()) {
 
             case "shadow_liquidity":
