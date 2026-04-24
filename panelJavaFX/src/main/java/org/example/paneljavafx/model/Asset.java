@@ -58,6 +58,10 @@ public class Asset {
     @JsonProperty("liquidez")
     private String liquidity;
 
+    @Getter
+    @JsonProperty("varaicion")
+    private String change;
+
     // -------------------------
     // CONSTRUCTOR VACÍO (OBLIGATORIO JACKSON)
     // -------------------------
