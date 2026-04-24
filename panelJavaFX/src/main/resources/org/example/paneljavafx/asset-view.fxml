@@ -3,6 +3,7 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.canvas.Canvas?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
@@ -15,24 +16,55 @@
         <GridPane prefHeight="900.0" prefWidth="1900.0" AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="10.0">
 
             <columnConstraints>
-                <ColumnConstraints hgrow="ALWAYS" minWidth="200" />
-                <ColumnConstraints hgrow="ALWAYS" minWidth="200" />
-                <ColumnConstraints hgrow="ALWAYS" minWidth="200" />
+                <ColumnConstraints hgrow="ALWAYS" minWidth="200.0" />
+                <ColumnConstraints hgrow="ALWAYS" maxWidth="799.0" minWidth="200.0" prefWidth="781.0" />
+                <ColumnConstraints hgrow="ALWAYS" maxWidth="352.0" minWidth="188.0" prefWidth="206.0" />
             </columnConstraints>
 
             <rowConstraints>
                 <RowConstraints vgrow="SOMETIMES" />
                 <RowConstraints vgrow="SOMETIMES" />
                 <RowConstraints vgrow="SOMETIMES" />
-                <RowConstraints vgrow="SOMETIMES" />
             </rowConstraints>
 
             <!-- ================= CHART ================= -->
-            <AnchorPane style="-fx-border-color: cyan; -fx-border-radius: 10;" GridPane.columnSpan="2" GridPane.rowIndex="1" GridPane.rowSpan="2">
+            <AnchorPane style="-fx-border-color: cyan; -fx-border-radius: 10;" GridPane.columnSpan="2" GridPane.rowSpan="2">
 
                 <children>
 
                     <Canvas fx:id="chartCanvas" height="604.0" layoutX="3.0" layoutY="3.0" width="1483.0" AnchorPane.bottomAnchor="1.0" AnchorPane.leftAnchor="1.0" AnchorPane.rightAnchor="1.0" AnchorPane.topAnchor="1.0" />
+               <GridPane layoutX="47.0" layoutY="29.0" prefHeight="60.0" prefWidth="1425.0" AnchorPane.leftAnchor="20.0" AnchorPane.rightAnchor="20.0" AnchorPane.topAnchor="30.0">
+                 <columnConstraints>
+                   <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                   <ColumnConstraints halignment="RIGHT" hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                 </columnConstraints>
+                 <rowConstraints>
+                   <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                   <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                 </rowConstraints>
+                  <children>
+                     <Label fx:id="assetName" text="Nombre" textFill="AQUA">
+                        <font>
+                           <Font size="20.0" />
+                        </font>
+                     </Label>
+                     <Label fx:id="assetTicker" text="Ticker" textFill="AQUA" GridPane.rowIndex="1">
+                        <font>
+                           <Font size="20.0" />
+                        </font>
+                     </Label>
+                     <Label fx:id="assetPrice" text="Price" textFill="AQUA" GridPane.columnIndex="1">
+                        <font>
+                           <Font size="20.0" />
+                        </font>
+                     </Label>
+                     <Label fx:id="assetChange" text="Variación" textFill="AQUA" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                        <font>
+                           <Font size="20.0" />
+                        </font>
+                     </Label>
+                  </children>
+               </GridPane>
 
                 </children>
             <GridPane.margin>
@@ -41,51 +73,9 @@
 
             </AnchorPane>
 
-            <!-- ================= HEADER ================= -->
-            <AnchorPane prefHeight="61.0" prefWidth="1518.0" style="-fx-border-color: cyan; -fx-border-radius: 10;" GridPane.columnSpan="2">
-                <children>
-               <GridPane layoutX="2.0" layoutY="2.0" prefHeight="44.0" prefWidth="1516.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="1.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="1.0">
-                 <columnConstraints>
-                   <ColumnConstraints halignment="CENTER" hgrow="ALWAYS" maxWidth="1182.3333740234375" minWidth="10.0" prefWidth="302.3333740234375" />
-                   <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" maxWidth="990.6666259765625" minWidth="10.0" prefWidth="119.66665649414062" />
-                     <ColumnConstraints hgrow="SOMETIMES" maxWidth="848.0000610351562" minWidth="10.0" prefWidth="188.6666259765625" />
-                     <ColumnConstraints hgrow="SOMETIMES" maxWidth="896.6666870117188" minWidth="10.0" prefWidth="883.3333740234375" />
-                 </columnConstraints>
-                 <rowConstraints>
-                   <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                   <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                 </rowConstraints>
-                  <children>
-                     <Label text="NOMBRE" textFill="AQUA" GridPane.hgrow="ALWAYS">
-                        <font>
-                           <Font size="20.0" />
-                        </font>
-                     </Label>
-                     <Label text="TICKER" textFill="AQUA" GridPane.columnIndex="1" GridPane.rowSpan="2">
-                        <font>
-                           <Font size="20.0" />
-                        </font>
-                     </Label>
-                     <Label text="TICKER" textFill="AQUA" GridPane.columnIndex="2">
-                        <font>
-                           <Font size="20.0" />
-                        </font>
-                     </Label>
-                  </children>
-               </GridPane>
-                </children>
-
-                <GridPane.margin>
-                    <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
-                </GridPane.margin>
-            </AnchorPane>
-
             <!-- ================= INFO ================= -->
-            <AnchorPane style="-fx-border-color: cyan; -fx-border-radius: 10;" GridPane.columnIndex="2" GridPane.rowIndex="1">
+            <AnchorPane style="-fx-border-color: cyan; -fx-border-radius: 10;" GridPane.columnIndex="2">
                 <children>
-
-
-                    <Label fx:id="assetTicker" layoutX="20" layoutY="50" text="TICKER" textFill="AQUA" />
 
                     <Label fx:id="assetIsin" layoutX="20" layoutY="80" text="ISIN" textFill="AQUA" />
 
@@ -97,8 +87,6 @@
 
                     <Label fx:id="assetLiquidity" layoutX="20" layoutY="200" text="LIQUIDITY" textFill="AQUA" />
 
-                    <Label fx:id="assetPrice" layoutX="20" layoutY="230" text="PRICE" textFill="AQUA" />
-
                 </children>
 
                 <GridPane.margin>
@@ -107,19 +95,9 @@
             </AnchorPane>
 
             <!-- ================= METRICS ================= -->
-            <AnchorPane style="-fx-border-color: cyan; -fx-border-radius: 10;" GridPane.columnIndex="2" GridPane.rowIndex="2">
+            <AnchorPane id="listPrice" style="-fx-border-color: cyan; -fx-border-radius: 10;" GridPane.columnIndex="2" GridPane.rowIndex="1">
                 <children>
-                    <Label layoutX="40" layoutY="40" text="METRICAS" textFill="AQUA">
-                        <font>
-                            <Font size="30" />
-                        </font>
-                    </Label>
-
-                    <Label fx:id="volatilityLabel" layoutX="40" layoutY="90" textFill="AQUA" />
-
-                    <Label fx:id="marketCapLabel" layoutX="40" layoutY="130" textFill="AQUA" />
-
-                    <Label fx:id="liquidityLabel" layoutX="40" layoutY="170" textFill="AQUA" />
+                    <ListView fx:id="priceList" style="-fx-background-color: transparent;" AnchorPane.bottomAnchor="20.0" AnchorPane.leftAnchor="20.0" AnchorPane.rightAnchor="20.0" AnchorPane.topAnchor="20.0" />
                 </children>
 
                 <GridPane.margin>
@@ -128,7 +106,7 @@
             </AnchorPane>
 
             <!-- ================= PIE CHART ================= -->
-            <AnchorPane style="-fx-border-color: cyan; -fx-border-radius: 10;" GridPane.rowIndex="3">
+            <AnchorPane style="-fx-border-color: cyan; -fx-border-radius: 10;" GridPane.rowIndex="2">
                 <children>
                     <Label layoutX="50" layoutY="80" text="GRAFICO CIRCULAR" textFill="AQUA">
                         <font>
@@ -142,37 +120,38 @@
                 </GridPane.margin>
             </AnchorPane>
 
-            <!-- ================= DESCRIPTION ================= -->
-            <AnchorPane style="-fx-border-color: cyan; -fx-border-radius: 10;" GridPane.columnIndex="2" GridPane.rowIndex="3">
-                <children>
-                    <Label layoutX="40" layoutY="40" text="DESCRIPCION" textFill="AQUA">
-                        <font>
-                            <Font size="30" />
-                        </font>
-                    </Label>
-
-                    <Label fx:id="descriptionLabel" layoutX="40" layoutY="100" prefWidth="300" textFill="AQUA" wrapText="true" />
-                </children>
-
-                <GridPane.margin>
-                    <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
-                </GridPane.margin>
-            </AnchorPane>
-
             <!-- ================= TABLE ================= -->
-            <AnchorPane style="-fx-border-color: cyan; -fx-border-radius: 10;" GridPane.columnIndex="1" GridPane.rowIndex="3">
+            <AnchorPane style="-fx-border-color: cyan; -fx-border-radius: 10;" GridPane.columnIndex="1" GridPane.rowIndex="2">
                 <children>
-                    <Label layoutX="40" layoutY="40" text="TABLA PORCENTAJES" textFill="AQUA">
+               <GridPane layoutX="43.0" layoutY="31.0" prefHeight="152.0" prefWidth="242.0" AnchorPane.bottomAnchor="20.0" AnchorPane.leftAnchor="20.0" AnchorPane.rightAnchor="20.0" AnchorPane.topAnchor="20.0">
+                 <columnConstraints>
+                   <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                   <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                 </columnConstraints>
+                 <rowConstraints>
+                   <RowConstraints maxHeight="72.0" minHeight="10.0" prefHeight="59.0" vgrow="SOMETIMES" />
+                   <RowConstraints maxHeight="94.0" minHeight="10.0" prefHeight="94.0" vgrow="SOMETIMES" />
+                 </rowConstraints>
+                  <children>
+                          <ListView fx:id="tabla_exposicion" prefHeight="91.0" prefWidth="447.0" style="-fx-background-color: transparent;" GridPane.columnSpan="2" GridPane.rowIndex="1" />
+                     <Label prefHeight="36.0" prefWidth="404.0" text="Exposición a fondos" textFill="AQUA">
                         <font>
-                            <Font size="30" />
+                           <Font size="25.0" />
                         </font>
-                    </Label>
+                     </Label>
+                  </children>
+               </GridPane>
                 </children>
 
                 <GridPane.margin>
                     <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                 </GridPane.margin>
             </AnchorPane>
+         <AnchorPane prefHeight="200.0" prefWidth="200.0" style="-fx-border-color: cyan; -fx-border-radius: 10;" GridPane.columnIndex="2" GridPane.rowIndex="2">
+            <GridPane.margin>
+               <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+            </GridPane.margin>
+         </AnchorPane>
 
         </GridPane>
     </children>
