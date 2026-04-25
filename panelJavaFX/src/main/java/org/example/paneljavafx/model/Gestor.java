@@ -1,66 +1,146 @@
 package org.example.paneljavafx.model;
 
-import java.util.Arrays;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class Gestor {
 
-    private int id_gestor;
-    private int id_empresa;
-    private int id_fondo;
+    @JsonProperty("id_gestor")
+    private int idGestor;
 
+    @JsonProperty("id_empresa")
+    private int idEmpresa;
+
+    @JsonProperty("id_fondo")
+    private int idFondo;
+
+    @JsonProperty("nombre")
     private String nombre;
+
+    @JsonProperty("apellidos")
     private String apellidos;
 
-    private int anios_experiencia;
-    private String perfil_riesgo;
+    @JsonProperty("anios_experiencia")
+    private int aniosExperiencia;
 
+    @JsonProperty("perfil_riesgo")
+    private String perfilRiesgo;
+
+    @JsonProperty("email")
     private String email;
+
+    @JsonProperty("telefono")
     private String telefono;
 
+    // =========================
+    // CONSTRUCTOR VACÍO (OBLIGATORIO JACKSON)
+    // =========================
     public Gestor() {}
 
-    public Gestor(int id_gestor, int id_empresa, int id_fondo,
+    // =========================
+    // CONSTRUCTOR COMPLETO
+    // =========================
+    public Gestor(int idGestor, int idEmpresa, int idFondo,
                   String nombre, String apellidos,
-                  int anios_experiencia, String perfil_riesgo,
+                  int aniosExperiencia, String perfilRiesgo,
                   String email, String telefono) {
 
-        this.id_gestor = id_gestor;
-        this.id_empresa = id_empresa;
-        this.id_fondo = id_fondo;
+        this.idGestor = idGestor;
+        this.idEmpresa = idEmpresa;
+        this.idFondo = idFondo;
         this.nombre = nombre;
         this.apellidos = apellidos;
-        this.anios_experiencia = anios_experiencia;
-        this.perfil_riesgo = perfil_riesgo;
+        this.aniosExperiencia = aniosExperiencia;
+        this.perfilRiesgo = perfilRiesgo;
         this.email = email;
         this.telefono = telefono;
     }
 
+    // =========================
+    // GETTERS
+    // =========================
+
+    public int getIdGestor() {
+        return idGestor;
+    }
+
+    public int getIdEmpresa() {
+        return idEmpresa;
+    }
+
+    public int getIdFondo() {
+        return idFondo;
+    }
+
     public String getNombre() {
-        return "";
+        return nombre;
+    }
+
+    public String getApellidos() {
+        return apellidos;
+    }
+
+    public int getAniosExperiencia() {
+        return aniosExperiencia;
+    }
+
+    public String getPerfilRiesgo() {
+        return perfilRiesgo;
     }
 
     public String getEmail() {
-        return "";
+        return email;
     }
 
-    public String getId_gestor() {
-        return "";
+    public String getTelefono() {
+        return telefono;
     }
 
-    public String getPerfil_riesgo() {
-        return "";
+    // =========================
+    // SETTERS
+    // =========================
+
+    public void setIdGestor(int idGestor) {
+        this.idGestor = idGestor;
     }
 
-    public Arrays getTimeRecords() {
-        return null;
+    public void setIdEmpresa(int idEmpresa) {
+        this.idEmpresa = idEmpresa;
     }
 
-    public void addTimeRecord(TimeRecord record) {
+    public void setIdFondo(int idFondo) {
+        this.idFondo = idFondo;
     }
 
-    public char[] getAnios_experiencia() {
-        return new char[0];
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
     }
 
-    // getters y setters...
+    public void setApellidos(String apellidos) {
+        this.apellidos = apellidos;
+    }
+
+    public void setAniosExperiencia(int aniosExperiencia) {
+        this.aniosExperiencia = aniosExperiencia;
+    }
+
+    public void setPerfilRiesgo(String perfilRiesgo) {
+        this.perfilRiesgo = perfilRiesgo;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public void setTelefono(String telefono) {
+        this.telefono = telefono;
+    }
+
+    // =========================
+    // TOSTRING (BONUS)
+    // =========================
+    @Override
+    public String toString() {
+        return String.format("Gestor{id=%d, nombre='%s %s', experiencia=%d, riesgo='%s'}",
+                idGestor, nombre, apellidos, aniosExperiencia, perfilRiesgo);
+    }
 }

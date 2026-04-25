@@ -1,0 +1,194 @@
+[33mcommit 66e15f706b06ba6c844a29d3e7fb404ee7a0303a[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmaster[m[33m)[m
+Author: Dano913 <daniaxve913@gmail.com>
+Date:   Sat Apr 25 19:29:01 2026 +0200
+
+    + Vista panel gestores y fichajes
+
+[33mcommit df21bf699a8e48c9408f5d8204faec7dce3ae9e7[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m, [m[1;32mmain[m[33m)[m
+Author: Dano913 <daniaxve913@gmail.com>
+Date:   Sat Apr 25 12:48:11 2026 +0200
+
+    Rama Auxiliar
+
+[33mcommit 2b529244c949ce5a9f9ccf57e3216cf12ad5b27f[m
+Author: Dano913 <daniaxve913@gmail.com>
+Date:   Fri Apr 24 18:48:02 2026 +0200
+
+    - Grafico, barra de precios y exposicion a fondo funcionando dinamicamente
+
+[33mcommit c491ba10188451255d885ffd2aca2cc04b341457[m
+Author: Dano913 <daniaxve913@gmail.com>
+Date:   Fri Apr 24 14:55:57 2026 +0200
+
+    He hecho git pull para deshacer cambios
+
+[33mcommit aeccefa47a47048eab5300b80fd6d2053851f8c5[m
+Author: Dano913 <daniaxve913@gmail.com>
+Date:   Fri Apr 24 12:12:32 2026 +0200
+
+    + Puliendo vista Asset
+
+[33mcommit 85ce4d0c72080a5ec63fb2bf265155ce3f4fa255[m
+Author: Dano913 <daniaxve913@gmail.com>
+Date:   Fri Apr 24 01:30:24 2026 +0200
+
+    - Motor de precios con seleccion de activo y precio dinamicamente funcionando en panel provisional
+
+[33mcommit 7ecefa4f88fba5ef6b6a48aeb68244f7e0bd14f8[m
+Author: Dano913 <daniaxve913@gmail.com>
+Date:   Thu Apr 23 21:24:13 2026 +0200
+
+    + Continuacion construccion panel
+
+[33mcommit 52aaf54639b9fb5fa84a2bf24dcf901e64a3e6c0[m
+Author: Dano913 <daniaxve913@gmail.com>
+Date:   Thu Apr 23 15:22:49 2026 +0200
+
+    - Establecimiento de vistas con layout en panel
+
+[33mcommit d2ec8ddae671ca44a47ab03833b14f5c47f203a6[m
+Author: Dano913 <daniaxve913@gmail.com>
+Date:   Thu Apr 23 10:12:56 2026 +0200
+
+    + Continuacion panel administracion
+
+[33mcommit 572bc8c9fc4d289f11ef5411590ac104a10d9846[m
+Author: Dano913 <daniaxve913@gmail.com>
+Date:   Wed Apr 22 17:31:20 2026 +0200
+
+    - Fin Construcción Global- view
+
+[33mcommit 00ea072362f9c868e684fb6d950d3d5becbcc057[m
+Author: Dano913 <daniaxve913@gmail.com>
+Date:   Wed Apr 22 16:05:06 2026 +0200
+
+    + Inicio Construcción Panel Interno en modulo
+
+[33mcommit c9a331492d0d5d37b53fbc5f915707cc3b2f6d3c[m
+Author: Dano913 <daniaxve913@gmail.com>
+Date:   Tue Apr 21 19:57:38 2026 +0200
+
+    - Confirmado motor de precios genera diversos graficos dinamicamente por recursividad
+
+[33mcommit 69d7b506c555618aaf89d8b78d37f6f05ee6f56c[m
+Author: Dano913 <daniaxve913@gmail.com>
+Date:   Tue Apr 21 15:29:41 2026 +0200
+
+    + Continuamos generando motor de precio
+
+[33mcommit a3178bb0e06f322e8693d506baa48b9e41a28d75[m
+Author: Dano913 <daniaxve913@gmail.com>
+Date:   Tue Apr 21 14:15:38 2026 +0200
+
+    - Login y vistas de panel  montado y probando el motor de generacion de precio
+
+[33mcommit 4c886cced0ca187f42b1e44be3c9ab0e2547ca8f[m
+Author: Dano913 <daniaxve913@gmail.com>
+Date:   Tue Apr 21 11:02:40 2026 +0200
+
+    + Inicio montaje panel administracion interno gestores
+
+[33mcommit 2ec39a8a8a21983cbb49c1f3b8c854566a50f0f0[m[33m ([m[1;31morigin/version-estable[m[33m)[m
+Author: Dano913 <daniaxve913@gmail.com>
+Date:   Mon Apr 20 22:16:06 2026 +0200
+
+    - Fin estilos tailwind landing page
+
+[33mcommit a4000134ba4e8be7605e8b37eb8d523845950d32[m
+Author: Dano913 <daniaxve913@gmail.com>
+Date:   Mon Apr 20 15:09:09 2026 +0200
+
+    + Inicio estilos tailwind landing page
+
+[33mcommit 2c1249062777174540b7f04d6b132fb295d511b6[m
+Author: Dano913 <daniaxve913@gmail.com>
+Date:   Sun Apr 19 19:02:59 2026 +0200
+
+    - Tailwind configurado y htmls diseñados con informacion estándar
+
+[33mcommit 10af0eb53ccc6ca98aeffe25b1990172029a4678[m
+Author: Dano913 <daniaxve913@gmail.com>
+Date:   Sun Apr 19 16:14:43 2026 +0200
+
+    + Inicio diseño de html para landing page
+
+[33mcommit fffe03247c7413022b96bb376e9fa01d7c409b87[m
+Author: Dano913 <daniaxve913@gmail.com>
+Date:   Sun Apr 19 15:06:45 2026 +0200
+
+    - 5 Wireframes finalizados
+
+[33mcommit 468e80cc640f7ce04500ee3da9c85d34c863ea45[m
+Author: Dano913 <daniaxve913@gmail.com>
+Date:   Sun Apr 19 14:44:40 2026 +0200
+
+    + Continuacion Wireframes para landing page
+
+[33mcommit 7882989f8021e5dacaad6e38ed19eab96587c695[m
+Author: Dano913 <daniaxve913@gmail.com>
+Date:   Sun Apr 19 12:11:09 2026 +0200
+
+    - Fin de 3 Wireframes
+
+[33mcommit 4174bc8c0ea64cf5ff3ff3b1d8096668101a45b3[m
+Author: Dano913 <daniaxve913@gmail.com>
+Date:   Sun Apr 19 11:41:55 2026 +0200
+
+    + Inicio de Wireframes para landing page
+
+[33mcommit 6e6f617dde39f3f5d27a44f6dc243d990d345f1b[m
+Author: Dano913 <daniaxve913@gmail.com>
+Date:   Sat Apr 18 12:59:23 2026 +0200
+
+    - Fin Informe Entorno de Ejecucion
+
+[33mcommit abf54da04a8d402b52f77bcd08e8024041a39767[m
+Author: Dano913 <daniaxve913@gmail.com>
+Date:   Sat Apr 18 10:17:54 2026 +0200
+
+    + Inicio Informe Entorno de Ejecucion
+
+[33mcommit ae00880b152e0f5eeee7495e058fe244ff81c02b[m
+Author: Dano913 <daniaxve913@gmail.com>
+Date:   Fri Apr 17 17:49:54 2026 +0200
+
+    - Fin Diagrama Relacional + Actualizacion ER
+
+[33mcommit ed4fa4690c54749cd06c8c02f9181362223a2cfd[m
+Author: Dano913 <daniaxve913@gmail.com>
+Date:   Fri Apr 17 16:08:23 2026 +0200
+
+    + Inicio Diagrama Relacional
+
+[33mcommit 9306a0bf5420e960231419cff50f9fb851b01a31[m
+Author: Dano913 <daniaxve913@gmail.com>
+Date:   Fri Apr 17 12:33:16 2026 +0200
+
+    -Fin Diagrama Entidad-Relacion
+
+[33mcommit 2c92f3414cf839a73ec8237d8e4c75bebc674d7f[m
+Author: Dano913 <daniaxve913@gmail.com>
+Date:   Fri Apr 17 10:50:01 2026 +0200
+
+    + Inicio Diagrama Entidad-Relacion
+
+[33mcommit 7d5f3c8c6ff82192b27f9f8479699183df3195d9[m
+Author: Dano913 <daniaxve913@gmail.com>
+Date:   Fri Apr 17 10:28:20 2026 +0200
+
+    - README, documentacion y estructura, realizados
+    
+    # Conflicts:
+    #       README.md
+
+[33mcommit 21285b3ba9ef72006b1ec7cb4aea11287fed53b0[m
+Author: Daniel Villacampa Morales <62554610+Dano913@users.noreply.github.com>
+Date:   Fri Apr 17 08:47:17 2026 +0200
+
+    Create README.md
+
+[33mcommit 4d0488d32eab1484c544fe416ee6970cf19f60d7[m
+Author: Dano913 <daniaxve913@gmail.com>
+Date:   Fri Apr 17 08:24:21 2026 +0200
+
+    + Inicio del proyecto, README, estructura, documentacion

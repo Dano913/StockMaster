@@ -1,117 +1,88 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.layout.ColumnConstraints?>
-<?import javafx.scene.layout.GridPane?>
-<?import javafx.scene.layout.RowConstraints?>
-<?import javafx.scene.text.Font?>
-<?import javafx.scene.text.Text?>
-
 <?import javafx.scene.control.Label?>
-<AnchorPane prefHeight="900" prefWidth="1900.0" style="-fx-background-color: #121018;" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.paneljavafx.controller.FundViewController">
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.ProgressBar?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<AnchorPane prefHeight="600.0" prefWidth="800.0" style="-fx-background-color: #f4f4f4;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.paneljavafx.controller.FundViewController">
     <children>
-        <GridPane prefHeight="900.0" prefWidth="1900.0" AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="10.0">
-            <columnConstraints>
-                <ColumnConstraints hgrow="SOMETIMES" maxWidth="984.3333129882812" minWidth="10.0" prefWidth="853.6666870117188" />
-            <ColumnConstraints hgrow="SOMETIMES" maxWidth="847.6666870117188" minWidth="10.0" prefWidth="846.3333129882812" />
-            <ColumnConstraints hgrow="SOMETIMES" maxWidth="847.6666870117188" minWidth="10.0" prefWidth="846.3333129882812" />
-            <ColumnConstraints />
-            </columnConstraints>
-            <rowConstraints>
-                <RowConstraints maxHeight="443.33331298828125" minHeight="10.0" prefHeight="149.3333282470703" vgrow="SOMETIMES" />
-                <RowConstraints maxHeight="771.3333435058594" minHeight="10.0" prefHeight="231.66665649414062" vgrow="SOMETIMES" />
-            <RowConstraints maxHeight="771.3333435058594" minHeight="10.0" prefHeight="256.33331298828125" vgrow="SOMETIMES" />
-            <RowConstraints maxHeight="771.3333435058594" minHeight="10.0" prefHeight="279.66668701171875" vgrow="SOMETIMES" />
-            </rowConstraints>
+        <VBox spacing="20.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+            <padding>
+                <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+            </padding>
             <children>
-                <AnchorPane prefHeight="129.0" prefWidth="1700.0" style="-fx-border-color: cyan; -fx-border-radius: 10;" GridPane.columnSpan="4">
+                <!-- Header Info -->
+                <HBox spacing="30.0" style="-fx-background-color: white; -fx-padding: 20; -fx-background-radius: 10; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1 ), 10, 0, 0, 0);">
                     <children>
-                        <Label fx:id="fundName" textFill="AQUA" layoutX="582.0" layoutY="91.0" text="NOMBRE FONDO">
-                            <font>
-                                <Font size="65.0" />
-                            </font>
-                        </Label>
+                        <VBox spacing="5.0">
+                            <children>
+                                <!-- CAMBIADO: fx:id="fundName" -->
+                                <Label fx:id="fundName" style="-fx-font-size: 24px; -fx-font-weight: bold;" text="Nombre del Fondo" />
+                                <HBox spacing="10.0">
+                                    <children>
+                                        <!-- CAMBIADO: fx:id="fundTicker" -->
+                                        <Label fx:id="fundTicker" style="-fx-text-fill: #666;" text="TICKER" />
+                                        <Label style="-fx-text-fill: #ccc;" text="|" />
+                                        <!-- CAMBIADO: fx:id="fundIsin" -->
+                                        <Label fx:id="fundIsin" style="-fx-text-fill: #666;" text="ISIN-00000000" />
+                                    </children>
+                                </HBox>
+                            </children>
+                        </VBox>
+                        <VBox spacing="5.0">
+                            <children>
+                                <!-- CAMBIADO: fx:id="fundType" -->
+                                <Label fx:id="fundType" style="-fx-background-color: #e1f5fe; -fx-text-fill: #01579b; -fx-padding: 5 10; -fx-background-radius: 5;" text="TIPO" />
+                                <!-- CAMBIADO: fx:id="fundCategory" -->
+                                <Label fx:id="fundCategory" style="-fx-text-fill: #888; -fx-font-size: 12px;" text="Categoría" />
+                            </children>
+                        </VBox>
                     </children>
-               <GridPane.margin>
-                  <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-               </GridPane.margin>
-                </AnchorPane>
-            <AnchorPane prefHeight="200.0" prefWidth="200.0" style="-fx-border-color: cyan; -fx-border-radius: 10;" GridPane.columnSpan="2" GridPane.rowIndex="1" GridPane.rowSpan="2">
-               <children>
-                  <Text fill="AQUA" layoutX="296.0" layoutY="252.0" strokeType="OUTSIDE" strokeWidth="0.0" text="GRAFICO FONDO" wrappingWidth="536.9072265625">
-                     <font>
-                        <Font size="65.0" />
-                     </font>
-                  </Text>
-               </children>
-               <GridPane.margin>
-                  <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-               </GridPane.margin>
-            </AnchorPane>
-            <AnchorPane prefHeight="200.0" prefWidth="200.0" style="-fx-border-color: cyan; -fx-border-radius: 10;" GridPane.columnIndex="2" GridPane.rowIndex="1">
-               <GridPane.margin>
-                  <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-               </GridPane.margin>
-               <children>
-                  <Text fill="AQUA" layoutX="58.0" layoutY="105.0" strokeType="OUTSIDE" strokeWidth="0.0" text="INFORMACION">
-                      <Label fx:id="fundType" textFill="AQUA" layoutX="582.0" layoutY="91.0" text="NOMBRE FONDO">
-                          <font>
-                              <Font size="65.0" />
-                          </font>
-                      </Label>
-                  </Text>
-               </children>
-            </AnchorPane>
-            <AnchorPane prefHeight="200.0" prefWidth="200.0" style="-fx-border-color: cyan; -fx-border-radius: 10;" GridPane.columnIndex="2" GridPane.rowIndex="2">
-               <GridPane.margin>
-                  <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-               </GridPane.margin>
-               <children>
-                  <Text fill="AQUA" layoutX="105.0" layoutY="125.0" strokeType="OUTSIDE" strokeWidth="0.0" text="METRICAS">
-                     <font>
-                        <Font size="41.0" />
-                     </font>
-                  </Text>
-               </children>
-            </AnchorPane>
-            <AnchorPane prefHeight="200.0" prefWidth="200.0" style="-fx-border-color: cyan; -fx-border-radius: 10;" GridPane.rowIndex="3">
-               <GridPane.margin>
-                  <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-               </GridPane.margin>
-               <children>
-                  <Text fill="AQUA" layoutX="95.0" layoutY="109.0" strokeType="OUTSIDE" strokeWidth="0.0" text="GRAFICO CIRCULAR" wrappingWidth="189.69506835937477">
-                     <font>
-                        <Font size="41.0" />
-                     </font>
-                  </Text>
-               </children>
-            </AnchorPane>
-            <AnchorPane prefHeight="200.0" prefWidth="200.0" style="-fx-border-color: cyan; -fx-border-radius: 10;" GridPane.columnIndex="2" GridPane.rowIndex="3">
-               <GridPane.margin>
-                  <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-               </GridPane.margin>
-               <children>
-                  <Text fill="AQUA" layoutX="87.0" layoutY="131.0" strokeType="OUTSIDE" strokeWidth="0.0" text="DESCRIPCION">
-                     <font>
-                        <Font size="41.0" />
-                     </font>
-                  </Text>
-               </children>
-            </AnchorPane>
-            <AnchorPane prefHeight="200.0" prefWidth="200.0" style="-fx-border-color: cyan; -fx-border-radius: 10;" GridPane.columnIndex="1" GridPane.rowIndex="3">
-               <GridPane.margin>
-                  <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-               </GridPane.margin>
-               <children>
-                  <Text fill="AQUA" layoutX="69.0" layoutY="118.0" strokeType="OUTSIDE" strokeWidth="0.0" text="TABLA PORCENTAJES" wrappingWidth="268.67919921875">
-                     <font>
-                        <Font size="41.0" />
-                     </font>
-                  </Text>
-               </children>
-            </AnchorPane>
+                </HBox>
+
+                <!-- Metrics Grid -->
+                <HBox spacing="20.0">
+                    <children>
+                        <VBox spacing="10.0" style="-fx-background-color: white; -fx-padding: 20; -fx-background-radius: 10; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 5, 0, 0, 0);" HBox.hgrow="ALWAYS">
+                            <children>
+                                <Label style="-fx-text-fill: #888;" text="VALOR LIQUIDATIVO" />
+                                <!-- CAMBIADO: fx:id="fundValue" -->
+                                <Label fx:id="fundValue" style="-fx-font-size: 28px; -fx-font-weight: bold;" text="0.00 €" />
+                                <HBox spacing="10.0">
+                                    <children>
+                                        <!-- CAMBIADO: fx:id="fundChange" -->
+                                        <Label fx:id="fundChange" style="-fx-font-weight: bold;" text="+0.00%" />
+                                        <!-- CAMBIADO: fx:id="fundDailyReturn" -->
+                                        <Label fx:id="fundDailyReturn" text="(+0 € hoy)" />
+                                    </children>
+                                </HBox>
+                            </children>
+                        </VBox>
+                        <VBox spacing="10.0" style="-fx-background-color: white; -fx-padding: 20; -fx-background-radius: 10; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 5, 0, 0, 0);" HBox.hgrow="ALWAYS">
+                            <children>
+                                <Label style="-fx-text-fill: #888;" text="ESTADÍSTICAS" />
+                                <!-- CAMBIADO: fx:id="totalAUM" -->
+                                <Label fx:id="totalAUM" style="-fx-font-size: 18px;" text="0.00 AUM" />
+                                <!-- CAMBIADO: fx:id="exposureRisk" -->
+                                <Label fx:id="exposureRisk" style="-fx-text-fill: #f44336;" text="Riesgo: 0/10" />
+                                <ProgressBar fx:id="performanceBar" maxWidth="1.7976931348623157E308" progress="0.0" />
+                            </children>
+                        </VBox>
+                    </children>
+                </HBox>
+
+                <!-- Top Assets -->
+                <VBox spacing="10.0" style="-fx-background-color: white; -fx-padding: 20; -fx-background-radius: 10; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 5, 0, 0, 0);" VBox.vgrow="ALWAYS">
+                    <children>
+                        <Label style="-fx-font-weight: bold; -fx-font-size: 16px;" text="Principales Posiciones e Impacto" />
+                        <ListView fx:id="topAssetsList" VBox.vgrow="ALWAYS" />
+                    </children>
+                </VBox>
             </children>
-        </GridPane>
+        </VBox>
     </children>
 </AnchorPane>
