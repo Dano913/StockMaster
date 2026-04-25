@@ -1,167 +1,239 @@
 package org.example.paneljavafx.simulation;
 
 import lombok.Getter;
+import org.example.paneljavafx.data.PriceRecordWriter;
 import org.example.paneljavafx.model.Asset;
 import org.example.paneljavafx.model.Candle;
-import org.example.paneljavafx.simulation.FibonacciPriceModel;
+import org.example.paneljavafx.model.PriceRecord;
 
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 public class MarketEngine {
 
-    private final FibonacciPriceModel fibModel;
+    // -------------------------
+    // STATE DEL PRECIO
+    // -------------------------
+    @Getter
+    public static class PriceState {
+        public double raw;
+        public double smooth;
+        public double trend;
+        public double change;
+    }
 
+    @Getter
+    private final PriceState price = new PriceState();
+
+    // -------------------------
+    // MARKET DATA
+    // -------------------------
     @Getter
     private final List<Candle> candles = new ArrayList<>();
 
     @Getter
     private final Asset asset;
 
-    @Getter
-    private double lastPrice;
-
-    @Getter
-    private double change;
-
-    private double open, high, low;
-
-    private int ticks;
-
-    private static final int TICKS_PER_CANDLE = 20;
+    // -------------------------
+    // MODELO BASE
+    // -------------------------
+    private final FibonacciPriceModel fibModel;
 
     // -------------------------
-    // FACTORES DERIVADOS DEL ASSET
+    // FACTORES DEL ASSET
     // -------------------------
     private final double riskFactor;
     private final double liquidityFactor;
     private final double volatilityFactor;
 
+    // -------------------------
+    // CANDLE STATE
+    // -------------------------
+    private double lastPrice;
+    private double open, high, low;
+    private int ticks;
+    private int tickVolume;
+
+    private static final int    TICKS_PER_CANDLE = 5;
+    private static final double WICK_FACTOR      = 0.25; // controla amplitud de mechas
+    private static final String TEMPORALIDAD     = "30S";
+
+    private static final DateTimeFormatter DATE_FMT = DateTimeFormatter
+            .ofPattern("yyyy-MM-dd'T'HH:mm:ss")
+            .withZone(ZoneId.systemDefault());
+
+    // -------------------------
+    // CONSTRUCTOR
+    // -------------------------
     public MarketEngine(Asset asset, List<Candle> initial) {
 
         this.asset = asset;
 
-        // motor base (Fibonacci)
         this.fibModel = new FibonacciPriceModel(
                 asset.getInitialPrice(),
                 asset.getVolatility()
         );
 
-        this.lastPrice = asset.getInitialPrice();
+        this.lastPrice    = asset.getInitialPrice();
+        this.price.raw    = asset.getInitialPrice();
+        this.price.smooth = asset.getInitialPrice();
+        this.price.trend  = asset.getInitialPrice();
 
-        // -------------------------
-        // derivación de comportamiento desde Asset
-        // -------------------------
         this.volatilityFactor = asset.getVolatility();
-        this.riskFactor = parseRisk(asset.getRisk());
-        this.liquidityFactor = parseLiquidity(asset.getLiquidity());
+        this.riskFactor       = parseRisk(asset.getRisk());
+        this.liquidityFactor  = parseLiquidity(asset.getLiquidity());
 
         if (initial != null) {
             candles.addAll(initial);
         }
     }
 
+    // -------------------------
+    // MAIN LOOP (TICK)
+    // -------------------------
     public void update() {
 
+        // 1. precio base del modelo Fibonacci
         double basePrice = fibModel.tick();
 
-        // 🔧 normalizamos el impacto del mercado respecto al precio inicial
-        double normalizedVolatility = volatilityFactor * 0.01; // control global
+        // 2. volatilidad normalizada — evita expansión progresiva de amplitud
+        double normalizedVolatility = volatilityFactor * 0.01;
 
+        // 3. ruido de mercado centrado en 0
         double noise = behaviorMultiplier() - 1.0;
 
+        // 4. precio nuevo
         double newPrice = basePrice * (1.0 + noise * normalizedVolatility);
 
-        // -------------------------
-        // CHANGE REAL
-        // -------------------------
-        this.change = (lastPrice == 0)
+        // 5. cambio porcentual real
+        price.change = (lastPrice == 0)
                 ? 0
                 : ((newPrice - lastPrice) / lastPrice) * 100;
 
-        // 🔧 FIX: evitar expansión progresiva de amplitud
-        double wickFactor = 0.25; // constante estable
+        // 6. precio suavizado para UI
+        price.smooth = (price.smooth == 0)
+                ? newPrice
+                : price.smooth + (newPrice - price.smooth) * 0.25;
 
+        price.raw   = newPrice;
+        price.trend = basePrice;
+
+        // 7. precio ajustado para las mechas — evita saltos bruscos
         double adjustedPrice = (ticks == 0)
                 ? newPrice
-                : lastPrice + (newPrice - lastPrice) * wickFactor;
+                : lastPrice + (newPrice - lastPrice) * WICK_FACTOR;
 
         lastPrice = newPrice;
 
+        // 8. actualizar OHLC
         if (ticks == 0) {
             open = high = low = adjustedPrice;
+            tickVolume = 0;
         }
 
         high = Math.max(high, adjustedPrice);
-        low = Math.min(low, adjustedPrice);
-
+        low  = Math.min(low,  adjustedPrice);
+        tickVolume++;
         ticks++;
 
+        // 9. cerrar vela
         if (ticks >= TICKS_PER_CANDLE) {
-            candles.add(new Candle(
-                    open,
-                    high,
-                    low,
-                    newPrice,
-                    System.currentTimeMillis()
-            ));
+
+            long now = System.currentTimeMillis();
+
+            candles.add(new Candle(open, high, low, newPrice, now));
+
+//            System.out.println("🕯️ CANDLE [" + asset.getTicker() + "]"
+//                    + " | open="  + round(open)
+//                    + " | close=" + round(newPrice)
+//                    + " | high="  + round(high)
+//                    + " | low="   + round(low)
+//                    + " | total=" + candles.size());
+
+            persistCandle(open, high, low, newPrice, now, tickVolume);
+
             ticks = 0;
         }
     }
 
     // -------------------------
-    // comportamiento del mercado según Asset
+    // PERSISTENCIA
     // -------------------------
-    private double behaviorMultiplier() {
+    private void persistCandle(double o, double h, double l, double c, long timestamp, int volume) {
 
-        double multiplier = 1.0;
+        PriceRecord record = new PriceRecord(
+                UUID.randomUUID().toString(),
+                asset.getId(),
+                round(o),
+                round(c),
+                round(h),
+                round(l),
+                TEMPORALIDAD,
+                DATE_FMT.format(Instant.ofEpochMilli(timestamp)),
+                volume
+        );
 
-        multiplier += (Math.random() - 0.5) * riskFactor * 0.12;
+        PriceRecordWriter.append(record);
+    }
 
-        if (liquidityFactor < 0.5 && Math.random() < 0.05) {
-            multiplier += (Math.random() - 0.5) * 0.05;
-        }
-
-        switch (asset.getSector()) {
-
-            case "shadow_liquidity":
-                multiplier += (Math.random() - 0.5) * 0.25;
-                break;
-
-            case "ai_economies":
-                multiplier *= 1.02; // ligera tendencia alcista
-                break;
-
-            case "time_arbitrage":
-                multiplier += (Math.random() - 0.5) * 0.2;
-                break;
-        }
-
-        return multiplier;
+    private double round(double value) {
+        return Math.round(value * 100.0) / 100.0;
     }
 
     // -------------------------
-    // parsers simples (IMPORTANTE)
+    // MARKET BEHAVIOR MODEL
+    // -------------------------
+    private double behaviorMultiplier() {
+
+        double m = 1.0;
+
+        m += (Math.random() - 0.5) * riskFactor * 0.12;
+
+        if (liquidityFactor < 0.5 && Math.random() < 0.05) {
+            m += (Math.random() - 0.5) * 0.05;
+        }
+
+        switch (asset.getSector()) {
+            case "shadow_liquidity" -> m += (Math.random() - 0.5) * 0.25;
+            case "ai_economies"     -> m *= 1.02;
+            case "time_arbitrage"   -> m += (Math.random() - 0.5) * 0.2;
+        }
+
+        return m;
+    }
+
+    // -------------------------
+    // PARSERS
     // -------------------------
     private double parseRisk(String risk) {
-
         return switch (risk.toLowerCase()) {
-            case "low" -> 0.5;
-            case "medium" -> 1.0;
-            case "high" -> 1.5;
+            case "low"     -> 0.5;
+            case "medium"  -> 1.0;
+            case "high"    -> 1.5;
             case "extreme" -> 2.2;
-            default -> 1.0;
+            default        -> 1.0;
         };
     }
 
     private double parseLiquidity(String liquidity) {
-
         return switch (liquidity.toLowerCase()) {
-            case "low" -> 0.5;
-            case "medium" -> 1.0;
-            case "high" -> 1.3;
+            case "low"       -> 0.5;
+            case "medium"    -> 1.0;
+            case "high"      -> 1.3;
             case "very_high" -> 1.6;
-            default -> 1.0;
+            default          -> 1.0;
         };
     }
+
+    // -------------------------
+    // GETTERS DE CONVENIENCIA
+    // -------------------------
+    public double getLastPrice()   { return price.raw;    }
+    public double getSmoothPrice() { return price.smooth; }
+    public double getTrendPrice()  { return price.trend;  }
+    public double getChange()      { return price.change; }
 }
