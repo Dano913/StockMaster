@@ -4,10 +4,9 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import org.example.paneljavafx.config.LocalDateTimeAdapter;
 
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.FileWriter;
+import java.io.*;
 import java.lang.reflect.Type;
+import java.nio.file.Files;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -15,43 +14,53 @@ import java.util.List;
 public class StorageService<T> {
 
     private final Gson gson;
-    private final String path;
+    private final File file;
     private final Type type;
 
     public StorageService(String path, Type type) {
-        this.path = path;
+        this.file = new File(path);
         this.type = type;
 
         this.gson = new GsonBuilder()
                 .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter())
+                .setPrettyPrinting()
                 .create();
+
+        if (file.getParentFile() != null) {
+            file.getParentFile().mkdirs();
+        }
+
+        // 🔥 SOLO crear si no existe (NO escribir [])
+        if (!file.exists()) {
+            try {
+                file.createNewFile();
+                System.out.println("🆕 Archivo creado: " + file.getPath());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     // =========================
-    // LOAD FROM RESOURCES
+    // LOAD (CORRECTO)
     // =========================
     public List<T> load() {
+        try {
 
-        try (InputStream is =
-                     getClass().getClassLoader().getResourceAsStream(path)) {
+            String json = Files.readString(file.toPath());
 
-            if (is == null) {
-                System.out.println("❌ No se encontró el archivo en resources: " + path);
-                System.out.println(
-                        getClass().getClassLoader().getResource("data/gestores.json")
-                );
+            System.out.println("RAW JSON:");
+            System.out.println(json);
+
+            if (json == null || json.isBlank()) {
                 return new ArrayList<>();
             }
 
-
-
-            InputStreamReader reader = new InputStreamReader(is);
-
-            List<T> data = gson.fromJson(reader, type);
+            List<T> data = gson.fromJson(json, type);
 
             if (data == null) return new ArrayList<>();
 
-            System.out.println("📦 Cargados: " + data.size());
+            System.out.println("SIZE DESPUÉS DE PARSEO: " + data.size());
 
             return data;
 
@@ -62,19 +71,15 @@ public class StorageService<T> {
     }
 
     // =========================
-    // SAVE TO FILE SYSTEM
+    // SAVE (SEGURO)
     // =========================
     public void save(List<T> data) {
+        try (FileWriter writer = new FileWriter(file)) {
 
-        try {
-            java.io.File file = new java.io.File("data/gestores.json");
-            file.getParentFile().mkdirs();
-
-            FileWriter writer = new FileWriter(file);
             gson.toJson(data, writer);
-            writer.close();
 
-            System.out.println("💾 Guardado OK");
+            System.out.println("💾 Guardado en: " + file.getPath());
+            System.out.println("📦 Elementos guardados: " + data.size());
 
         } catch (Exception e) {
             e.printStackTrace();

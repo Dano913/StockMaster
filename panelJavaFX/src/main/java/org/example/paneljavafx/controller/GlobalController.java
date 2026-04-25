@@ -11,6 +11,7 @@ import javafx.scene.control.TextField;
 import lombok.Getter;
 import lombok.Setter;
 import org.example.paneljavafx.data.DataStore;
+import org.example.paneljavafx.data.PriceRecordReader;
 import org.example.paneljavafx.model.Asset;
 import org.example.paneljavafx.model.Fund;
 import org.example.paneljavafx.simulation.MarketClock;
@@ -19,6 +20,7 @@ import org.example.paneljavafx.simulation.MarketEngine;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class GlobalController {
 
@@ -97,10 +99,19 @@ public class GlobalController {
 
         MarketClock clock = MarketClock.getInstance();
 
+        // carga una sola vez el mapa { idActivo → último precioCierre }
+        Map<String, Double> lastPrices = PriceRecordReader.loadLastPrices();
+
         for (Asset asset : assets) {
-            MarketEngine engine = new MarketEngine(asset, List.of());
+
+            double startPrice = lastPrices.getOrDefault(
+                    asset.getId(),
+                    asset.getInitialPrice()   // fallback si es la primera vez
+            );
+
+            MarketEngine engine = new MarketEngine(asset, List.of(), startPrice);
             clock.register(engine);
-            DataStore.engines.put(asset.getId(), engine); // guardamos para que las vistas reusen el mismo engine
+            DataStore.engines.put(asset.getId(), engine);
         }
 
         clock.start();
@@ -134,8 +145,7 @@ public class GlobalController {
 
         if (item instanceof Fund f) {
             return f.getNombre().toLowerCase().contains(q)
-                    || f.getTipo().toLowerCase().contains(q)
-                    || f.getCodigo_isin().toLowerCase().contains(q);
+                    || f.getTipo().toLowerCase().contains(q);
         }
 
         if (item instanceof Asset a) {

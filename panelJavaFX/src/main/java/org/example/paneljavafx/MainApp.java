@@ -7,6 +7,7 @@ import javafx.scene.Scene;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.geometry.Rectangle2D;
+import org.example.paneljavafx.service.GestorService;
 
 import java.io.IOException;
 import java.util.List;

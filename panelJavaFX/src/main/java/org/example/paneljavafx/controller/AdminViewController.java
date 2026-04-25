@@ -12,6 +12,7 @@ import org.example.paneljavafx.model.FundPosition;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class AdminViewController {
 
@@ -65,7 +66,14 @@ public class AdminViewController {
             AnchorPane view = loader.load();
 
             FundViewController controller = loader.getController();
-            controller.loadFund(fund);
+            // Filtramos las posiciones que pertenecen a este fondo específico
+            List<FundPosition> fundSpecificPositions = cachedPositions.stream()
+                    .filter(p -> fund.getIdFondo().equals(p.getIdFund())) // El objeto 'fund' ya sabemos que no es nulo aquí
+
+                    .collect(Collectors.toList());
+
+            controller.loadFund(fund, fundSpecificPositions);
+
 
             Tab tab = new Tab(fund.getNombre());
             tab.setContent(view);
