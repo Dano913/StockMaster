@@ -59,7 +59,7 @@ public class MarketEngine {
     private int tickVolume;
 
     private static final int    TICKS_PER_CANDLE = 5;
-    private static final double WICK_FACTOR      = 0.25; // controla amplitud de mechas
+    private static final double WICK_FACTOR      = 0.6;
     private static final String TEMPORALIDAD     = "30S";
 
     private static final DateTimeFormatter DATE_FMT = DateTimeFormatter
@@ -67,21 +67,32 @@ public class MarketEngine {
             .withZone(ZoneId.systemDefault());
 
     // -------------------------
-    // CONSTRUCTOR
+    // CONSTRUCTOR ORIGINAL
+    // Usa asset.getInitialPrice() — se llama cuando no hay historial persistido.
     // -------------------------
     public MarketEngine(Asset asset, List<Candle> initial) {
+        this(asset, initial, asset.getInitialPrice());
+    }
+
+    // -------------------------
+    // CONSTRUCTOR CON PRECIO RESTAURADO
+    // startPrice viene de PriceRecordReader — el último cierre guardado en disco.
+    // FibonacciPriceModel arranca desde ese precio en lugar del inicial del asset,
+    // así la simulación continúa desde donde quedó.
+    // -------------------------
+    public MarketEngine(Asset asset, List<Candle> initial, double startPrice) {
 
         this.asset = asset;
 
         this.fibModel = new FibonacciPriceModel(
-                asset.getInitialPrice(),
+                startPrice,          // precio restaurado, no el hardcoded del asset
                 asset.getVolatility()
         );
 
-        this.lastPrice    = asset.getInitialPrice();
-        this.price.raw    = asset.getInitialPrice();
-        this.price.smooth = asset.getInitialPrice();
-        this.price.trend  = asset.getInitialPrice();
+        this.lastPrice    = startPrice;
+        this.price.raw    = startPrice;
+        this.price.smooth = startPrice;
+        this.price.trend  = startPrice;
 
         this.volatilityFactor = asset.getVolatility();
         this.riskFactor       = parseRisk(asset.getRisk());
@@ -90,6 +101,11 @@ public class MarketEngine {
         if (initial != null) {
             candles.addAll(initial);
         }
+
+        System.out.printf("🚀 MarketEngine [%s] iniciado en %.2f%s%n",
+                asset.getTicker(),
+                startPrice,
+                startPrice != asset.getInitialPrice() ? " (restaurado)" : " (precio inicial)");
     }
 
     // -------------------------
@@ -117,7 +133,7 @@ public class MarketEngine {
         // 6. precio suavizado para UI
         price.smooth = (price.smooth == 0)
                 ? newPrice
-                : price.smooth + (newPrice - price.smooth) * 0.25;
+                : price.smooth + (newPrice - price.smooth) * 1;
 
         price.raw   = newPrice;
         price.trend = basePrice;
@@ -191,7 +207,7 @@ public class MarketEngine {
 
         double m = 1.0;
 
-        m += (Math.random() - 0.5) * riskFactor * 0.12;
+        m += (Math.random() - 0.5) * riskFactor * 0.25;
 
         if (liquidityFactor < 0.5 && Math.random() < 0.05) {
             m += (Math.random() - 0.5) * 0.05;

@@ -1,5 +1,6 @@
 package org.example.paneljavafx.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -9,12 +10,27 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class Fund {
 
-    private String id_fondo;
-    private String id_empresa;
+    @JsonProperty("id_fondo")
+    private String idFondo;  // ← String (ej: "FND-001")
+
+    @JsonProperty("id_empresa")
+    private String idEmpresa;  // ← String (ej: "EMP-5001")
+
+    @JsonProperty("nombre")
     private String nombre;
-    private String codigo_isin;
+
+    @JsonProperty("codigo_isin")
+    private String codigoIsin;
+
+    @JsonProperty("tipo")
     private String tipo;
+
+    @JsonProperty("categoria")
     private String categoria;
-    private String moneda_base;
-    private String fecha_creacion;
+
+    @JsonProperty("moneda_base")
+    private String monedaBase;
+
+    @JsonProperty("fecha_creacion")
+    private String fechaCreacion;
 }
