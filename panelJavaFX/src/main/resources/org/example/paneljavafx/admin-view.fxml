@@ -101,14 +101,6 @@
                     <Tab fx:id="carteraTab" text="Cartera" closable="false">
                         <fx:include source="cartera-cliente-view.fxml" />
                     </Tab>
-
-                    <Tab fx:id="reportesTab" text="Reportes" closable="false">
-                        <fx:include source="reportes-view.fxml" />
-                    </Tab>
-
-                    <Tab fx:id="analisisTab" text="Analisis" closable="false">
-                        <fx:include source="analisis-view.fxml" />
-                    </Tab>
                 </tabs>
 
             </TabPane>

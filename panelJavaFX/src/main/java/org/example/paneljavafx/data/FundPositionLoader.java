@@ -82,37 +82,37 @@ public class FundPositionLoader {
             // -------------------------
             // PRINT TABLA
             // -------------------------
-            System.out.println("\n========== ASSET EXPOSURE MATRIX ==========\n");
-
-            // header
-            System.out.print(String.format("%-15s", "ASSET"));
-            for (String f : funds) {
-                System.out.print(String.format("%-15s", f));
-            }
-            System.out.println();
-
-            System.out.println("=".repeat(15 + funds.size() * 15));
-
-            // rows
-            for (String asset : assets) {
-
-                System.out.print(String.format("%-15s", asset));
-
-                Map<String, Double> fundMap = matrix.get(asset);
-
-                for (String fund : funds) {
-
-                    double value = fundMap != null && fundMap.containsKey(fund)
-                            ? fundMap.get(fund)
-                            : 0.0;
-
-                    System.out.print(String.format("%-15.2f", value));
-                }
-
-                System.out.println();
-            }
-
-            System.out.println("\n==========================================\n");
+//            System.out.println("\n========== ASSET EXPOSURE MATRIX ==========\n");
+//
+//            // header
+//            System.out.print(String.format("%-15s", "ASSET"));
+//            for (String f : funds) {
+//                System.out.print(String.format("%-15s", f));
+//            }
+//            System.out.println();
+//
+//            System.out.println("=".repeat(15 + funds.size() * 15));
+//
+//            // rows
+//            for (String asset : assets) {
+//
+//                System.out.print(String.format("%-15s", asset));
+//
+//                Map<String, Double> fundMap = matrix.get(asset);
+//
+//                for (String fund : funds) {
+//
+//                    double value = fundMap != null && fundMap.containsKey(fund)
+//                            ? fundMap.get(fund)
+//                            : 0.0;
+//
+//                    System.out.print(String.format("%-15.2f", value));
+//                }
+//
+//                System.out.println();
+//            }
+//
+//            System.out.println("\n==========================================\n");
 
         } catch (Exception e) {
             throw new RuntimeException("❌ Error cargando fund positions", e);

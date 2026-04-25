@@ -8,11 +8,16 @@ import javafx.fxml.FXML;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
+import lombok.Getter;
 import lombok.Setter;
+import org.example.paneljavafx.data.DataStore;
 import org.example.paneljavafx.model.Asset;
 import org.example.paneljavafx.model.Fund;
+import org.example.paneljavafx.simulation.MarketClock;
+import org.example.paneljavafx.simulation.MarketEngine;
 
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.List;
 
 public class GlobalController {
@@ -20,11 +25,8 @@ public class GlobalController {
     // -------------------------
     // UI
     // -------------------------
-    @FXML
-    private TextField searchField;
-
-    @FXML
-    private ListView<Object> resultsList;
+    @FXML private TextField searchField;
+    @FXML private ListView<Object> resultsList;
 
     @Setter
     private AdminViewController adminController;
@@ -32,8 +34,11 @@ public class GlobalController {
     // -------------------------
     // DATA
     // -------------------------
-    private final ObservableList<Object> masterData = FXCollections.observableArrayList();
+    private final ObservableList<Object> masterData   = FXCollections.observableArrayList();
     private final ObservableList<Object> filteredData = FXCollections.observableArrayList();
+
+    @Getter private List<Asset> assets = new ArrayList<>();
+    @Getter private List<Fund>  funds  = new ArrayList<>();
 
     // -------------------------
     // INIT
@@ -41,16 +46,19 @@ public class GlobalController {
     @FXML
     public void initialize() {
 
-        System.out.println("GLOBAL CONTROLLER INIT: " + this);
-
-        loadData();
+        loadData();         // carga assets + funds desde JSON
+        bootstrapMarket();  // registra todos los engines y arranca el clock
 
         resultsList.setItems(filteredData);
-
         setupCellFactory();
         setupSearch();
-
         filteredData.setAll(masterData);
+
+        DataStore.assets.clear();
+        DataStore.assets.addAll(assets);
+
+        DataStore.funds.clear();
+        DataStore.funds.addAll(funds);
     }
 
     // -------------------------
@@ -61,22 +69,43 @@ public class GlobalController {
         try {
             ObjectMapper mapper = new ObjectMapper();
 
-            InputStream fundsStream = getClass().getResourceAsStream("/data/funds.json");
+            InputStream fundsStream  = getClass().getResourceAsStream("/data/funds.json");
             InputStream assetsStream = getClass().getResourceAsStream("/data/assets.json");
 
             if (fundsStream != null) {
-                List<Fund> funds = mapper.readValue(fundsStream, new TypeReference<>() {});
+                funds = mapper.readValue(fundsStream, new TypeReference<>() {});
                 masterData.addAll(funds);
             }
 
             if (assetsStream != null) {
-                List<Asset> assets = mapper.readValue(assetsStream, new TypeReference<>() {});
+                assets = mapper.readValue(assetsStream, new TypeReference<>() {});
                 masterData.addAll(assets);
             }
 
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    // -------------------------
+    // MARKET BOOTSTRAP
+    // Crea un MarketEngine por cada asset y los registra en el clock global.
+    // Desde este momento todos los precios se simulan en background,
+    // aunque ninguna vista esté abierta todavía.
+    // -------------------------
+    private void bootstrapMarket() {
+
+        MarketClock clock = MarketClock.getInstance();
+
+        for (Asset asset : assets) {
+            MarketEngine engine = new MarketEngine(asset, List.of());
+            clock.register(engine);
+            DataStore.engines.put(asset.getId(), engine); // guardamos para que las vistas reusen el mismo engine
+        }
+
+        clock.start();
+
+        System.out.println("✅ MarketClock arrancado con " + assets.size() + " activos.");
     }
 
     // -------------------------
@@ -157,15 +186,8 @@ public class GlobalController {
             Object selected = resultsList.getSelectionModel().getSelectedItem();
             if (selected == null) return;
 
-            System.out.println("SELECTED: " + selected);
-
-            if (selected instanceof Fund fund) {
-                adminController.openFund(fund);
-            }
-
-            if (selected instanceof Asset asset) {
-                adminController.openAsset(asset);
-            }
+            if (selected instanceof Fund fund)   adminController.openFund(fund);
+            if (selected instanceof Asset asset) adminController.openAsset(asset);
         });
     }
 }
