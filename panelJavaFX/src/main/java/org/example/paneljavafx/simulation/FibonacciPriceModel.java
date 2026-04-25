@@ -26,15 +26,23 @@ public class FibonacciPriceModel {                                   // Modelo q
         return result;                                  // Devuelve valor calculado
     }
 
-    public double tick() {                                           // Ejecuta un paso de simulación de mercado
-        long fibValue = fib(fibIndex);                              // Obtiene valor Fibonacci actual
-        double increment = fibValue * baseUnit;                    // Convierte Fibonacci en movimiento de precio
-        double direction = rand.nextDouble() < 0.52 ? 1.0 : -1.0; // Sesgo leve alcista (52% vs 48%)
-        price += direction * increment;                          // Actualiza precio aplicando dirección
-        fibIndex++;                                             // Avanza índice Fibonacci
-        if (fibIndex > MAX_FIB_INDEX) {                        // Si llega al límite
-            fibIndex = 1;                                     // Reinicia ciclo
-        }
-        return price;                                       // Devuelve nuevo precio
+    public double tick() {
+        long fibValue = fib(fibIndex);
+
+        // normalizar contra el máximo posible → siempre entre 0 y 1
+        double normalized = (double) fibValue / fib(MAX_FIB_INDEX);
+
+        // volatilidad controlada — baseUnit ya es pequeño (ej: 0.18)
+        // multiplicamos por un factor fino para que el movimiento sea suave
+        double volatility = baseUnit * normalized * 0.002;
+
+        double direction = (rand.nextDouble() * 2 - 1); // -1 a +1
+
+        price *= (1.0 + direction * volatility);
+
+        fibIndex++;
+        if (fibIndex > MAX_FIB_INDEX) fibIndex = 1;
+
+        return price;
     }
 }

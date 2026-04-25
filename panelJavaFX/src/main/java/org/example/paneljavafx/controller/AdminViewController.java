@@ -29,8 +29,6 @@ public class AdminViewController {
     @FXML
     public void initialize() {
         loadGlobalView();
-        System.out.println("INIT ADMIN");
-
         cachedPositions = FundPositionLoader.load();
     }
 
@@ -59,7 +57,6 @@ public class AdminViewController {
     // OPEN FUND
     // -------------------------
     public void openFund(Fund fund) {
-
         try {
             FXMLLoader loader = new FXMLLoader(
                     getClass().getResource("/org/example/paneljavafx/fund-view.fxml")
@@ -88,7 +85,6 @@ public class AdminViewController {
     // OPEN ASSET
     // -------------------------
     public void openAsset(Asset asset) {
-
         try {
             FXMLLoader loader = new FXMLLoader(
                     getClass().getResource("/org/example/paneljavafx/asset-view.fxml")
@@ -97,12 +93,15 @@ public class AdminViewController {
             AnchorPane view = loader.load();
 
             AssetViewController controller = loader.getController();
-
             controller.loadAssetExposure(asset, cachedPositions);
             controller.loadAsset(asset);
+
             Tab tab = new Tab(asset.getName());
             tab.setContent(view);
             tab.setClosable(true);
+
+            // ← limpiar engine y listener cuando el tab se cierra
+            tab.setOnClosed(event -> controller.onClose());
 
             assetTabPane.getTabs().add(tab);
             assetTabPane.getSelectionModel().select(tab);

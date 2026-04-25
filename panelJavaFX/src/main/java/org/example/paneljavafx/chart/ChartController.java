@@ -6,7 +6,6 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 
 import org.example.paneljavafx.simulation.MarketEngine;
-import org.example.paneljavafx.simulation.MarketPrinter;
 
 import java.util.List;
 
@@ -27,24 +26,24 @@ public class ChartController {
     private final ChartRenderer renderer = new ChartRenderer();
 
     private static final double PAD_LEFT = 65;
-    private static final double PAD_TOP = 12;
+    private static final double PAD_TOP  = 12;
 
     private double lastMouseX = 0;
 
+    // -------------------------
+    // CONSTRUCTOR
+    // -------------------------
     public ChartController(Canvas canvas, List<MarketEngine> engines) {
-
-        this.canvas = canvas;
-
-        List<MarketEngine> safeEngines = engines;
 
         if (engines == null || engines.isEmpty()) {
             throw new IllegalStateException(
-                    "❌ No assets loaded. Market cannot start without real data."
+                    "❌ No assets loaded. ChartController requires at least one MarketEngine."
             );
         }
 
-        this.engines = safeEngines;
-        this.activeEngine = safeEngines.get(0);
+        this.canvas       = canvas;
+        this.engines      = engines;
+        this.activeEngine = engines.get(0);
 
         init();
     }
@@ -54,62 +53,35 @@ public class ChartController {
     // -------------------------
     private void init() {
 
-        // -------------------------
         // ZOOM + SCROLL
-        // -------------------------
         canvas.setOnScroll(e -> {
-
             if (e.isControlDown()) {
-
                 state.priceZoom = clamp(
                         state.priceZoom * (1 + e.getDeltaY() * 0.002),
-                        0.1,
-                        20
+                        0.1, 20
                 );
-
             } else {
-
                 state.candleWidth = clamp(
                         state.candleWidth - e.getDeltaY() * 0.03,
-                        3,
-                        30
+                        3, 30
                 );
             }
         });
 
-        // -------------------------
-        // DRAG (correcto)
-        // -------------------------
-        canvas.setOnMousePressed(e -> {
-            lastMouseX = e.getX();
-        });
-
+        // DRAG
+        canvas.setOnMousePressed(e -> lastMouseX = e.getX());
         canvas.setOnMouseDragged(e -> {
-
-            double delta = e.getX() - lastMouseX;
-            state.scrollX += delta;
+            state.scrollX += e.getX() - lastMouseX;
             lastMouseX = e.getX();
         });
 
-        // -------------------------
-        // MAIN LOOP
-        // -------------------------
+        // ANIMATION LOOP — solo renderiza, NO llama a engine.update()
+        // Los precios los genera exclusivamente el MarketClock
         new AnimationTimer() {
-
             @Override
             public void handle(long now) {
-
-                // actualizar TODOS los mercados (background)
-                for (MarketEngine engine : engines) {
-                    engine.update();
-                }
-
-                // render SOLO el activo seleccionado
                 draw();
-
-                //MarketPrinter.print(engines);
             }
-
         }.start();
     }
 
@@ -132,7 +104,6 @@ public class ChartController {
         double W = canvas.getWidth();
         double H = canvas.getHeight();
 
-        // background
         g.clearRect(0, 0, W, H);
         g.setFill(Color.web("#111111"));
         g.fillRect(0, 0, W, H);
@@ -140,21 +111,12 @@ public class ChartController {
         var candles = activeEngine.getCandles();
 
         if (candles == null || candles.size() < 2) {
-            return;
+            return; // el engine está acumulando datos — el gráfico aparecerá solo
         }
 
         var view = state.build(candles, W - PAD_LEFT, H - PAD_TOP);
 
-        renderer.draw(
-                g,
-                candles,
-                view,
-                W,
-                H,
-                PAD_LEFT,
-                PAD_TOP,
-                state.candleWidth
-        );
+        renderer.draw(g, candles, view, W, H, PAD_LEFT, PAD_TOP, state.candleWidth);
     }
 
     // -------------------------
