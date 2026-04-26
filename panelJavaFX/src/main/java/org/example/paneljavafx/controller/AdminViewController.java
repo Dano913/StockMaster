@@ -66,9 +66,9 @@ public class AdminViewController {
             AnchorPane view = loader.load();
 
             FundViewController controller = loader.getController();
-            // Filtramos las posiciones que pertenecen a este fondo específico
+
             List<FundPosition> fundSpecificPositions = cachedPositions.stream()
-                    .filter(p -> fund.getIdFondo().equals(p.getIdFund())) // El objeto 'fund' ya sabemos que no es nulo aquí
+                    .filter(p -> fund.getIdFondo().equals(p.getIdFund()))
 
                     .collect(Collectors.toList());
 
@@ -108,7 +108,6 @@ public class AdminViewController {
             tab.setContent(view);
             tab.setClosable(true);
 
-            // ← limpiar engine y listener cuando el tab se cierra
             tab.setOnClosed(event -> controller.onClose());
 
             assetTabPane.getTabs().add(tab);
