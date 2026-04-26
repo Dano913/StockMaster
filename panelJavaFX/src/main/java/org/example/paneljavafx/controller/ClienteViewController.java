@@ -2,25 +2,17 @@ package org.example.paneljavafx.controller;
 
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import org.example.paneljavafx.model.Cliente;
 import org.example.paneljavafx.model.Posicion;
-import org.example.paneljavafx.service.ClienteJsonService;
-
-import java.util.Comparator;
+import org.example.paneljavafx.service.ClienteService;
 
 public class ClienteViewController {
 
     // =========================
-    // SERVICES
-    // =========================
-    private final ClienteJsonService clienteJsonService = ClienteJsonService.getInstance();
-
-    // =========================
-    // TABLES (FXML)
+    // UI
     // =========================
     @FXML private TableView<Cliente> clientsTable;
     @FXML private TableColumn<Cliente, String> colName;
@@ -33,22 +25,25 @@ public class ClienteViewController {
     @FXML private TextField searchField;
 
     // =========================
-    // DATA
+    // SERVICE
+    // =========================
+    private final ClienteService clienteService = new ClienteService();
+
+    // =========================
+    // STATE
     // =========================
     private FilteredList<Cliente> filteredClientes;
-    private FilteredList<Posicion> filteredPosiciones;
-    private ObservableList<Posicion> globalPosiciones;
 
     // =========================
     // INIT
     // =========================
     @FXML
     public void initialize() {
-        System.out.println("\n🚀 === ClienteViewController INICIALIZANDO ===");
 
-        // 🔥 Carga y debug automático
-        clienteJsonService.loadFromJson("data/clientes.json");
-        System.out.println("✅ Clientes cargados. Configurando tablas...\n");
+        System.out.println("🚀 ClienteViewController inicializado");
+
+        // ✔ correcto: ahora carga desde DataSource interno
+        clienteService.load();
 
         setupClientsTable();
         setupInversionesTable();
@@ -59,87 +54,74 @@ public class ClienteViewController {
     // CLIENTES TABLE
     // =========================
     private void setupClientsTable() {
+
         colName.setCellValueFactory(d ->
-                new SimpleStringProperty(d.getValue().getNombre() + " " + d.getValue().getApellido()));
+                new SimpleStringProperty(
+                        d.getValue().getNombre() + " " + d.getValue().getApellido()
+                )
+        );
 
         colEmail.setCellValueFactory(d ->
-                new SimpleStringProperty(d.getValue().getEmail()));
+                new SimpleStringProperty(d.getValue().getEmail())
+        );
 
-        // 🔥 Datos desde servicio
-        ObservableList<Cliente> source = clienteJsonService.getLastLoadedClientes();
-        if (source == null || source.isEmpty()) {
-            source = FXCollections.observableArrayList();
-            System.out.println("⚠️ Tabla clientes vacía");
-        }
-
-        filteredClientes = new FilteredList<>(source);
+        filteredClientes = new FilteredList<>(clienteService.getAll());
         clientsTable.setItems(filteredClientes);
 
-        // 🔥 Filtrado por selección cliente → sus posiciones
-        clientsTable.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, selected) -> {
-            if (filteredPosiciones == null) return;
-            if (selected == null) {
-                filteredPosiciones.setPredicate(null);
-                return;
-            }
-            // Muestra SOLO posiciones del cliente seleccionado
-            filteredPosiciones.setPredicate(p ->
-                    clienteJsonService.getPosicionesByClienteId(selected.getIdCliente()).contains(p));
-        });
+        clientsTable.getSelectionModel()
+                .selectedItemProperty()
+                .addListener((obs, oldVal, selected) -> {
+
+                    if (selected == null) {
+                        inversionesTable.setItems(FXCollections.observableArrayList());
+                        return;
+                    }
+
+                    var posiciones =
+                            clienteService.getPosicionesByClienteId(selected.getIdCliente());
+
+                    inversionesTable.setItems(FXCollections.observableArrayList(posiciones));
+                });
     }
 
     // =========================
-    // INVERSIONES TABLE
+    // POSICIONES TABLE
     // =========================
     private void setupInversionesTable() {
+
         colFund.setCellValueFactory(d ->
-                new SimpleStringProperty(d.getValue().getNombreFondo() +
-                        " (F#" + d.getValue().getIdFondo() + ")"));
+                new SimpleStringProperty(
+                        d.getValue().getNombreFondo() +
+                                " (F#" + d.getValue().getIdFondo() + ")"
+                )
+        );
 
         colAmount.setCellValueFactory(d ->
-                new SimpleStringProperty(String.format("€%.2f", d.getValue().getValorActual())));
+                new SimpleStringProperty(
+                        String.format("€%.2f", d.getValue().getValorActual())
+                )
+        );
 
-        refreshGlobalPosiciones();
+        inversionesTable.setItems(FXCollections.observableArrayList());
     }
 
     // =========================
-    // GLOBAL POSICIONES
-    // =========================
-    private void refreshGlobalPosiciones() {
-        globalPosiciones = clienteJsonService.getAllPosiciones();
-
-        if (filteredPosiciones == null) {
-            filteredPosiciones = new FilteredList<>(globalPosiciones);
-            inversionesTable.setItems(filteredPosiciones);
-        }
-    }
-
-    // =========================
-    // SEARCH GLOBAL
+    // SEARCH
     // =========================
     private void setupSearch() {
+
         searchField.textProperty().addListener((obs, oldVal, newVal) -> {
+
             String filter = (newVal == null) ? "" : newVal.toLowerCase();
 
-            // 🔥 Filtra CLIENTES
-            if (filteredClientes != null) {
-                filteredClientes.setPredicate(c ->
-                        filter.isEmpty() ||
-                                (c.getNombre() + " " + c.getApellido()).toLowerCase().contains(filter) ||
-                                c.getEmail().toLowerCase().contains(filter));
-            }
+            filteredClientes.setPredicate(c -> {
 
-            // 🔥 Filtra POSICIONES
-            if (filteredPosiciones != null) {
-                if (filter.isEmpty()) {
-                    filteredPosiciones.setPredicate(null);
-                    clientsTable.getSelectionModel().clearSelection();
-                } else {
-                    filteredPosiciones.setPredicate(p ->
-                            p.getNombreFondo().toLowerCase().contains(filter) ||
-                                    String.valueOf(p.getIdFondo()).contains(filter));
-                }
-            }
+                if (filter.isEmpty()) return true;
+
+                return c.getNombre().toLowerCase().contains(filter)
+                        || c.getApellido().toLowerCase().contains(filter)
+                        || c.getEmail().toLowerCase().contains(filter);
+            });
         });
     }
 }
