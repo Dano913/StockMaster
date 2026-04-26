@@ -31,6 +31,9 @@ public class AssetViewController implements TabDataReceiver<Asset> {
     @FXML private Label assetWeight;
     @FXML private Label assetRisk;
     @FXML private Label assetLiquidity;
+    @FXML private Label assetMarketCap;
+    @FXML private Label assetType;
+    @FXML private Label assetSector;
 
     @FXML private ProgressBar assetExposure;
     @FXML private ListView<String> tabla_exposicion;
@@ -55,8 +58,8 @@ public class AssetViewController implements TabDataReceiver<Asset> {
 
         this.currentAsset = asset;
 
-        renderStatic();
         bindMarket();
+        recalculate();
     }
 
     // =========================
@@ -105,30 +108,42 @@ public class AssetViewController implements TabDataReceiver<Asset> {
     // =========================
     private void updateUI(AssetMetrics m) {
 
+        if (currentAsset == null) return;
+
+        // =========================
+        // IDENTIFICACIÓN
+        // =========================
+        assetName.setText(currentAsset.getName());
+        assetTicker.setText(currentAsset.getTicker());
+
+        // =========================
+        // MERCADO
+        // =========================
+
+        assetMarketCap.setText(currentAsset.getMarketCap() + " €");
+        assetType.setText(currentAsset.getType());
+        assetSector.setText(currentAsset.getSector());
+
+        // =========================
+        // MÉTRICAS DEL ASSET (estáticas)
+        // =========================
+        assetRisk.setText(currentAsset.getRisk());
+        assetLiquidity.setText(currentAsset.getLiquidity());
+
+        // =========================
+        // MÉTRICAS DINÁMICAS
+        // =========================
         assetExposure.setProgress(m.getExposureRatio());
         assetFundsCount.setText(m.getFundsExposed() + " funds");
 
         assetWeight.setText(String.format("%.2f%%", m.getGlobalWeight() * 100));
 
-        MarketEngine engine = DataStore.engines.get(currentAsset.getId());
+        assetPrice.setText(currentAsset.getMarketCap() + "€");
 
+        MarketEngine engine = DataStore.engines.get(currentAsset.getId());
         double price = (engine != null) ? engine.getLastPrice() : 0.0;
 
         assetPrice.setText(price + " €");
-    }
-
-    // =========================
-    // STATIC UI
-    // =========================
-    private void renderStatic() {
-
-        if (currentAsset == null) return;
-
-        assetName.setText(currentAsset.getName());
-        assetTicker.setText(currentAsset.getTicker());
-
-        assetRisk.setText("Risk: -");
-        assetLiquidity.setText("Liquidity: -");
     }
 
     // =========================

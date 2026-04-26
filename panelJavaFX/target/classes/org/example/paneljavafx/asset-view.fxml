@@ -3,7 +3,6 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.canvas.Canvas?>
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.ProgressBar?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.ColumnConstraints?>
@@ -13,114 +12,115 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 
-<AnchorPane xmlns="http://javafx.com/javafx/25"
-            xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="org.example.paneljavafx.controller.AssetViewController"
-            style="-fx-background-color: #f4f4f4;"
-            prefWidth="1000" prefHeight="700">
+<AnchorPane prefHeight="800.0" prefWidth="1900.0" style="-fx-background-color: #121018;" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.paneljavafx.controller.AssetViewController">
 
     <children>
 
-        <GridPane hgap="15" vgap="15"
-                  AnchorPane.topAnchor="10"
-                  AnchorPane.bottomAnchor="10"
-                  AnchorPane.leftAnchor="10"
-                  AnchorPane.rightAnchor="10">
+        <GridPane hgap="15" layoutX="7.0" layoutY="2.0" vgap="15" AnchorPane.bottomAnchor="18.0" AnchorPane.leftAnchor="7.0" AnchorPane.rightAnchor="13.0" AnchorPane.topAnchor="2.0">
 
             <padding>
-                <Insets top="15" right="15" bottom="15" left="15"/>
+                <Insets bottom="15" left="15" right="15" top="15" />
             </padding>
 
             <!-- ================= ROWS ================= -->
             <rowConstraints>
-                <RowConstraints vgrow="ALWAYS"/>
-                <RowConstraints prefHeight="140" minHeight="140" maxHeight="140"/>
+                <RowConstraints maxHeight="436.0" minHeight="348.0" prefHeight="348.0" vgrow="ALWAYS" />
+            <RowConstraints maxHeight="132.0" minHeight="10.0" prefHeight="132.0" vgrow="ALWAYS" />
+                <RowConstraints maxHeight="140.0" minHeight="140.0" prefHeight="140.0" />
             </rowConstraints>
 
             <columnConstraints>
-                <ColumnConstraints hgrow="ALWAYS"/>
+                <ColumnConstraints hgrow="ALWAYS" maxWidth="1424.3333740234375" minWidth="1371.0" prefWidth="1381.6666259765625" />
+            <ColumnConstraints hgrow="ALWAYS" maxWidth="464.0" minWidth="10.0" prefWidth="453.3333740234375" />
             </columnConstraints>
 
             <!-- ================= TOP SECTION ================= -->
-            <VBox spacing="10"
-                  style="-fx-background-color: white; -fx-padding: 12; -fx-background-radius: 10;"
-                  GridPane.rowIndex="0">
+            <VBox spacing="10" style="-fx-background-color: #121018; -fx-text-fill: white; -fx-padding: 12; -fx-background-radius: 10;" GridPane.rowIndex="0" GridPane.rowSpan="3">
 
                 <!-- HEADER -->
                 <HBox spacing="15">
 
                     <VBox spacing="5">
-                        <Label fx:id="assetName"
-                               style="-fx-font-size: 20px; -fx-font-weight: bold;"
-                               text="Asset Name"/>
+                        <Label fx:id="assetName" style="-fx-text-fill: #fff; -fx-font-size: 20px; -fx-font-weight: bold;" text="Asset Name" />
 
-                        <Label fx:id="assetTicker"
-                               style="-fx-text-fill: #666;"
-                               text="TICKER"/>
+                        <Label fx:id="assetTicker" style="-fx-text-fill: #fff;" text="TICKER" />
                     </VBox>
 
-                    <Region HBox.hgrow="ALWAYS"/>
+                    <Region HBox.hgrow="ALWAYS" />
 
                     <VBox alignment="CENTER_RIGHT" spacing="5">
-                        <Label fx:id="assetPrice"
-                               style="-fx-font-size: 22px; -fx-font-weight: bold;"
-                               text="0.00 €"/>
+                        <Label fx:id="assetPrice" style="-fx-text-fill: #fff; -fx-font-size: 22px; -fx-font-weight: bold;" text="0.00 €" />
 
-                        <Label fx:id="assetChange"
-                               text="+0.00%"/>
+                        <Label style="-fx-text-fill: #fff;" fx:id="assetChange" text="+0.00%" />
                     </VBox>
 
                 </HBox>
 
                 <!-- CHART -->
-                <Canvas fx:id="chartCanvas"
-                        width="900"
-                        height="350"/>
+                <Canvas fx:id="chartCanvas" height="647.0" width="1357.0" />
             </VBox>
 
             <!-- ================= METRICS ================= -->
-            <GridPane hgap="15"
-                      GridPane.rowIndex="1">
+            <GridPane hgap="15" GridPane.rowIndex="2">
 
                 <columnConstraints>
-                    <ColumnConstraints hgrow="ALWAYS"/>
-                    <ColumnConstraints hgrow="ALWAYS"/>
-                    <ColumnConstraints hgrow="ALWAYS"/>
+                    <ColumnConstraints hgrow="ALWAYS" maxWidth="330.0" minWidth="307.0" prefWidth="321.0" />
+                    <ColumnConstraints hgrow="ALWAYS" maxWidth="578.6666259765625" minWidth="313.0" prefWidth="578.6666259765625" />
+                    <ColumnConstraints hgrow="ALWAYS" maxWidth="286.0" minWidth="159.33331298828125" prefWidth="195.3333740234375" />
                 </columnConstraints>
-
-                <!-- EXPOSURE -->
-                <VBox spacing="8"
-                      style="-fx-background-color: white; -fx-padding: 15; -fx-background-radius: 10;">
-
-                    <Label text="EXPOSURE" style="-fx-text-fill: #888;"/>
-                    <Label fx:id="assetFundsCount" text="0 funds"/>
-                    <Label fx:id="assetWeight" text="0.00%"/>
-                    <ProgressBar fx:id="assetExposure" progress="0.0"
-                                 maxWidth="1.7976931348623157E308"/>
-                </VBox>
-
-                <!-- RISK -->
-                <VBox spacing="8"
-                      style="-fx-background-color: white; -fx-padding: 15; -fx-background-radius: 10;"
-                      GridPane.columnIndex="1">
-
-                    <Label text="RISK" style="-fx-text-fill: #888;"/>
-                    <Label fx:id="assetRisk" text="Risk: -"/>
-                    <Label fx:id="assetLiquidity" text="Liquidity: -"/>
-                </VBox>
-
-                <!-- TABLE -->
-                <VBox spacing="10"
-                      style="-fx-background-color: white; -fx-padding: 15; -fx-background-radius: 10;"
-                      GridPane.columnIndex="2">
-
-                    <Label text="Fund Exposure"
-                           style="-fx-font-weight: bold;"/>
-
-                    <ListView fx:id="tabla_exposicion"/>
-                </VBox>
-
+            <rowConstraints>
+               <RowConstraints />
+            </rowConstraints>
             </GridPane>
+
+             <!-- EXPOSURE -->
+             <VBox spacing="8" style="-fx-background-color: #121018; -fx-padding: 15; -fx-background-radius: 10;" GridPane.columnIndex="1" GridPane.rowIndex="1">
+
+                 <Label style="-fx-text-fill: #fff;" text="EXPOSURE" />
+                 <Label style="-fx-text-fill: #fff;" fx:id="assetFundsCount" text="0 funds" />
+                 <Label style="-fx-text-fill: #fff;" fx:id="assetWeight" text="0.00%" />
+                 <ProgressBar fx:id="assetExposure" maxWidth="1.7976931348623157E308" progress="0.0" />
+             </VBox>
+
+             <!-- RISK -->
+             <GridPane hgap="10" style="-fx-background-color: #121018; -fx-text-fill: white; -fx-padding: 15; -fx-background-radius: 10;" vgap="10" GridPane.columnIndex="1" GridPane.rowIndex="2">
+
+                 <columnConstraints>
+                     <ColumnConstraints hgrow="ALWAYS" maxWidth="123.0" minWidth="76.0" prefWidth="76.0" />
+               <ColumnConstraints hgrow="ALWAYS" maxWidth="124.0" minWidth="80.0" prefWidth="81.0" />
+                     <ColumnConstraints hgrow="ALWAYS" maxWidth="114.0" minWidth="53.0" prefWidth="55.0" />
+               <ColumnConstraints hgrow="ALWAYS" maxWidth="113.0" minWidth="10.0" prefWidth="69.0" />
+                 </columnConstraints>
+
+                 <rowConstraints>
+                     <RowConstraints vgrow="ALWAYS" />
+                     <RowConstraints vgrow="ALWAYS" />
+               <RowConstraints vgrow="ALWAYS" />
+                 </rowConstraints>
+
+                 <!-- Row 0 -->
+                 <Label style="-fx-text-fill: #fff;" text="Risk:" GridPane.columnIndex="2" />
+                 <Label fx:id="assetRisk" style="-fx-text-fill: #fff;" prefHeight="17.0" prefWidth="164.0" GridPane.columnIndex="3" />
+
+                 <!-- Row 2 -->
+                 <Label style="-fx-text-fill: #fff;" text="Volatility:" GridPane.columnIndex="2" GridPane.rowIndex="2" />
+                 <Label fx:id="assetVolatility" style="-fx-text-fill: #fff;" prefHeight="17.0" prefWidth="133.0" GridPane.columnIndex="3" GridPane.rowIndex="2" />
+                 <!-- Row 1 -->
+                 <Label style="-fx-text-fill: #fff;" text="Liquidity:" GridPane.columnIndex="2" GridPane.rowIndex="1" />
+                 <Label fx:id="assetLiquidity" style="-fx-text-fill: #fff;" prefHeight="17.0" prefWidth="170.0" GridPane.columnIndex="3" GridPane.rowIndex="1" />
+
+                 <Label style="-fx-text-fill: #fff;" text="Market Cap:" />
+                 <Label fx:id="assetMarketCap" style="-fx-text-fill: #fff;" prefHeight="17.0" prefWidth="246.0" GridPane.columnIndex="1" />
+
+                 <!-- ROW 1 -->
+                 <Label style="-fx-text-fill: #fff;" text="Type:" GridPane.rowIndex="1" />
+                 <Label fx:id="assetType" style="-fx-text-fill: #fff;" prefHeight="17.0" prefWidth="151.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+
+                 <!-- ROW 2 -->
+                 <Label style="-fx-text-fill: #fff;" text="Sector:" GridPane.rowIndex="2" />
+                 <Label fx:id="assetSector" style="-fx-text-fill: #fff;" prefHeight="17.0" prefWidth="90.0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+
+             </GridPane>
 
         </GridPane>
 
