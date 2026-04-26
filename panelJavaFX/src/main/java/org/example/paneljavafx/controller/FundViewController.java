@@ -1,9 +1,14 @@
 package org.example.paneljavafx.controller;
 
 import javafx.application.Platform;
+import javafx.beans.property.SimpleDoubleProperty;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.scene.canvas.Canvas;
+import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.chart.PieChart;
 import javafx.scene.control.*;
 import javafx.scene.paint.Color;
 
@@ -13,6 +18,7 @@ import org.example.paneljavafx.model.FundPosition;
 import org.example.paneljavafx.service.FundService;
 import org.example.paneljavafx.service.dto.FundMetrics;
 import org.example.paneljavafx.simulation.MarketClock;
+import org.example.paneljavafx.service.ChartService;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -21,65 +27,159 @@ import java.util.List;
 public class FundViewController implements TabDataReceiver<Fund> {
 
     // =========================
-    // FXML
+    // MODELO INTERNO TABLA
+    // =========================
+    public static class AssetRow {
+
+        private final SimpleStringProperty nombre;
+        private final SimpleDoubleProperty porcentaje;
+
+        public AssetRow(String nombre, double porcentaje) {
+            this.nombre     = new SimpleStringProperty(nombre);
+            this.porcentaje = new SimpleDoubleProperty(porcentaje);
+        }
+
+        public SimpleStringProperty nombreProperty()     { return nombre; }
+        public SimpleDoubleProperty porcentajeProperty() { return porcentaje; }
+
+        public String getNombre()     { return nombre.get(); }
+        public double getPorcentaje() { return porcentaje.get(); }
+    }
+
+    // =========================
+    // FXML - INFO PANEL
     // =========================
     @FXML private Label fundName, fundTicker, fundIsin, fundType, fundCategory;
     @FXML private Label fundValue, fundChange, fundDailyReturn, totalAUM, exposureRisk;
-    @FXML private ProgressBar performanceBar;
-    @FXML private ListView<String> topAssetsList;
+
+    // =========================
+    // FXML - TABLA POSICIONES
+    // =========================
+    @FXML private TableView<AssetRow>           topAssetsTable;
+    @FXML private TableColumn<AssetRow, String> colNombre;
+    @FXML private TableColumn<AssetRow, Number> colPorcentaje;
+
+    // =========================
+    // FXML - CHART
+    // =========================
+    @FXML private Canvas   fundChartCanvas;
+    @FXML private PieChart fundPieChart;
 
     // =========================
     // STATE
     // =========================
     private Fund currentFund;
     private List<FundPosition> fundPositions = new ArrayList<>();
-    private Runnable tickListener;
 
+    private Runnable tickListener;
     private double previousFundValue = 0;
 
     private final DecimalFormat DF = new DecimalFormat("#,###.##");
-    private final ObservableList<String> topAssets = FXCollections.observableArrayList();
+    private final ObservableList<AssetRow> tableData = FXCollections.observableArrayList();
 
-    private final FundService fundService = new FundService();
+    private final FundService  fundService  = new FundService();
+    private final ChartService chartService = new ChartService();
+
+    private final List<Double> fundValueHistory = new ArrayList<>();
 
     // =========================
-    // ENTRY POINT (TAB SYSTEM)
+    // ENTRY POINT
     // =========================
     @Override
     public void loadData(Fund fund) {
-
         this.currentFund = fund;
-
         renderStaticInfo();
-        setupTopAssets();
-
+        setupTable();
         bindMarket();
-
         recalculate();
     }
 
     // =========================
-    // OPTIONAL DATA (positions)
+    // POSITIONS
     // =========================
     public void loadPositions(List<FundPosition> positions) {
         this.fundPositions = (positions != null) ? positions : new ArrayList<>();
         recalculate();
+        renderFundPieChart();
     }
 
     // =========================
-    // MARKET BINDING
+    // TABLA — SETUP (se llama una sola vez)
+    // =========================
+    private void setupTable() {
+        if (topAssetsTable == null) return;
+
+        // Columna Nombre — bind a la property
+        colNombre.setCellValueFactory(
+                cell -> cell.getValue().nombreProperty()
+        );
+
+        // Columna Porcentaje — bind a la property + cell factory con color
+        colPorcentaje.setCellValueFactory(
+                cell -> cell.getValue().porcentajeProperty()
+        );
+
+        colPorcentaje.setCellFactory(col -> new TableCell<>() {
+            @Override
+            protected void updateItem(Number value, boolean empty) {
+                super.updateItem(value, empty);
+                if (empty || value == null) {
+                    setText(null);
+                    setStyle("");
+                } else {
+                    double pct = value.doubleValue();
+                    setText(String.format("%.2f%%", pct));
+                    setStyle(pct >= 0
+                            ? "-fx-text-fill: #00D09C; -fx-font-weight: bold;"
+                            : "-fx-text-fill: #FF5C7A; -fx-font-weight: bold;");
+                }
+            }
+        });
+
+        topAssetsTable.setItems(tableData);
+        topAssetsTable.setPlaceholder(new Label("Sin posiciones"));
+    }
+
+    // =========================
+    // TABLA — REFRESCO
+    // =========================
+    private void refreshTable(List<String> topMovers) {
+        if (topAssetsTable == null) return;
+
+        tableData.clear();
+
+        // Parsea strings con formato "TICKER: XX.XX%" que devuelve FundService.
+        // Si tu FundMetrics ya expone pares (nombre, pct), adáptalos aquí directamente.
+        for (String mover : topMovers) {
+            try {
+                String[] parts = mover.split(":");
+                if (parts.length == 2) {
+                    String nombre = parts[0].trim();
+                    double pct = Double.parseDouble(
+                            parts[1].trim().replace("%", "").replace(",", ".")
+                    );
+                    tableData.add(new AssetRow(nombre, pct));
+                } else {
+                    tableData.add(new AssetRow(mover, 0.0));
+                }
+            } catch (NumberFormatException e) {
+                tableData.add(new AssetRow(mover, 0.0));
+            }
+        }
+    }
+
+    // =========================
+    // MARKET
     // =========================
     private void bindMarket() {
-
         tickListener = this::recalculate;
         MarketClock.getInstance().addListener(tickListener);
     }
 
     // =========================
-    // CORE
+    // CORE LOOP
     // =========================
     private void recalculate() {
-
         if (currentFund == null) return;
 
         FundMetrics metrics = fundService.calculateMetrics(
@@ -89,78 +189,94 @@ public class FundViewController implements TabDataReceiver<Fund> {
         );
 
         previousFundValue = metrics.getTotalValue();
+        fundValueHistory.add(metrics.getTotalValue());
 
-        Platform.runLater(() ->
-                updateUI(
-                        metrics.getTotalValue(),
-                        metrics.getChangePct(),
-                        metrics.getTotalChange(),
-                        metrics.getTopMovers()
-                )
-        );
+        Platform.runLater(() -> {
+            updateUI(metrics);
+            drawChart();
+        });
     }
 
     // =========================
     // UI UPDATE
     // =========================
-    private void updateUI(double totalValue,
-                          double changePct,
-                          double totalChange,
-                          List<String> topMovers) {
+    private void updateUI(FundMetrics m) {
+        if (fundValue == null || fundChange == null) return;
 
-        fundValue.setText(DF.format(totalValue) + " €");
+        fundValue.setText(DF.format(m.getTotalValue()) + " €");
 
-        fundChange.setText(String.format("%+.2f%%", changePct));
-        fundChange.setTextFill(changePct >= 0 ? Color.LIMEGREEN : Color.RED);
+        fundChange.setText(String.format("%+.2f%%", m.getChangePct()));
+        fundChange.setTextFill(m.getChangePct() >= 0
+                ? Color.web("#00D09C")
+                : Color.web("#FF5C7A"));
 
-        fundDailyReturn.setText(String.format("%+.0f €", totalChange));
-        fundDailyReturn.setTextFill(totalChange >= 0 ? Color.LIMEGREEN : Color.RED);
+        if (fundDailyReturn != null) {
+            fundDailyReturn.setText(String.format("(%+.0f € hoy)", m.getTotalChange()));
+            fundDailyReturn.setTextFill(m.getTotalChange() >= 0
+                    ? Color.web("#00D09C")
+                    : Color.web("#FF5C7A"));
+        }
 
-        double normalized = Math.max(-1, Math.min(1, changePct / 15.0));
-        performanceBar.setProgress(normalized);
-        performanceBar.setStyle(changePct >= 0
-                ? "-fx-accent: limegreen;"
-                : "-fx-accent: orangered;");
+        if (totalAUM != null) {
+            totalAUM.setText(DF.format(m.getTotalValue()) + " AUM");
+        }
 
-        totalAUM.setText(DF.format(totalValue) + " AUM");
-
-        topAssets.setAll(topMovers);
-        topAssetsList.scrollTo(0);
+        refreshTable(m.getTopMovers());
     }
 
     // =========================
-    // STATIC UI
+    // STATIC INFO
     // =========================
     private void renderStaticInfo() {
-
         if (currentFund == null) return;
 
         fundName.setText(currentFund.getNombre());
         fundTicker.setText(currentFund.getIdFondo());
-        fundIsin.setText(
-                currentFund.getCodigoIsin() != null
-                        ? currentFund.getCodigoIsin()
-                        : "N/A"
-        );
-
+        fundIsin.setText(currentFund.getCodigoIsin() != null
+                ? currentFund.getCodigoIsin() : "N/A");
         fundType.setText(currentFund.getTipo());
         fundCategory.setText(currentFund.getCategoria());
 
-        exposureRisk.setText("Riesgo: --");
+        if (exposureRisk != null) exposureRisk.setText("Riesgo: --");
     }
 
     // =========================
-    // LIST
+    // CHART RENDER
     // =========================
-    private void setupTopAssets() {
-        topAssetsList.setItems(topAssets);
+    private void drawChart() {
+        if (fundChartCanvas == null) return;
+        if (fundChartCanvas.getWidth() == 0) return;
+        if (fundValueHistory.size() < 2) return;
+
+        GraphicsContext g = fundChartCanvas.getGraphicsContext2D();
+        g.clearRect(0, 0, fundChartCanvas.getWidth(), fundChartCanvas.getHeight());
+
+        chartService.drawFundEquity(
+                g,
+                fundValueHistory,
+                fundChartCanvas.getWidth(),
+                fundChartCanvas.getHeight()
+        );
+    }
+
+    // =========================
+    // PIE CHART
+    // =========================
+    private void renderFundPieChart() {
+        if (currentFund == null || fundPositions == null) return;
+        if (fundPieChart == null) return;
+
+        ObservableList<PieChart.Data> pieData = FXCollections.observableArrayList();
+        fundPositions.forEach(p ->
+                pieData.add(new PieChart.Data(p.getIdAsset(), p.getInvestedValue()))
+        );
+        fundPieChart.setData(pieData);
     }
 
     // =========================
     // LIFECYCLE
     // =========================
     public void onClose() {
-
         if (tickListener != null) {
             MarketClock.getInstance().removeListener(tickListener);
             tickListener = null;

@@ -26,6 +26,10 @@ public class MainApp extends Application {
 
         Scene scene = new Scene(root, 1900, 900);
 
+        scene.getStylesheets().add(
+                getClass().getResource("/org/example/paneljavafx/trading-theme.css").toExternalForm()
+        );
+
         stage.setTitle("Fund Dashboard");
         stage.setScene(scene);
 

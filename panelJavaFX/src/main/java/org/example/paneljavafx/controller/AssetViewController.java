@@ -8,12 +8,10 @@ import javafx.fxml.FXML;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.chart.PieChart;
 import javafx.scene.control.Label;
-import javafx.scene.control.ListView;
 
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.layout.VBox;
-import org.example.paneljavafx.chart.ChartController;
 import org.example.paneljavafx.common.TabDataReceiver;
 import org.example.paneljavafx.data.DataStore;
 import org.example.paneljavafx.model.Asset;

@@ -1,0 +1,245 @@
+/* ============================================================
+   trading-theme.css — Panel de Fondos de Inversión
+   Fondo base: #121018  |  Acento: #6C63FF  |  Verde: #00D09C
+   ============================================================ */
+
+/* ── ROOT / SCENE ─────────────────────────────────────────── */
+.root {
+    -fx-background-color: #121018;
+    -fx-font-family: "Segoe UI", "SF Pro Display", "Helvetica Neue", sans-serif;
+}
+
+/* ── LAYOUT CONTAINERS ────────────────────────────────────── */
+.main-vbox {
+    -fx-background-color: #121018;
+    -fx-padding: 20 20 20 20;
+    -fx-spacing: 16;
+}
+
+/* ── HEADER ────────────────────────────────────────────────── */
+.header-box {
+    -fx-background-color: #1C1A24;
+    -fx-background-radius: 14;
+    -fx-border-color: #2E2B3A;
+    -fx-border-width: 1;
+    -fx-border-radius: 14;
+    -fx-padding: 18 24 18 24;
+    -fx-spacing: 30;
+    -fx-alignment: CENTER_LEFT;
+}
+
+.fund-name {
+    -fx-font-size: 22px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #F0EEF8;
+}
+
+.fund-ticker {
+    -fx-font-size: 12px;
+    -fx-text-fill: #6C63FF;
+    -fx-font-weight: bold;
+}
+
+.fund-isin {
+    -fx-font-size: 12px;
+    -fx-text-fill: #6B6880;
+}
+
+.fund-type {
+    -fx-font-size: 12px;
+    -fx-text-fill: #A09CB8;
+    -fx-background-color: #25223080;
+    -fx-background-radius: 6;
+    -fx-padding: 4 10 4 10;
+}
+
+.fund-category {
+    -fx-font-size: 12px;
+    -fx-text-fill: #6C63FF;
+    -fx-background-color: #2A256A40;
+    -fx-background-radius: 6;
+    -fx-padding: 4 10 4 10;
+}
+
+.separator-label {
+    -fx-text-fill: #2E2B3A;
+    -fx-font-size: 14px;
+}
+
+/* ── CARDS (bloques del grid) ──────────────────────────────── */
+.card {
+    -fx-background-color: #1C1A24;
+    -fx-background-radius: 14;
+    -fx-border-color: #2E2B3A;
+    -fx-border-width: 1;
+    -fx-border-radius: 14;
+    -fx-padding: 20;
+    -fx-spacing: 10;
+}
+
+.card-title {
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #6B6880;
+    -fx-letter-spacing: 1.5;
+}
+
+/* ── STATS CARD ────────────────────────────────────────────── */
+.value-label-small {
+    -fx-font-size: 11px;
+    -fx-text-fill: #6B6880;
+    -fx-letter-spacing: 1;
+}
+
+.fund-value {
+    -fx-font-size: 32px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #F0EEF8;
+}
+
+.fund-change-positive {
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #00D09C;
+}
+
+.fund-change-negative {
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #FF5C7A;
+}
+
+.fund-daily-return {
+    -fx-font-size: 13px;
+    -fx-text-fill: #6B6880;
+}
+
+.aum-label {
+    -fx-font-size: 15px;
+    -fx-text-fill: #A09CB8;
+}
+
+/* ── STAT CHIPS (mini bloques de métricas) ─────────────────── */
+.stat-chip {
+    -fx-background-color: #25223080;
+    -fx-background-radius: 10;
+    -fx-border-color: #2E2B3A;
+    -fx-border-width: 1;
+    -fx-border-radius: 10;
+    -fx-padding: 10 14 10 14;
+    -fx-spacing: 4;
+}
+
+.stat-chip-label {
+    -fx-font-size: 10px;
+    -fx-text-fill: #6B6880;
+    -fx-letter-spacing: 0.8;
+}
+
+.stat-chip-value {
+    -fx-font-size: 15px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #F0EEF8;
+}
+
+.stat-chip-value-positive {
+    -fx-font-size: 15px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #00D09C;
+}
+
+.stat-chip-value-negative {
+    -fx-font-size: 15px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #FF5C7A;
+}
+
+/* ── RIESGO ────────────────────────────────────────────────── */
+.exposure-risk {
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #FFB347;
+}
+
+.performance-bar {
+    -fx-accent: #6C63FF;
+    -fx-control-inner-background: #25223080;
+    -fx-background-radius: 4;
+    -fx-border-radius: 4;
+}
+
+.performance-bar .bar {
+    -fx-background-color: linear-gradient(to right, #6C63FF, #00D09C);
+    -fx-background-radius: 4;
+}
+
+.performance-bar .track {
+    -fx-background-color: #25223080;
+    -fx-background-radius: 4;
+}
+
+/* ── POSICIONES (ListView) ─────────────────────────────────── */
+.assets-list {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-padding: 0;
+}
+
+.assets-list .list-cell {
+    -fx-background-color: transparent;
+    -fx-text-fill: #C8C4DC;
+    -fx-font-size: 13px;
+    -fx-padding: 8 4 8 4;
+    -fx-border-color: transparent transparent #2E2B3A transparent;
+    -fx-border-width: 0 0 1 0;
+}
+
+.assets-list .list-cell:selected {
+    -fx-background-color: #2A256A40;
+    -fx-background-radius: 8;
+    -fx-border-color: transparent;
+    -fx-text-fill: #F0EEF8;
+}
+
+.assets-list .list-cell:hover {
+    -fx-background-color: #25223060;
+    -fx-background-radius: 8;
+}
+
+/* ── PIECHART ──────────────────────────────────────────────── */
+.fund-pie-chart {
+    -fx-background-color: transparent;
+    -fx-legend-visible: true;
+    -fx-legend-side: right;
+}
+
+.fund-pie-chart .chart-title {
+    -fx-text-fill: transparent;
+    -fx-font-size: 0;
+}
+
+.fund-pie-chart .chart-legend {
+    -fx-background-color: transparent;
+}
+
+.fund-pie-chart .chart-legend-item {
+    -fx-text-fill: #A09CB8;
+    -fx-font-size: 11px;
+}
+
+/* ── CANVAS CHART ──────────────────────────────────────────── */
+.chart-card {
+    -fx-background-color: #1C1A24;
+    -fx-background-radius: 14;
+    -fx-border-color: #2E2B3A;
+    -fx-border-width: 1;
+    -fx-border-radius: 14;
+    -fx-padding: 20;
+    -fx-spacing: 12;
+}
+
+/* ── GRID CONTAINER ────────────────────────────────────────── */
+.dashboard-grid {
+    -fx-hgap: 16;
+    -fx-vgap: 16;
+}
