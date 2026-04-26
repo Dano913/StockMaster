@@ -5,14 +5,14 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.layout.AnchorPane;
+
 import org.example.paneljavafx.data.FundPositionLoader;
 import org.example.paneljavafx.model.Asset;
 import org.example.paneljavafx.model.Fund;
 import org.example.paneljavafx.model.FundPosition;
+import org.example.paneljavafx.service.FundService;
 
-import java.io.IOException;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class AdminViewController {
 
@@ -26,6 +26,8 @@ public class AdminViewController {
     @FXML private TabPane assetTabPane;
 
     private List<FundPosition> cachedPositions;
+
+    private final FundService fundService = new FundService();
 
     @FXML
     public void initialize() {
@@ -49,7 +51,7 @@ public class AdminViewController {
 
             searchTab.setContent(content);
 
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -67,13 +69,11 @@ public class AdminViewController {
 
             FundViewController controller = loader.getController();
 
-            List<FundPosition> fundSpecificPositions = cachedPositions.stream()
-                    .filter(p -> fund.getIdFondo().equals(p.getIdFund()))
+            List<FundPosition> fundSpecificPositions =
+                    fundService.getPositionsByFund(cachedPositions, fund.getIdFondo());
 
-                    .collect(Collectors.toList());
-
-            controller.loadFund(fund, fundSpecificPositions);
-
+            controller.loadData(fund);
+            controller.loadPositions(fundSpecificPositions);
 
             Tab tab = new Tab(fund.getNombre());
             tab.setContent(view);
@@ -101,8 +101,9 @@ public class AdminViewController {
             AnchorPane view = loader.load();
 
             AssetViewController controller = loader.getController();
-            controller.loadAssetExposure(asset, cachedPositions);
-            controller.loadAsset(asset);
+
+            controller.loadData(asset);
+            controller.loadPositions(cachedPositions);
 
             Tab tab = new Tab(asset.getName());
             tab.setContent(view);

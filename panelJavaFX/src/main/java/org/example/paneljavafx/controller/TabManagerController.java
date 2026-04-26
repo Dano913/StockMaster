@@ -6,6 +6,7 @@ import javafx.scene.Parent;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import lombok.Setter;
+import org.example.paneljavafx.common.TabDataReceiver;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -18,25 +19,23 @@ public class TabManagerController {
 
     private final Map<String, Tab> openTabs = new HashMap<>();
 
-    public void openTab(String key, String title, String fxmlPath, Object data) {
+    public <T> void openTab(String key, String title, String fxmlPath, T data) {
 
-        // evitar duplicados
         if (openTabs.containsKey(key)) {
             tabPane.getSelectionModel().select(openTabs.get(key));
             return;
         }
 
         try {
-            FXMLLoader loader = new FXMLLoader(
-                    getClass().getResource(fxmlPath)
-            );
-
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
             Parent view = loader.load();
 
             Object controller = loader.getController();
 
-            // 🔥 INYECCIÓN FLEXIBLE SIN INTERFACES
-            injectData(controller, data);
+            // 🔥 INYECCIÓN TIPADA (sin magia negra)
+            if (controller instanceof TabDataReceiver<?> receiver) {
+                inject(receiver, data);
+            }
 
             Tab tab = new Tab(title);
             tab.setContent(view);
@@ -54,22 +53,9 @@ public class TabManagerController {
         }
     }
 
-    // 🔥 aquí está la magia sin acoplar tipos
-    private void injectData(Object controller, Object data) {
-
-        try {
-            // FUND
-            controller.getClass()
-                    .getMethod("loadFund", data.getClass())
-                    .invoke(controller, data);
-            return;
-        } catch (Exception ignored) {}
-
-        try {
-            // ASSET
-            controller.getClass()
-                    .getMethod("loadAsset", data.getClass())
-                    .invoke(controller, data);
-        } catch (Exception ignored) {}
+    // cast seguro controlado
+    @SuppressWarnings("unchecked")
+    private <T> void inject(TabDataReceiver<?> receiver, T data) {
+        ((TabDataReceiver<T>) receiver).loadData(data);
     }
 }

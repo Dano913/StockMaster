@@ -1,224 +1,144 @@
 package org.example.paneljavafx.controller;
 
 import javafx.application.Platform;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.control.Label;
-import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
-import javafx.scene.paint.Color;
+import javafx.scene.control.ProgressBar;
+
 import org.example.paneljavafx.chart.ChartController;
+import org.example.paneljavafx.common.TabDataReceiver;
 import org.example.paneljavafx.data.DataStore;
 import org.example.paneljavafx.model.Asset;
 import org.example.paneljavafx.model.FundPosition;
+import org.example.paneljavafx.service.AssetService;
+import org.example.paneljavafx.service.dto.AssetMetrics;
 import org.example.paneljavafx.simulation.MarketClock;
 import org.example.paneljavafx.simulation.MarketEngine;
 
 import java.util.List;
 
-public class AssetViewController {
+public class AssetViewController implements TabDataReceiver<Asset> {
 
-    // -------------------------
-    // FXML — LABELS
-    // -------------------------
+    // =========================
+    // FXML
+    // =========================
     @FXML private Label assetName;
     @FXML private Label assetTicker;
-    @FXML private Label assetIsin;
-    @FXML private Label assetType;
-    @FXML private Label assetSector;
+    @FXML private Label assetPrice;
+    @FXML private Label assetFundsCount;
+    @FXML private Label assetWeight;
     @FXML private Label assetRisk;
     @FXML private Label assetLiquidity;
-    @FXML private Label assetPrice;
-    @FXML private Label assetChange;
 
-    // -------------------------
-    // FXML — LISTS / CANVAS
-    // -------------------------
-    @FXML private Canvas chartCanvas;
-    @FXML private ListView<String> priceList;
+    @FXML private ProgressBar assetExposure;
     @FXML private ListView<String> tabla_exposicion;
+    @FXML private Canvas chartCanvas;
 
-    // -------------------------
+    // =========================
     // STATE
-    // -------------------------
-    private MarketEngine engine;
-    private ChartController chartController;
+    // =========================
+    private Asset currentAsset;
+    private List<FundPosition> cachedPositions;
+
     private Runnable tickListener;
-    private List<FundPosition> positions;
+    private ChartController chartController;
 
-    private final ObservableList<String> prices = FXCollections.observableArrayList();
+    private final AssetService assetService = new AssetService();
 
-    private static final int MAX_PRICE_HISTORY = 50;
+    // =========================
+    // ENTRY POINT (TAB SYSTEM)
+    // =========================
+    @Override
+    public void loadData(Asset asset) {
 
-    // -------------------------
-    // LOAD ASSET
-    // -------------------------
-    public void loadAsset(Asset asset) {
+        this.currentAsset = asset;
 
-        if (asset == null) return;
+        renderStatic();
+        bindMarket();
+    }
 
-        System.out.println("👉 LOADING ASSET VIEW: " + asset.getName());
+    // =========================
+    // OPTIONAL EXTRA DATA
+    // =========================
+    public void loadPositions(List<FundPosition> positions) {
+        this.cachedPositions = positions;
+        recalculate();
+    }
 
-        // reusar el engine que ya está corriendo en el clock global
-        engine = DataStore.engines.get(asset.getId());
+    // =========================
+    // MARKET BINDING
+    // =========================
+    private void bindMarket() {
 
-        if (engine == null) {
-            System.err.println("⚠️ Engine no encontrado en DataStore para: " + asset.getId() + " — creando uno nuevo");
-            engine = new MarketEngine(asset, List.of());
-            MarketClock.getInstance().register(engine);
+        MarketEngine engine = DataStore.engines.get(currentAsset.getId());
+
+        if (engine != null && chartCanvas != null) {
+            chartController = new ChartController(chartCanvas, List.of(engine));
         }
 
-        chartController = new ChartController(chartCanvas, List.of(engine));
-
-        setupStaticInfo(asset);
-        setupPriceList();
-
-        tickListener = this::onTick;
+        tickListener = this::recalculate;
         MarketClock.getInstance().addListener(tickListener);
+
+        recalculate();
     }
 
-    // -------------------------
-    // TICK — llamado por MarketClock cada 500ms
-    // -------------------------
-    private void onTick() {
+    // =========================
+    // RECALC
+    // =========================
+    private void recalculate() {
 
-        double price  = engine.getLastPrice();
-        double change = engine.getChange();
+        if (currentAsset == null) return;
+        if (cachedPositions == null) return;
 
-        Platform.runLater(() -> {
+        AssetMetrics metrics = assetService.calculateMetrics(
+                cachedPositions,
+                currentAsset.getId()
+        );
 
-            assetPrice.setText(String.format("%.2f €", price));
-            assetChange.setText(String.format("%+.2f %%", change));
-            assetChange.setTextFill(change >= 0 ? Color.LIMEGREEN : Color.RED);
-
-            String arrow = change >= 0 ? "▲" : "▼";
-            prices.add(String.format("%s %.2f € | %+.2f%%", arrow, price, change));
-
-            if (prices.size() > MAX_PRICE_HISTORY) prices.remove(0);
-
-            priceList.scrollTo(prices.size() - 1);
-        });
+        Platform.runLater(() -> updateUI(metrics));
     }
 
-    // -------------------------
-    // EXPOSURE VIEW
-    // -------------------------
-    public void loadAssetExposure(Asset asset, List<FundPosition> positions) {
-        this.positions = positions;
-        renderExposure(asset);
+    // =========================
+    // UI UPDATE
+    // =========================
+    private void updateUI(AssetMetrics m) {
+
+        assetExposure.setProgress(m.getExposureRatio());
+        assetFundsCount.setText(m.getFundsExposed() + " funds");
+
+        assetWeight.setText(String.format("%.2f%%", m.getGlobalWeight() * 100));
+
+        MarketEngine engine = DataStore.engines.get(currentAsset.getId());
+
+        double price = (engine != null) ? engine.getLastPrice() : 0.0;
+
+        assetPrice.setText(price + " €");
     }
 
-    private void renderExposure(Asset asset) {
+    // =========================
+    // STATIC UI
+    // =========================
+    private void renderStatic() {
 
-        if (positions == null || asset == null) {
-            tabla_exposicion.setItems(FXCollections.observableArrayList("Sin datos de exposición"));
-            return;
-        }
+        if (currentAsset == null) return;
 
-        List<String> items = positions.stream()
-                .filter(p -> p.getIdAsset().equals(asset.getId()))
-                .map(p -> "Fondo: " + p.getIdFund()
-                        + " → " + String.format("%.2f%%", p.getPesoPorcentual()))
-                .toList();
+        assetName.setText(currentAsset.getName());
+        assetTicker.setText(currentAsset.getTicker());
 
-        if (items.isEmpty()) {
-            tabla_exposicion.setItems(FXCollections.observableArrayList("Sin exposición en fondos"));
-            return;
-        }
-
-        tabla_exposicion.setItems(FXCollections.observableArrayList(items));
-        tabla_exposicion.setStyle("""
-            -fx-background-color: transparent;
-            -fx-control-inner-background: transparent;
-            -fx-background-insets: 0;
-            -fx-padding: 0;
-            -fx-font-size: 18px;
-            -fx-text-fill: cyan;
-        """);
+        assetRisk.setText("Risk: -");
+        assetLiquidity.setText("Liquidity: -");
     }
 
-    // -------------------------
-    // SETUP — INFO ESTÁTICA
-    // -------------------------
-    private void setupStaticInfo(Asset asset) {
-        assetName.setText(asset.getName());
-        assetTicker.setText(asset.getTicker());
-        assetIsin.setText(asset.getIsin());
-        assetType.setText(asset.getType());
-        assetSector.setText(asset.getSector());
-        assetRisk.setText(asset.getRisk());
-        assetLiquidity.setText(asset.getLiquidity());
-    }
-
-    // -------------------------
-    // SETUP — PRICE LIST
-    // -------------------------
-    private void setupPriceList() {
-
-        priceList.setItems(prices);
-
-        priceList.setStyle("""
-            -fx-background-color: transparent;
-            -fx-control-inner-background: transparent;
-            -fx-background-insets: 0;
-            -fx-padding: 0;
-        """);
-
-        priceList.skinProperty().addListener((obs, oldSkin, newSkin) -> {
-            if (newSkin != null) {
-                priceList.lookupAll(".scroll-bar").forEach(node -> {
-                    node.setOpacity(0);
-                    node.setVisible(false);
-                    node.setManaged(false);
-                });
-            }
-        });
-
-        priceList.setCellFactory(list -> new PriceCell());
-    }
-
-    // -------------------------
-    // CLEANUP — llamar al cerrar el tab
-    // -------------------------
+    // =========================
+    // LIFECYCLE
+    // =========================
     public void onClose() {
-        // NO desregistramos el engine — sigue corriendo en background
-        // solo quitamos el listener de esta vista
+
         if (tickListener != null) {
             MarketClock.getInstance().removeListener(tickListener);
-            System.out.println("🔴 Vista cerrada: " + (engine != null ? engine.getAsset().getTicker() : "?"));
-        }
-    }
-
-    // -------------------------
-    // INNER CLASS — CELDA DE PRECIO
-    // -------------------------
-    private static class PriceCell extends ListCell<String> {
-
-        @Override
-        protected void updateItem(String item, boolean empty) {
-            super.updateItem(item, empty);
-
-            if (empty || item == null) {
-                setText(null);
-                setGraphic(null);
-                return;
-            }
-
-            setText(item);
-            setTextFill(item.contains("▲") ? Color.LIMEGREEN : Color.RED);
-            setStyle("""
-                -fx-background-color: transparent;
-                -fx-alignment: center;
-                -fx-font-size: 20px;
-                -fx-padding: 6;
-            """);
-        }
-
-        @Override
-        public void updateSelected(boolean selected) {
-            super.updateSelected(false);
+            tickListener = null;
         }
     }
 }

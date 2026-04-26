@@ -8,54 +8,60 @@ import javafx.fxml.FXML;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
+
 import lombok.Getter;
 import lombok.Setter;
+
 import org.example.paneljavafx.data.DataStore;
-import org.example.paneljavafx.data.PriceRecordReader;
 import org.example.paneljavafx.model.Asset;
 import org.example.paneljavafx.model.Fund;
-import org.example.paneljavafx.simulation.MarketClock;
-import org.example.paneljavafx.simulation.MarketEngine;
+import org.example.paneljavafx.service.MarketService;
 
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 public class GlobalController {
 
-    // -------------------------
+    // =========================
     // UI
-    // -------------------------
+    // =========================
     @FXML private TextField searchField;
     @FXML private ListView<Object> resultsList;
 
     @Setter
     private AdminViewController adminController;
 
-    // -------------------------
-    // DATA
-    // -------------------------
+    // =========================
+    // DATA UI
+    // =========================
     private final ObservableList<Object> masterData   = FXCollections.observableArrayList();
     private final ObservableList<Object> filteredData = FXCollections.observableArrayList();
 
     @Getter private List<Asset> assets = new ArrayList<>();
-    @Getter private List<Fund>  funds  = new ArrayList<>();
+    @Getter private List<Fund> funds = new ArrayList<>();
 
-    // -------------------------
+    // =========================
+    // SERVICES
+    // =========================
+    private final MarketService marketService = new MarketService();
+
+    // =========================
     // INIT
-    // -------------------------
+    // =========================
     @FXML
     public void initialize() {
 
-        loadData();         // carga assets + funds desde JSON
-        bootstrapMarket();  // registra todos los engines y arranca el clock
+        loadData();         // solo JSON UI data
+        bootstrapMarket();  // delega al service
 
         resultsList.setItems(filteredData);
+
         setupCellFactory();
         setupSearch();
+
         filteredData.setAll(masterData);
 
+        // 🔥 Sync global state
         DataStore.assets.clear();
         DataStore.assets.addAll(assets);
 
@@ -63,16 +69,16 @@ public class GlobalController {
         DataStore.funds.addAll(funds);
     }
 
-    // -------------------------
-    // LOAD DATA
-    // -------------------------
+    // =========================
+    // DATA LOADING (solo UI layer)
+    // =========================
     private void loadData() {
 
         try {
             ObjectMapper mapper = new ObjectMapper();
 
-            InputStream fundsStream  = getClass().getResourceAsStream("/data/funds.json");
-            InputStream assetsStream = getClass().getResourceAsStream("/data/assets.json");
+            var fundsStream  = getClass().getResourceAsStream("/data/funds.json");
+            var assetsStream = getClass().getResourceAsStream("/data/assets.json");
 
             if (fundsStream != null) {
                 funds = mapper.readValue(fundsStream, new TypeReference<>() {});
@@ -89,39 +95,22 @@ public class GlobalController {
         }
     }
 
-    // -------------------------
-    // MARKET BOOTSTRAP
-    // Crea un MarketEngine por cada asset y los registra en el clock global.
-    // Desde este momento todos los precios se simulan en background,
-    // aunque ninguna vista esté abierta todavía.
-    // -------------------------
+    // =========================
+    // MARKET BOOTSTRAP (DELEGATED)
+    // =========================
     private void bootstrapMarket() {
 
-        MarketClock clock = MarketClock.getInstance();
+        marketService.bootstrapMarket()
+                .forEach(engine ->
+                        DataStore.engines.put(engine.getAsset().getId(), engine)
+                );
 
-        // carga una sola vez el mapa { idActivo → último precioCierre }
-        Map<String, Double> lastPrices = PriceRecordReader.loadLastPrices();
-
-        for (Asset asset : assets) {
-
-            double startPrice = lastPrices.getOrDefault(
-                    asset.getId(),
-                    asset.getInitialPrice()   // fallback si es la primera vez
-            );
-
-            MarketEngine engine = new MarketEngine(asset, List.of(), startPrice);
-            clock.register(engine);
-            DataStore.engines.put(asset.getId(), engine);
-        }
-
-        clock.start();
-
-        System.out.println("✅ MarketClock arrancado con " + assets.size() + " activos.");
+        System.out.println("🚀 GlobalController: Market inicializado");
     }
 
-    // -------------------------
-    // SEARCH
-    // -------------------------
+    // =========================
+    // SEARCH (UI ONLY)
+    // =========================
     private void setupSearch() {
 
         searchField.textProperty().addListener((obs, oldVal, newVal) -> {
@@ -158,9 +147,9 @@ public class GlobalController {
         return false;
     }
 
-    // -------------------------
-    // CELL FACTORY
-    // -------------------------
+    // =========================
+    // CELL FACTORY (UI ONLY)
+    // =========================
     private void setupCellFactory() {
 
         resultsList.setCellFactory(listView -> new ListCell<>() {
@@ -196,8 +185,13 @@ public class GlobalController {
             Object selected = resultsList.getSelectionModel().getSelectedItem();
             if (selected == null) return;
 
-            if (selected instanceof Fund fund)   adminController.openFund(fund);
-            if (selected instanceof Asset asset) adminController.openAsset(asset);
+            if (selected instanceof Fund fund) {
+                adminController.openFund(fund);
+            }
+
+            if (selected instanceof Asset asset) {
+                adminController.openAsset(asset);
+            }
         });
     }
 }
