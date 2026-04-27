@@ -3,8 +3,7 @@ package org.example.paneljavafx.service;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import org.example.paneljavafx.data.DataStore;
-import org.example.paneljavafx.data.FundPositionLoader;
+import org.example.paneljavafx.data.FundPositionDataSource;
 import org.example.paneljavafx.model.Asset;
 import org.example.paneljavafx.model.Fund;
 import org.example.paneljavafx.model.FundPosition;
@@ -71,10 +70,10 @@ public class GlobalService {
     // ═══════════════════════════════════════════════════
     // SERVICIOS DELEGADOS
     // ═══════════════════════════════════════════════════
-    private final MarketService   marketService   = new MarketService();
-    private final FundService     fundService     = new FundService();
+    MarketService marketService = MarketService.getInstance();
+    FundService fundService = FundService.getInstance();
     private final ExposureService exposureService = new ExposureService();
-    private final AssetService    assetService    = new AssetService();
+    private final AssetService    assetService    = AssetService.getInstance();
 
     private final DecimalFormat DF = new DecimalFormat("#,###.##");
 
@@ -108,7 +107,7 @@ public class GlobalService {
             if (assetsStream != null) assets = mapper.readValue(assetsStream, new TypeReference<>() {});
 
             // Posiciones via FundPositionLoader (parsea fund_positions.json con su lógica propia)
-            positions = FundPositionLoader.load();
+            positions = FundPositionDataSource.load();
 
         } catch (Exception e) {
             System.err.println("❌ GlobalService.loadData error: " + e.getMessage());
@@ -126,11 +125,7 @@ public class GlobalService {
      * Inicializa los MarketEngine para todos los assets y los registra en DataStore.
      */
     public void bootstrapMarket() {
-        marketService.bootstrapMarket()
-                .forEach(engine ->
-                        DataStore.engines.put(engine.getAsset().getId(), engine)
-                );
-        System.out.println("🚀 GlobalService: Market inicializado");
+        marketService.bootstrapMarket();
     }
 
     // ═══════════════════════════════════════════════════
@@ -252,7 +247,7 @@ public class GlobalService {
     public List<AssetSnapshot> buildAssetSnapshots(List<Asset> assets) {
         return assets.stream()
                 .map(asset -> {
-                    MarketEngine engine = DataStore.engines.get(asset.getId());
+                    MarketEngine engine = marketService.getEngine(asset.getId());
                     if (engine == null) return null;
 
                     String label = asset.getTicker() != null

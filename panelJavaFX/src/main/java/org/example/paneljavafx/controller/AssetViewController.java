@@ -8,16 +8,17 @@ import javafx.fxml.FXML;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.chart.PieChart;
 import javafx.scene.control.Label;
-
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.layout.VBox;
+
 import org.example.paneljavafx.common.TabDataReceiver;
-import org.example.paneljavafx.data.DataStore;
 import org.example.paneljavafx.model.Asset;
 import org.example.paneljavafx.model.Fund;
 import org.example.paneljavafx.model.FundPosition;
 import org.example.paneljavafx.service.AssetService;
+import org.example.paneljavafx.service.FundService;
+import org.example.paneljavafx.service.MarketService;
 import org.example.paneljavafx.service.dto.AssetMetrics;
 import org.example.paneljavafx.simulation.MarketClock;
 import org.example.paneljavafx.simulation.MarketEngine;
@@ -27,6 +28,13 @@ import java.util.List;
 import java.util.Map;
 
 public class AssetViewController implements TabDataReceiver<Asset> {
+
+    // =========================
+    // SERVICES
+    // =========================
+    private final AssetService assetService = AssetService.getInstance();
+    private final FundService fundService = FundService.getInstance();
+    private final MarketService marketService = MarketService.getInstance();
 
     // =========================
     // FXML
@@ -43,9 +51,9 @@ public class AssetViewController implements TabDataReceiver<Asset> {
     @FXML private TableView<Map<String, String>> tabla_exposicion;
     @FXML private TableColumn<Map<String, String>, String> colFund;
     @FXML private TableColumn<Map<String, String>, String> colValue;
+
     @FXML private Canvas chartCanvas;
-    @FXML
-    private VBox assetPieChart;
+    @FXML private VBox assetPieChart;
 
     // =========================
     // STATE
@@ -56,13 +64,14 @@ public class AssetViewController implements TabDataReceiver<Asset> {
     private Runnable tickListener;
     private ChartController chartController;
 
-    private final AssetService assetService = new AssetService();
-
     // =========================
     // ENTRY POINT
     // =========================
     @Override
     public void loadData(Asset asset) {
+
+
+
         this.currentAsset = asset;
 
         colFund.setCellValueFactory(data ->
@@ -88,14 +97,19 @@ public class AssetViewController implements TabDataReceiver<Asset> {
     }
 
     // =========================
-    // MARKET
+    // MARKET + CHART
     // =========================
     private void bindMarket() {
 
-        MarketEngine engine = DataStore.engines.get(currentAsset.getId());
+        if (currentAsset == null) return;
+
+        MarketEngine engine = marketService.getEngine(currentAsset.getId());
 
         if (engine != null && chartCanvas != null) {
-            chartController = new ChartController(chartCanvas, List.of(engine));
+            chartController = new ChartController(
+                    chartCanvas,
+                    List.of(engine)
+            );
         }
 
         tickListener = this::recalculate;
@@ -105,12 +119,11 @@ public class AssetViewController implements TabDataReceiver<Asset> {
     }
 
     // =========================
-    // REACTIVE PRICE UPDATE
+    // REACTIVE UPDATE
     // =========================
     private void recalculate() {
 
-        if (currentAsset == null) return;
-        if (cachedPositions == null) return;
+        if (currentAsset == null || cachedPositions == null) return;
 
         AssetMetrics metrics = assetService.calculateMetrics(
                 cachedPositions,
@@ -121,11 +134,9 @@ public class AssetViewController implements TabDataReceiver<Asset> {
     }
 
     // =========================
-    // UI (DINÁMICO)
+    // UI
     // =========================
     private void updateUI(AssetMetrics m) {
-
-        if (currentAsset == null) return;
 
         assetName.setText(currentAsset.getName());
         assetTicker.setText(currentAsset.getTicker());
@@ -137,13 +148,12 @@ public class AssetViewController implements TabDataReceiver<Asset> {
         assetRisk.setText(currentAsset.getRisk());
         assetLiquidity.setText(currentAsset.getLiquidity());
 
-        MarketEngine engine = DataStore.engines.get(currentAsset.getId());
-        double price = (engine != null) ? engine.getLastPrice() : 0.0;
+        double price = marketService.getPrice(currentAsset.getId());
         assetPrice.setText(String.format("%.2f €", price));
     }
 
     // =========================
-    // 🔥 EXPOSICIÓN (ESTÁTICA)
+    // EXPOSICIÓN TABLA
     // =========================
     private void renderExposure() {
 
@@ -151,27 +161,13 @@ public class AssetViewController implements TabDataReceiver<Asset> {
 
         tabla_exposicion.getItems().clear();
 
-        tabla_exposicion.setStyle("""
-            -fx-background-color: transparent;
-            -fx-control-inner-background: transparent;
-            -fx-table-cell-border-color: transparent;
-        """);
-
         ObservableList<Map<String, String>> items = FXCollections.observableArrayList();
 
         cachedPositions.stream()
                 .filter(p -> p.getIdAsset().equals(currentAsset.getId()))
                 .forEach(p -> {
 
-                    Fund fund = null;
-
-                    // 🔥 MISMA LÓGICA QUE TU FUNCIÓN QUE FUNCIONA
-                    for (Fund f : DataStore.funds) {
-                        if (f.getIdFondo().equals(p.getIdFund())) {
-                            fund = f;
-                            break;
-                        }
-                    }
+                    Fund fund = fundService.getById(p.getIdFund());
 
                     String fundName = (fund != null)
                             ? fund.getNombre()
@@ -187,6 +183,9 @@ public class AssetViewController implements TabDataReceiver<Asset> {
         tabla_exposicion.setItems(items);
     }
 
+    // =========================
+    // PIE CHART
+    // =========================
     private void renderExposurePieChart() {
 
         if (currentAsset == null || cachedPositions == null) return;
@@ -195,8 +194,8 @@ public class AssetViewController implements TabDataReceiver<Asset> {
         assetPieChart.getChildren().clear();
 
         PieChart pieChart = new PieChart();
-        pieChart.setLabelsVisible(false); // ✅ quita labels y líneas
-        pieChart.setLegendVisible(true);  // ✅ mantiene la leyenda de abajo
+        pieChart.setLabelsVisible(false);
+        pieChart.setLegendVisible(true);
 
         ObservableList<PieChart.Data> pieData = FXCollections.observableArrayList();
 
@@ -204,15 +203,12 @@ public class AssetViewController implements TabDataReceiver<Asset> {
                 .filter(p -> p.getIdAsset().equals(currentAsset.getId()))
                 .forEach(p -> {
 
-                    Fund fund = null;
-                    for (Fund f : DataStore.funds) {
-                        if (f.getIdFondo().equals(p.getIdFund())) {
-                            fund = f;
-                            break;
-                        }
-                    }
+                    Fund fund = fundService.getById(p.getIdFund());
 
-                    String name = (fund != null) ? fund.getNombre() : p.getIdFund();
+                    String name = (fund != null)
+                            ? fund.getNombre()
+                            : p.getIdFund();
+
                     pieData.add(new PieChart.Data(name, p.getInvestedValue()));
                 });
 

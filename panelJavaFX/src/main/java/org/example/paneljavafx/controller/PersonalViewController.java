@@ -16,8 +16,9 @@ public class PersonalViewController {
     // =========================
     // SERVICES
     // =========================
-    private final GestorService gestorService = new GestorService();
-    private final ClienteService clienteService = new ClienteService();
+    private final GestorService gestorService = GestorService.getInstance();
+    private final ClienteService clienteService = ClienteService.getInstance();
+
 
     // =========================
     // UI
@@ -47,7 +48,6 @@ public class PersonalViewController {
     public void initialize() {
 
         gestorService.load();
-        clienteService.load();
 
         setupGestorTable();
         setupClientTable();
@@ -105,7 +105,7 @@ public class PersonalViewController {
                     }
 
                     List<Cliente> clientes = clienteService.getAll().stream()
-                            .filter(c -> c.getGestor() == gestor.getIdGestor())
+                            .filter(c -> c.getIdGestor() == gestor.getIdGestor())
                             .toList();
 
                     clientsTable.getItems().setAll(clientes);

@@ -4,6 +4,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import org.example.paneljavafx.data.ClienteDataSource;
 import org.example.paneljavafx.model.Cliente;
+import org.example.paneljavafx.model.Gestor;
 import org.example.paneljavafx.model.Posicion;
 
 import java.util.List;
@@ -11,22 +12,30 @@ import java.util.List;
 public class ClienteService {
 
     // =========================
-    // DATA SOURCE
+    // SINGLETON
     // =========================
-    private final ClienteDataSource dataSource = new ClienteDataSource();
+    private static final ClienteService INSTANCE = new ClienteService();
+    private final GestorService gestorService = GestorService.getInstance();
 
-    // =========================
-    // STATE (MEMORIA)
-    // =========================
-    private final ObservableList<Cliente> clientes =
-            FXCollections.observableArrayList();
+    public static ClienteService getInstance() {
+        return INSTANCE;
+    }
+
+    private ClienteService() {}
+
+    private final ClienteDataSource clienteDataSource = new ClienteDataSource();
+    private final ObservableList<Cliente> clientes = FXCollections.observableArrayList();
 
     // =========================
     // LOAD
     // =========================
     public void load() {
-        List<Cliente> loaded = dataSource.load("data/clientes.json");
-        clientes.setAll(loaded);
+
+        List<Cliente> loadedData = clienteDataSource.load();
+
+        clientes.setAll(loadedData);
+
+        clienteDataSource.printClientesDetallado(clientes);
     }
 
     // =========================
@@ -36,8 +45,16 @@ public class ClienteService {
         return clientes;
     }
 
+    public Cliente getById(int id) {
+
+        return clientes.stream()
+                .filter(g -> g.getIdCliente() == id)
+                .findFirst()
+                .orElse(null);
+    }
+
     // =========================
-    // POSICIONES (helper lógico)
+    // POSICIONES
     // =========================
     public List<Posicion> getPosicionesByClienteId(int clienteId) {
 
@@ -47,17 +64,40 @@ public class ClienteService {
                 .toList();
     }
 
-    // =========================
-    // SEARCH LOGIC (opcional para controller limpio)
-    // =========================
-    public boolean matches(Cliente c, String q) {
+    public Gestor getGestorByClientId(int clientId) {
 
-        if (q == null || q.isBlank()) return true;
+        return clientes.stream()
+                .filter(c -> c.getIdCliente() == clientId)
+                .findFirst()
+                .map(c -> GestorService.getInstance()
+                        .getById(c.getIdGestor()))
+                .orElse(null);
+    }
 
-        String query = q.toLowerCase();
+    public List<Cliente> search(String query) {
 
-        return c.getNombre().toLowerCase().contains(query)
-                || c.getApellido().toLowerCase().contains(query)
-                || c.getEmail().toLowerCase().contains(query);
+        if (query == null || query.isBlank()) {
+            return clientes;
+        }
+
+        String q = query.toLowerCase();
+
+        return clientes.stream()
+                .filter(c ->
+                        c.getNombre().toLowerCase().contains(q) ||
+                                c.getApellido().toLowerCase().contains(q) ||
+                                c.getEmail().toLowerCase().contains(q)
+                )
+                .toList();
+    }
+
+    public boolean existsEmail(String email) {
+
+        return clientes.stream()
+                .anyMatch(c -> c.getEmail().equalsIgnoreCase(email));
+    }
+
+    public long count() {
+        return clientes.size();
     }
 }

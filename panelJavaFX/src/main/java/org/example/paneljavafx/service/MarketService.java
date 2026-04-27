@@ -1,53 +1,100 @@
 package org.example.paneljavafx.service;
 
 import org.example.paneljavafx.data.MarketDataSource;
-import org.example.paneljavafx.data.PriceRecordReader;
 import org.example.paneljavafx.model.Asset;
 import org.example.paneljavafx.simulation.MarketClock;
 import org.example.paneljavafx.simulation.MarketEngine;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class MarketService {
 
+    // =========================
+    // SINGLETON
+    // =========================
+    private static final MarketService INSTANCE = new MarketService();
+
+    public static MarketService getInstance() {
+        return INSTANCE;
+    }
+
+    private MarketService() {}
+
+    // =========================
+    // DEPENDENCY
+    // =========================
     private final MarketDataSource dataSource = new MarketDataSource();
 
-    /**
-     * Inicializa todo el mercado:
-     * - carga assets
-     * - crea engines
-     * - registra en clock
-     * - arranca simulación
-     */
-    public List<MarketEngine> bootstrapMarket() {
+    // =========================
+    // STATE
+    // =========================
+    private final Map<String, MarketEngine> engines = new HashMap<>();
+    private final List<Asset> assets = new java.util.ArrayList<>();
 
-        List<Asset> assets = dataSource.loadAssets();
+    private boolean initialized = false;
+
+    // =========================
+    // BOOTSTRAP
+    // =========================
+    public void bootstrapMarket() {
+
+        if (initialized) return;
+        initialized = true;
+
+        assets.clear();
+        assets.addAll(dataSource.loadAssets());
 
         Map<String, Double> lastPrices = dataSource.loadLastPrices();
 
         MarketClock clock = MarketClock.getInstance();
 
-        List<MarketEngine> engines = assets.stream()
-                .map(asset -> {
+        for (Asset asset : assets) {
 
-                    double startPrice = lastPrices.getOrDefault(
-                            asset.getId(),
-                            asset.getInitialPrice()
-                    );
+            double startPrice = lastPrices.getOrDefault(
+                    asset.getId(),
+                    asset.getInitialPrice()
+            );
 
-                    MarketEngine engine = new MarketEngine(asset, List.of(), startPrice);
+            MarketEngine engine = new MarketEngine(asset, List.of(), startPrice);
 
-                    clock.register(engine);
-
-                    return engine;
-                })
-                .toList();
+            engines.put(asset.getId(), engine);
+            clock.register(engine);
+        }
 
         clock.start();
 
-        System.out.println("🚀 MarketService: " + engines.size() + " engines inicializados");
+        //System.out.println("🚀 Market inicializado: " + engines.size() + " engines");
+    }
 
-        return engines;
+    // =========================
+    // GET ENGINE
+    // =========================
+    public MarketEngine getEngine(String assetId) {
+        return engines.get(assetId);
+    }
+
+    // =========================
+    // GET PRICE
+    // =========================
+    public double getPrice(String assetId) {
+        MarketEngine e = engines.get(assetId);
+        return e != null ? e.getLastPrice() : 0;
+    }
+
+    // =========================
+    // GET CHANGE (%)
+    // =========================
+    public double getChange(String assetId) {
+        MarketEngine e = engines.get(assetId);
+        return e != null ? e.getChange() : 0;
+    }
+
+    // =========================
+    // GET ALL ASSETS
+    // =========================
+    public List<Asset> getAllAssets() {
+        return assets;
     }
 }

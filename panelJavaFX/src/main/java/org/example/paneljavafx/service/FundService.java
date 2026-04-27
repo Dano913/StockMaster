@@ -1,51 +1,90 @@
 package org.example.paneljavafx.service;
 
-import org.example.paneljavafx.data.DataStore;
+import org.example.paneljavafx.data.ClienteDataSource;
+import org.example.paneljavafx.data.FundDataSource;
 import org.example.paneljavafx.model.Fund;
 import org.example.paneljavafx.model.FundPosition;
 import org.example.paneljavafx.service.dto.FundMetrics;
-import org.example.paneljavafx.simulation.MarketEngine;
 
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
 public class FundService {
 
-    private final DecimalFormat DF = new DecimalFormat("#,###.##");
+    // =========================
+    // SINGLETON
+    // =========================
+    private static final FundService INSTANCE = new FundService();
 
-    // -------------------------
-    // QUERY: POSICIONES POR FONDO
-    // -------------------------
+    public static FundService getInstance() {
+        return INSTANCE;
+    }
+
+    private FundService() {}
+
+    // =========================
+    // DEPENDENCIES
+    // =========================
+    private final FundDataSource dataSource = new FundDataSource();
+    private final MarketService marketService = MarketService.getInstance();
+    private final FundPositionService positionService = FundPositionService.getInstance();
+
+    private final FundDataSource fundDataSource = new FundDataSource();
+
+    // =========================
+    // STATE
+    // =========================
+    public final List<Fund> funds = new ArrayList<>();
+    private boolean loaded = false;
+
+    // =========================
+    // LOAD
+    // =========================
+    public void load() {
+
+        if (loaded) return;
+        loaded = true;
+
+        funds.clear();
+        funds.addAll(dataSource.load());
+        fundDataSource.printFunds(funds);
+    }
+
+    // =========================
+    // GET ALL
+    // =========================
+    public List<Fund> getAll() {
+        return funds;
+    }
+
+    // =========================
+    // GET BY ID
+    // =========================
+    public Fund getById(String id) {
+        return funds.stream()
+                .filter(f -> f.getIdFondo().equals(id))
+                .findFirst()
+                .orElse(null);
+    }
+
+    // =========================
+    // POSITIONS BY FUND
+    // =========================
     public List<FundPosition> getPositionsByFund(List<FundPosition> all, String fundId) {
-        if (all == null || fundId == null) return List.of();
-
-        return all.stream()
-                .filter(p -> fundId.equals(p.getIdFund()))
-                .toList();
+        return positionService.getByFundId(all, fundId);
     }
 
-    // -------------------------
-    // NAV TOTAL DEL FONDO
-    // Suma TODAS las posiciones válidas valoradas a precio de mercado actual.
-    // A diferencia de calculateMetrics, no limita a top 5 ni filtra por
-    // mayor movimiento — devuelve el valor liquidativo real completo.
-    // -------------------------
+    // =========================
+    // NAV TOTAL (USANDO SERVICE)
+    // =========================
     public double calculateTotalNAV(List<FundPosition> positions) {
-        if (positions == null || positions.isEmpty()) return 0;
-
-        return positions.stream()
-                .filter(FundPosition::isValid)
-                .mapToDouble(FundPosition::getValorPosicion)
-                .sum();
+        return positionService.calculateNAV(positions);
     }
 
-    // -------------------------
-    // NAV + RENTABILIDAD DE UNA POSICIÓN
-    // Devuelve par [valorActual, returnPct] para cada posición.
-    // Útil para alimentar tablas con valor real de cada asset en el fondo.
-    // -------------------------
+    // =========================
+    // POSITION SUMMARY
+    // =========================
     public record PositionSummary(
             String idAsset,
             double valorActual,
@@ -57,6 +96,7 @@ public class FundService {
     ) {}
 
     public List<PositionSummary> getSummaryByFund(List<FundPosition> positions) {
+
         if (positions == null) return List.of();
 
         double navTotal = calculateTotalNAV(positions);
@@ -64,16 +104,21 @@ public class FundService {
         return positions.stream()
                 .filter(FundPosition::isValid)
                 .map(pos -> {
-                    MarketEngine engine = DataStore.engines.get(pos.getIdAsset());
-                    double currentPrice = engine != null ? engine.getLastPrice() : 0;
 
-                    double valorActual  = pos.getValorPosicion();
-                    double invested     = pos.getInvestedValue();
-                    double returnPct    = pos.getReturnPct();
-                    double dailyReturn  = pos.getDailyReturn();
+                    double price = marketService.getPrice(pos.getIdAsset());
 
-                    // Peso real de esta posición sobre el NAV total del fondo
-                    double pesoReal = navTotal > 0 ? (valorActual / navTotal) * 100 : 0;
+                    double valorActual = pos.getQuantity() * price;
+                    double invested = pos.getInvestedValue();
+
+                    double returnPct = invested > 0
+                            ? ((valorActual - invested) / invested) * 100
+                            : 0;
+
+                    double dailyReturn = valorActual - invested;
+
+                    double peso = navTotal > 0
+                            ? (valorActual / navTotal) * 100
+                            : 0;
 
                     return new PositionSummary(
                             pos.getIdAsset(),
@@ -81,55 +126,56 @@ public class FundService {
                             invested,
                             returnPct,
                             dailyReturn,
-                            currentPrice,
-                            pesoReal
+                            price,
+                            peso
                     );
                 })
                 .sorted(Comparator.comparingDouble(PositionSummary::valorActual).reversed())
                 .toList();
     }
 
-    // -------------------------
-    // MÉTRICAS DEL FONDO (top movers para el panel rápido)
-    // Calcula el NAV completo primero, luego selecciona top 5 por movimiento
-    // para el listado de top movers — pero totalValue refleja el fondo entero.
-    // -------------------------
+    // =========================
+    // METRICS
+    // =========================
     public FundMetrics calculateMetrics(
             Fund fund,
             List<FundPosition> positions,
             double previousValue
     ) {
+
         if (positions == null || positions.isEmpty()) {
             return new FundMetrics(0, 0, 0, List.of());
         }
 
-        // ── NAV completo (TODAS las posiciones válidas) ──────────
-        double totalValue  = calculateTotalNAV(positions);
+        double totalValue = calculateTotalNAV(positions);
+
         double totalChange = positions.stream()
                 .filter(FundPosition::isValid)
-                .mapToDouble(FundPosition::getDailyReturn)
+                .mapToDouble(p -> {
+                    double price = marketService.getPrice(p.getIdAsset());
+                    double currentValue = p.getQuantity() * price;
+                    return currentValue - p.getInvestedValue();
+                })
                 .sum();
 
-        // ── Top 5 por mayor movimiento absoluto (para el panel) ──
-        List<FundPosition> topPositions = positions.stream()
-                .filter(FundPosition::isValid)
-                .sorted(Comparator.comparingDouble(
-                        (FundPosition p) -> Math.abs(p.getDailyReturn())
-                ).reversed())
-                .limit(5)
-                .toList();
+        List<FundPosition> topPositions =
+                positionService.getTopByMovement(positions, 5);
 
         List<String> topMovers = new ArrayList<>();
 
         for (FundPosition pos : topPositions) {
-            double currentPrice = 0;
-            MarketEngine engine = DataStore.engines.get(pos.getIdAsset());
-            if (engine != null) currentPrice = engine.getLastPrice();
+
+            double price = marketService.getPrice(pos.getIdAsset());
+            double value = pos.getQuantity() * price;
+
+            double returnPct = pos.getInvestedValue() > 0
+                    ? ((value - pos.getInvestedValue()) / pos.getInvestedValue()) * 100
+                    : 0;
 
             topMovers.add(String.format(
-                    "%s:%.2f",          // formato "TICKER:returnPct" que parsea FundViewController
+                    "%s:%.2f",
                     pos.getIdAsset(),
-                    pos.getReturnPct()
+                    returnPct
             ));
         }
 

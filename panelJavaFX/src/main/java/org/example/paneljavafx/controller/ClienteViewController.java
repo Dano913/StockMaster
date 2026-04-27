@@ -4,49 +4,32 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.transformation.FilteredList;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
 import javafx.scene.control.*;
 import org.example.paneljavafx.model.Cliente;
-import org.example.paneljavafx.model.Posicion;
 import org.example.paneljavafx.service.ClienteService;
 
 public class ClienteViewController {
 
-    // =========================
-    // UI
-    // =========================
     @FXML private TableView<Cliente> clientsTable;
     @FXML private TableColumn<Cliente, String> colName;
     @FXML private TableColumn<Cliente, String> colEmail;
 
-    @FXML private TableView<Posicion> inversionesTable;
-    @FXML private TableColumn<Posicion, String> colFund;
-    @FXML private TableColumn<Posicion, String> colAmount;
-
     @FXML private TextField searchField;
 
-    // =========================
-    // SERVICE
-    // =========================
-    private final ClienteService clienteService = new ClienteService();
+    // contenedor donde se inserta la vista del cliente privado
+    @FXML private javafx.scene.layout.VBox clienteDetailContainer;
 
-    // =========================
-    // STATE
-    // =========================
+    private final ClienteService clienteService = ClienteService.getInstance();
     private FilteredList<Cliente> filteredClientes;
 
-    // =========================
-    // INIT
-    // =========================
     @FXML
     public void initialize() {
 
-        System.out.println("🚀 ClienteViewController inicializado");
-
-        // ✔ correcto: ahora carga desde DataSource interno
         clienteService.load();
 
         setupClientsTable();
-        setupInversionesTable();
         setupSearch();
     }
 
@@ -72,37 +55,29 @@ public class ClienteViewController {
                 .selectedItemProperty()
                 .addListener((obs, oldVal, selected) -> {
 
-                    if (selected == null) {
-                        inversionesTable.setItems(FXCollections.observableArrayList());
-                        return;
+                    if (selected == null) return;
+
+                    try {
+                        FXMLLoader loader = new FXMLLoader(
+                                getClass().getResource(
+                                        "/org/example/paneljavafx/cliente-privado-view.fxml"
+                                )
+                        );
+
+                        Parent view = loader.load();
+
+                        ClientePrivadoViewController controller =
+                                loader.getController();
+
+                        controller.loadCliente(selected);
+
+                        // insertamos la vista en el panel derecho
+                        clienteDetailContainer.getChildren().setAll(view);
+
+                    } catch (Exception e) {
+                        e.printStackTrace();
                     }
-
-                    var posiciones =
-                            clienteService.getPosicionesByClienteId(selected.getIdCliente());
-
-                    inversionesTable.setItems(FXCollections.observableArrayList(posiciones));
                 });
-    }
-
-    // =========================
-    // POSICIONES TABLE
-    // =========================
-    private void setupInversionesTable() {
-
-        colFund.setCellValueFactory(d ->
-                new SimpleStringProperty(
-                        d.getValue().getNombreFondo() +
-                                " (F#" + d.getValue().getIdFondo() + ")"
-                )
-        );
-
-        colAmount.setCellValueFactory(d ->
-                new SimpleStringProperty(
-                        String.format("€%.2f", d.getValue().getValorActual())
-                )
-        );
-
-        inversionesTable.setItems(FXCollections.observableArrayList());
     }
 
     // =========================
