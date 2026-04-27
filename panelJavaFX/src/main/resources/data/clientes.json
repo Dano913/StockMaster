@@ -7,28 +7,29 @@
     "dni": "48291375A",
     "fecha_alta": "2025-01-12",
     "pais": "España",
-    "gestor": 101,
+    "id_gestor": 101,
     "posiciones": [
       {
-        "id_fondo": 1,
-        "nombre_fondo": "Global Equity",
-        "cantidad": 15000,
-        "valor_actual": 16200,
+        "id_fondo": "FND-001",
+        "cantidad": 10000,
         "transacciones": [
-          {
-            "tipo": "COMPRA",
-            "fecha": "2025-01-12",
-            "importe": 15000
-          },
-          {
-            "tipo": "RENTABILIDAD",
-            "fecha": "2025-03-01",
-            "importe": 1200
-          }
+          { "tipo": "COMPRA", "fecha": "2025-01-12", "importe": 5000 },
+          { "tipo": "COMPRA", "fecha": "2025-02-10", "importe": 3000 },
+          { "tipo": "COMPRA", "fecha": "2025-03-01", "importe": 2000 }
+        ]
+      },
+      {
+        "id_fondo": "FND-002",
+        "cantidad": 6000,
+        "transacciones": [
+          { "tipo": "COMPRA", "fecha": "2025-01-20", "importe": 2000 },
+          { "tipo": "COMPRA", "fecha": "2025-02-15", "importe": 2000 },
+          { "tipo": "COMPRA", "fecha": "2025-03-10", "importe": 2000 }
         ]
       }
     ]
   },
+
   {
     "id_cliente": 2,
     "nombre": "Lucía",
@@ -37,28 +38,29 @@
     "dni": "59382174B",
     "fecha_alta": "2025-02-03",
     "pais": "España",
-    "gestor": 102,
+    "id_gestor": 102,
     "posiciones": [
       {
-        "id_fondo": 2,
-        "nombre_fondo": "Conservative Fund",
-        "cantidad": 8000,
-        "valor_actual": 8420,
+        "id_fondo": "FND-002",
+        "cantidad": 5000,
         "transacciones": [
-          {
-            "tipo": "COMPRA",
-            "fecha": "2025-02-03",
-            "importe": 8000
-          },
-          {
-            "tipo": "APORTE",
-            "fecha": "2025-04-10",
-            "importe": 420
-          }
+          { "tipo": "COMPRA", "fecha": "2025-02-03", "importe": 2000 },
+          { "tipo": "COMPRA", "fecha": "2025-02-20", "importe": 1500 },
+          { "tipo": "COMPRA", "fecha": "2025-03-05", "importe": 1500 }
+        ]
+      },
+      {
+        "id_fondo": "FND-003",
+        "cantidad": 4000,
+        "transacciones": [
+          { "tipo": "COMPRA", "fecha": "2025-02-10", "importe": 1000 },
+          { "tipo": "COMPRA", "fecha": "2025-02-25", "importe": 1500 },
+          { "tipo": "COMPRA", "fecha": "2025-03-15", "importe": 1500 }
         ]
       }
     ]
   },
+
   {
     "id_cliente": 3,
     "nombre": "Andrés",
@@ -67,24 +69,24 @@
     "dni": "74829163C",
     "fecha_alta": "2025-03-15",
     "pais": "España",
-    "gestor": 103,
+    "id_gestor": 103,
     "posiciones": [
       {
-        "id_fondo": 3,
-        "nombre_fondo": "Aggressive Growth",
-        "cantidad": 20000,
-        "valor_actual": 22800,
+        "id_fondo": "FND-001",
+        "cantidad": 12000,
         "transacciones": [
-          {
-            "tipo": "COMPRA",
-            "fecha": "2025-03-15",
-            "importe": 20000
-          },
-          {
-            "tipo": "RENTABILIDAD",
-            "fecha": "2025-05-20",
-            "importe": 2800
-          }
+          { "tipo": "COMPRA", "fecha": "2025-03-15", "importe": 4000 },
+          { "tipo": "COMPRA", "fecha": "2025-04-01", "importe": 4000 },
+          { "tipo": "COMPRA", "fecha": "2025-05-01", "importe": 4000 }
+        ]
+      },
+      {
+        "id_fondo": "FND-004",
+        "cantidad": 8000,
+        "transacciones": [
+          { "tipo": "COMPRA", "fecha": "2025-03-20", "importe": 3000 },
+          { "tipo": "COMPRA", "fecha": "2025-04-10", "importe": 3000 },
+          { "tipo": "COMPRA", "fecha": "2025-05-10", "importe": 2000 }
         ]
       }
     ]
@@ -98,179 +100,24 @@
     "dni": "91827364D",
     "fecha_alta": "2025-02-18",
     "pais": "España",
-    "gestor": 104,
+    "id_gestor": 104,
     "posiciones": [
       {
-        "id_fondo": 4,
-        "nombre_fondo": "Balanced Fund",
-        "cantidad": 12000,
-        "valor_actual": 12650,
-        "transacciones": [
-          {
-            "tipo": "COMPRA",
-            "fecha": "2025-02-18",
-            "importe": 12000
-          },
-          {
-            "tipo": "APORTE",
-            "fecha": "2025-06-01",
-            "importe": 650
-          }
-        ]
-      }
-    ]
-  },
-
-  {
-    "id_cliente": 5,
-    "nombre": "Javier",
-    "apellido": "Ruiz",
-    "email": "javier.ruiz5@email.com",
-    "dni": "38475619E",
-    "fecha_alta": "2025-01-20",
-    "pais": "España",
-    "gestor": 105,
-    "posiciones": [
-      {
-        "id_fondo": 5,
-        "nombre_fondo": "Income Fund",
-        "cantidad": 25000,
-        "valor_actual": 26300,
-        "transacciones": [
-          {
-            "tipo": "COMPRA",
-            "fecha": "2025-01-20",
-            "importe": 25000
-          },
-          {
-            "tipo": "RENTABILIDAD",
-            "fecha": "2025-04-15",
-            "importe": 1300
-          }
-        ]
-      }
-    ]
-  },
-
-  {
-    "id_cliente": 6,
-    "nombre": "Elena",
-    "apellido": "Díaz",
-    "email": "elena.diaz6@email.com",
-    "dni": "56789123F",
-    "fecha_alta": "2025-03-10",
-    "pais": "España",
-    "gestor": 106,
-    "posiciones": [
-      {
-        "id_fondo": 1,
-        "nombre_fondo": "Global Equity",
-        "cantidad": 10000,
-        "valor_actual": 10850,
-        "transacciones": [
-          {
-            "tipo": "COMPRA",
-            "fecha": "2025-03-10",
-            "importe": 10000
-          },
-          {
-            "tipo": "RENTABILIDAD",
-            "fecha": "2025-06-12",
-            "importe": 850
-          }
-        ]
-      }
-    ]
-  },
-
-  {
-    "id_cliente": 7,
-    "nombre": "Sergio",
-    "apellido": "Torres",
-    "email": "sergio.torres7@email.com",
-    "dni": "22334455G",
-    "fecha_alta": "2025-02-25",
-    "pais": "España",
-    "gestor": 107,
-    "posiciones": [
-      {
-        "id_fondo": 3,
-        "nombre_fondo": "Aggressive Growth",
-        "cantidad": 30000,
-        "valor_actual": 34200,
-        "transacciones": [
-          {
-            "tipo": "COMPRA",
-            "fecha": "2025-02-25",
-            "importe": 30000
-          },
-          {
-            "tipo": "RENTABILIDAD",
-            "fecha": "2025-05-30",
-            "importe": 4200
-          }
-        ]
-      }
-    ]
-  },
-
-  {
-    "id_cliente": 8,
-    "nombre": "Ana",
-    "apellido": "Ramírez",
-    "email": "ana.ramirez8@email.com",
-    "dni": "99887766H",
-    "fecha_alta": "2025-04-01",
-    "pais": "España",
-    "gestor": 108,
-    "posiciones": [
-      {
-        "id_fondo": 2,
-        "nombre_fondo": "Conservative Fund",
+        "id_fondo": "FND-004",
         "cantidad": 7000,
-        "valor_actual": 7320,
         "transacciones": [
-          {
-            "tipo": "COMPRA",
-            "fecha": "2025-04-01",
-            "importe": 7000
-          },
-          {
-            "tipo": "APORTE",
-            "fecha": "2025-06-10",
-            "importe": 320
-          }
+          { "tipo": "COMPRA", "fecha": "2025-02-18", "importe": 2000 },
+          { "tipo": "COMPRA", "fecha": "2025-03-01", "importe": 2500 },
+          { "tipo": "COMPRA", "fecha": "2025-04-01", "importe": 2500 }
         ]
-      }
-    ]
-  },
-
-  {
-    "id_cliente": 9,
-    "nombre": "David",
-    "apellido": "Morales",
-    "email": "david.morales9@email.com",
-    "dni": "44556677J",
-    "fecha_alta": "2025-01-05",
-    "pais": "España",
-    "gestor": 109,
-    "posiciones": [
+      },
       {
-        "id_fondo": 5,
-        "nombre_fondo": "Income Fund",
-        "cantidad": 40000,
-        "valor_actual": 43000,
+        "id_fondo": "FND-005",
+        "cantidad": 5000,
         "transacciones": [
-          {
-            "tipo": "COMPRA",
-            "fecha": "2025-01-05",
-            "importe": 40000
-          },
-          {
-            "tipo": "RENTABILIDAD",
-            "fecha": "2025-05-01",
-            "importe": 3000
-          }
+          { "tipo": "COMPRA", "fecha": "2025-02-25", "importe": 1500 },
+          { "tipo": "COMPRA", "fecha": "2025-03-10", "importe": 1500 },
+          { "tipo": "COMPRA", "fecha": "2025-04-10", "importe": 2000 }
         ]
       }
     ]

@@ -51,17 +51,18 @@
          </VBox>
 
          <!-- RIGHT PANEL -->
+         <!-- RIGHT PANEL -->
          <VBox spacing="15" GridPane.columnIndex="1">
 
-            <Label text="⏱ Time Records"
+            <Label text="👤 Clientes del gestor"
                    style="-fx-font-size: 16px; -fx-font-weight: bold;"/>
 
-            <TableView fx:id="timeRecordsTable" VBox.vgrow="ALWAYS">
+            <TableView fx:id="clientsTable" VBox.vgrow="ALWAYS">
 
                <columns>
-                  <TableColumn fx:id="colUser" text="User"/>
-                  <TableColumn fx:id="colDateTime" text="Date"/>
-                  <TableColumn fx:id="colType" text="Type"/>
+                  <TableColumn fx:id="colClientName" text="Nombre"/>
+                  <TableColumn fx:id="colClientEmail" text="Email"/>
+                  <TableColumn fx:id="colClientFund" text="Fondo"/>
                </columns>
 
             </TableView>

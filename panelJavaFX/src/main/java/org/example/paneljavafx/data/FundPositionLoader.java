@@ -63,57 +63,6 @@ public class FundPositionLoader {
 
                 positions.add(fp);
             }
-
-            // -------------------------
-            // ORDENAR ASSETS
-            // -------------------------
-            List<String> assets = new ArrayList<>(matrix.keySet());
-            Collections.sort(assets);
-
-            // -------------------------
-            // EXTRAER TODOS LOS FONDOS
-            // -------------------------
-            Set<String> fundsSet = new TreeSet<>();
-            for (Map<String, Double> fundMap : matrix.values()) {
-                fundsSet.addAll(fundMap.keySet());
-            }
-            List<String> funds = new ArrayList<>(fundsSet);
-
-            // -------------------------
-            // PRINT TABLA
-            // -------------------------
-//            System.out.println("\n========== ASSET EXPOSURE MATRIX ==========\n");
-//
-//            // header
-//            System.out.print(String.format("%-15s", "ASSET"));
-//            for (String f : funds) {
-//                System.out.print(String.format("%-15s", f));
-//            }
-//            System.out.println();
-//
-//            System.out.println("=".repeat(15 + funds.size() * 15));
-//
-//            // rows
-//            for (String asset : assets) {
-//
-//                System.out.print(String.format("%-15s", asset));
-//
-//                Map<String, Double> fundMap = matrix.get(asset);
-//
-//                for (String fund : funds) {
-//
-//                    double value = fundMap != null && fundMap.containsKey(fund)
-//                            ? fundMap.get(fund)
-//                            : 0.0;
-//
-//                    System.out.print(String.format("%-15.2f", value));
-//                }
-//
-//                System.out.println();
-//            }
-//
-//            System.out.println("\n==========================================\n");
-
         } catch (Exception e) {
             throw new RuntimeException("❌ Error cargando fund positions", e);
         }
