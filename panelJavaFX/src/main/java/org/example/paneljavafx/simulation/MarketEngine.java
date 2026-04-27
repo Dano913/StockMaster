@@ -102,10 +102,10 @@ public class MarketEngine {
             candles.addAll(initial);
         }
 
-        System.out.printf("🚀 MarketEngine [%s] iniciado en %.2f%s%n",
-                asset.getTicker(),
-                startPrice,
-                startPrice != asset.getInitialPrice() ? " (restaurado)" : " (precio inicial)");
+//        System.out.printf("🚀 MarketEngine [%s] iniciado en %.2f%s%n",
+//                asset.getTicker(),
+//                startPrice,
+//                startPrice != asset.getInitialPrice() ? " (restaurado)" : " (precio inicial)");
     }
 
     // -------------------------

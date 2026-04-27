@@ -6,6 +6,8 @@ import java.util.List;
 
 public class ExposureService {
 
+    private final FundService fundService = FundService.getInstance();
+
     // -------------------------
     // FILTRAR POR ASSET
     // -------------------------
@@ -27,10 +29,7 @@ public class ExposureService {
     public double calculateTotalExposure(List<FundPosition> positions) {
         if (positions == null || positions.isEmpty()) return 0;
 
-        return positions.stream()
-                .filter(FundPosition::isValid)
-                .mapToDouble(FundPosition::getValorPosicion)
-                .sum();
+        return fundService.calculateTotalNAV(positions);
     }
 
     // -------------------------
@@ -40,10 +39,7 @@ public class ExposureService {
             List<FundPosition> positions,
             String assetId
     ) {
-        return filterByAsset(positions, assetId)
-                .stream()
-                .mapToDouble(FundPosition::getValorPosicion)
-                .sum();
+        return fundService.calculateTotalNAV(filterByAsset(positions, assetId));
     }
 
     // -------------------------

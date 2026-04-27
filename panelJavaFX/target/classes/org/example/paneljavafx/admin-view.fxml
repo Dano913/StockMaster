@@ -4,62 +4,91 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.Tab?>
 <?import javafx.scene.control.TabPane?>
-<?import javafx.scene.image.Image?>
-<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.RowConstraints?>
 
-<AnchorPane prefHeight="1000.0" prefWidth="1800.0" xmlns="http://javafx.com/javafx/17"
-            xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="org.example.paneljavafx.controller.AdminViewController">
+<!--
+    admin-view.fxml — Panel de administración principal
+    CSS externo: trading-theme.css
+    Estructura respetada: GridPane 1col × 2row → header + TabPane
+-->
+<AnchorPane
+        prefHeight="1000.0"
+        prefWidth="1800.0"
+        stylesheets="@trading-theme.css"
+        xmlns="http://javafx.com/javafx/17"
+        xmlns:fx="http://javafx.com/fxml/1"
+        fx:controller="org.example.paneljavafx.controller.AdminViewController">
 
     <children>
 
-        <GridPane prefHeight="1000.0" prefWidth="1800.0" AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.topAnchor="0.0">
+        <GridPane
+                AnchorPane.topAnchor="0"
+                AnchorPane.bottomAnchor="0"
+                AnchorPane.leftAnchor="0"
+                AnchorPane.rightAnchor="0">
 
             <columnConstraints>
-                <ColumnConstraints hgrow="ALWAYS" />
+                <ColumnConstraints hgrow="ALWAYS"/>
             </columnConstraints>
 
             <rowConstraints>
-                <RowConstraints prefHeight="50.0" />
-                <RowConstraints vgrow="ALWAYS" />
+                <!-- Fila 0: header fijo -->
+                <RowConstraints prefHeight="56" minHeight="56" vgrow="NEVER"/>
+                <!-- Fila 1: contenido -->
+                <RowConstraints vgrow="ALWAYS"/>
             </rowConstraints>
 
-            <!-- HEADER -->
-            <HBox alignment="CENTER_LEFT" spacing="20" style="-fx-padding: 10; -fx-background-color: #121018;" GridPane.rowIndex="0">
+            <!-- ══════════════════════════════════════════════
+                 HEADER
+            ═══════════════════════════════════════════════ -->
+            <HBox styleClass="admin-header"
+                  GridPane.rowIndex="0">
 
-                <ImageView fitHeight="80" fitWidth="200">
+                <!-- Logo / Brand -->
+                <Label styleClass="admin-brand">
+                    <text>STOCK<Label styleClass="admin-brand-accent" text="MASTER"/></text>
+                </Label>
 
-                </ImageView>
+                <!-- Separador flexible -->
+                <Region HBox.hgrow="ALWAYS"/>
 
-                <Label text="ADMIN PANEL - STOCKMASTER" textFill="AQUA" />
-
-                <HBox alignment="CENTER_RIGHT" spacing="20" HBox.hgrow="ALWAYS">
-                    <Button style="-fx-border-color: cyan; -fx-background-color: transparent;" text="PERFIL" />
-                </HBox>
+                <!-- Botón perfil -->
+                <Button styleClass="admin-btn" text="PERFIL"/>
 
             </HBox>
 
-            <!-- TABPANE -->
-            <TabPane fx:id="tabPane" maxHeight="Infinity" maxWidth="Infinity" prefHeight="837.0" prefWidth="1700.0" GridPane.rowIndex="1">
+            <!-- ══════════════════════════════════════════════
+                 TABPANE PRINCIPAL
+            ═══════════════════════════════════════════════ -->
+            <TabPane fx:id="tabPane"
+                     styleClass="admin-tabpane"
+                     maxHeight="Infinity"
+                     maxWidth="Infinity"
+                     GridPane.rowIndex="1">
 
                 <tabs>
-                    <Tab fx:id="searchTab" closable="false" text="Posicion">
-                        <fx:include source="global-view.fxml" />
+
+                    <!-- POSICIÓN GLOBAL -->
+                    <Tab fx:id="searchTab"
+                         text="Posición"
+                         closable="false">
+                        <fx:include source="global-view.fxml"/>
                     </Tab>
-                    <!-- FONDOS (TABPANE INTERNO) -->
+
+                    <!-- FONDOS (TabPane interno) -->
                     <Tab fx:id="fundTab"
                          text="Fondos"
                          closable="false">
-
                         <content>
                             <AnchorPane>
                                 <children>
                                     <TabPane fx:id="fundTabPane"
+                                             styleClass="inner-tabpane"
                                              tabClosingPolicy="ALL_TABS"
                                              AnchorPane.topAnchor="0"
                                              AnchorPane.bottomAnchor="0"
@@ -68,18 +97,17 @@
                                 </children>
                             </AnchorPane>
                         </content>
-
                     </Tab>
 
-                    <!-- ACTIVOS (TABPANE INTERNO) -->
+                    <!-- ACTIVOS (TabPane interno) -->
                     <Tab fx:id="assetTab"
                          text="Activos"
                          closable="false">
-
                         <content>
                             <AnchorPane>
                                 <children>
                                     <TabPane fx:id="assetTabPane"
+                                             styleClass="inner-tabpane"
                                              tabClosingPolicy="ALL_TABS"
                                              AnchorPane.topAnchor="0"
                                              AnchorPane.bottomAnchor="0"
@@ -88,15 +116,22 @@
                                 </children>
                             </AnchorPane>
                         </content>
-
-                    </Tab>
-                    <Tab fx:id="personalTab" text="Personal" closable="false">
-                        <fx:include source="personal-view.fxml" />
                     </Tab>
 
-                    <Tab fx:id="clienteTab" text="Cliente" closable="false">
-                        <fx:include source="cliente-view.fxml" />
+                    <!-- PERSONAL -->
+                    <Tab fx:id="personalTab"
+                         text="Personal"
+                         closable="false">
+                        <fx:include source="personal-view.fxml"/>
                     </Tab>
+
+                    <!-- CLIENTES -->
+                    <Tab fx:id="clienteTab"
+                         text="Clientes"
+                         closable="false">
+                        <fx:include source="clientesGestion-view.fxml"/>
+                    </Tab>
+
                 </tabs>
 
             </TabPane>
@@ -104,5 +139,4 @@
         </GridPane>
 
     </children>
-
 </AnchorPane>

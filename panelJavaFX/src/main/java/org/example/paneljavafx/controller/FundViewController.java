@@ -15,6 +15,7 @@ import javafx.scene.paint.Color;
 import org.example.paneljavafx.common.TabDataReceiver;
 import org.example.paneljavafx.model.Fund;
 import org.example.paneljavafx.model.FundPosition;
+import org.example.paneljavafx.service.FundPositionService;
 import org.example.paneljavafx.service.FundService;
 import org.example.paneljavafx.service.dto.FundMetrics;
 import org.example.paneljavafx.simulation.MarketClock;
@@ -77,7 +78,7 @@ public class FundViewController implements TabDataReceiver<Fund> {
     private final DecimalFormat DF = new DecimalFormat("#,###.##");
     private final ObservableList<AssetRow> tableData = FXCollections.observableArrayList();
 
-    private final FundService  fundService  = new FundService();
+    FundService fundService = FundService.getInstance();
     private final ChartService chartService = new ChartService();
 
     private final List<Double> fundValueHistory = new ArrayList<>();
@@ -92,6 +93,7 @@ public class FundViewController implements TabDataReceiver<Fund> {
         setupTable();
         bindMarket();
         recalculate();
+
     }
 
     // =========================

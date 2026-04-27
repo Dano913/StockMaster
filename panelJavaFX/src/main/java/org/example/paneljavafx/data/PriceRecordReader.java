@@ -46,9 +46,9 @@ public class PriceRecordReader {
                             (existing, replacement) -> replacement  // ante duplicado, el más reciente gana
                     ));
 
-            System.out.println("✅ PriceRecordReader: precios restaurados para " + lastPrices.size() + " activos.");
-            lastPrices.forEach((id, price) ->
-                    System.out.printf("   › %s → %.2f%n", id, price));
+//            System.out.println("✅ PriceRecordReader: precios restaurados para " + lastPrices.size() + " activos.");
+//            lastPrices.forEach((id, price) ->
+//                    System.out.printf("   › %s → %.2f%n", id, price));
 
             return lastPrices;
 

@@ -8,7 +8,7 @@ import java.io.InputStream;
 import java.time.LocalDate;
 import java.util.*;
 
-public class FundPositionLoader {
+public class FundPositionDataSource {
 
     public static List<FundPosition> load() {
 
@@ -17,10 +17,10 @@ public class FundPositionLoader {
         try {
             ObjectMapper mapper = new ObjectMapper();
 
-            InputStream is = FundPositionLoader.class.getResourceAsStream("/data/fund_positions.json");
+            InputStream is = FundPositionDataSource.class.getResourceAsStream("/data/fund_positions.json");
 
             if (is == null) {
-                throw new IllegalStateException("❌ No se encontró /data/fund_positions.json");
+                throw new IllegalStateException("No se encontró /data/fund_positions.json");
             }
 
             JsonNode root = mapper.readTree(is);
@@ -64,9 +64,31 @@ public class FundPositionLoader {
                 positions.add(fp);
             }
         } catch (Exception e) {
-            throw new RuntimeException("❌ Error cargando fund positions", e);
+            throw new RuntimeException("Error cargando fund positions", e);
         }
 
         return positions;
+    }
+
+    public static void printPositions(List<FundPosition> positions) {
+
+        System.out.println("\n====================================================================================");
+        System.out.println(positions.size() + " POSICIONES CARGADAS EN SERVICE");
+        System.out.println("====================================================================================\n");
+        System.out.printf("| %-12s | %-8s | %-8s | %-10s | %-12s | %-10s |\n",
+                "ID_POS", "FUND", "ASSET", "INVESTED", "WEIGHT", "QTY");
+        System.out.println("====================================================================================");
+
+        for (FundPosition p : positions) {
+
+            System.out.printf("| %-12s | %-8s | %-8s | %-10.2f | %-12.2f | %-10.2f |\n",
+                    p.getIdFundPosition(),
+                    p.getIdFund(),
+                    p.getIdAsset(),
+                    p.getInvestedValue(),
+                    p.getPesoPorcentual(),
+                    p.getQuantity()
+            );
+        }
     }
 }

@@ -6,10 +6,11 @@ import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.layout.AnchorPane;
 
-import org.example.paneljavafx.data.FundPositionLoader;
+import org.example.paneljavafx.data.FundPositionDataSource;
 import org.example.paneljavafx.model.Asset;
 import org.example.paneljavafx.model.Fund;
 import org.example.paneljavafx.model.FundPosition;
+import org.example.paneljavafx.service.AssetService;
 import org.example.paneljavafx.service.FundService;
 
 import java.util.List;
@@ -27,12 +28,16 @@ public class AdminViewController {
 
     private List<FundPosition> cachedPositions;
 
-    private final FundService fundService = new FundService();
+    private final FundService fundService = FundService.getInstance();
+    private final AssetService assetService = AssetService.getInstance();
 
     @FXML
     public void initialize() {
         loadGlobalView();
-        cachedPositions = FundPositionLoader.load();
+        cachedPositions = FundPositionDataSource.load();
+
+        fundService.load();
+        assetService.load();
     }
 
     // -------------------------

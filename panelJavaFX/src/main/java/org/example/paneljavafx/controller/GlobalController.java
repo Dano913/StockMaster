@@ -15,11 +15,10 @@ import javafx.scene.paint.Color;
 import lombok.Getter;
 import lombok.Setter;
 
-import org.example.paneljavafx.data.DataStore;
 import org.example.paneljavafx.model.Asset;
 import org.example.paneljavafx.model.Fund;
 import org.example.paneljavafx.model.FundPosition;
-import org.example.paneljavafx.service.GlobalService;
+import org.example.paneljavafx.service.*;
 import org.example.paneljavafx.service.GlobalService.AssetSnapshot;
 import org.example.paneljavafx.service.GlobalService.FondoSnapshot;
 import org.example.paneljavafx.service.GlobalService.GlobalSnapshot;
@@ -148,6 +147,9 @@ public class GlobalController {
     // SERVICE
     // =========================
     private final GlobalService globalService = new GlobalService();
+    FundService fundService = FundService.getInstance();
+    AssetService assetService = AssetService.getInstance();
+    MarketService marketService = MarketService.getInstance();
 
     // =========================
     // INIT
@@ -165,10 +167,10 @@ public class GlobalController {
         globalService.bootstrapMarket();
 
         // 3. Sync DataStore
-        DataStore.assets.clear();
-        DataStore.assets.addAll(assets);
-        DataStore.funds.clear();
-        DataStore.funds.addAll(funds);
+        assetService.assets.clear();
+        assetService.assets.addAll(assets);
+        fundService.funds.clear();
+        fundService.funds.addAll(funds);
 
         // 4. Poblar lista maestra de búsqueda
         masterData.addAll(funds);
@@ -181,6 +183,8 @@ public class GlobalController {
 
         resultsList.setItems(filteredData);
         filteredData.setAll(masterData);
+
+        FundPositionService.getInstance().load();
 
         // 6. Primer render + bind al MarketClock
         tick();

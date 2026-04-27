@@ -4,8 +4,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.example.paneljavafx.data.DataStore;
-import org.example.paneljavafx.simulation.MarketEngine;
 
 import java.time.LocalDate;
 
@@ -44,44 +42,33 @@ public class FundPosition {
     @JsonProperty("finish_date")
     private LocalDate finishDate;
 
-    // -------------------------
-    // 🔥 MÉTODOS CALCULADOS (Runtime)
-    // -------------------------
-    public double getValorPosicion() {
-        return getQuantity() * getCurrentAssetPrice();
-    }
+    // =========================
+    // UTILIDADES (solo estado)
+    // =========================
 
-    public double getDailyReturn() {
-        return getValorPosicion() - getInvestedValue();
-    }
-
-    public double getReturnPct() {
-        double invested = getInvestedValue();
-        return invested > 0 ?
-                (getValorPosicion() - invested) / invested * 100 : 0;
-    }
-
-    private double getCurrentAssetPrice() {
-        MarketEngine engine = DataStore.engines.get(getIdAsset());
-        return engine != null ? engine.getLastPrice() : 100.0;
-    }
-
-    // -------------------------
-    // UTILIDADES
-    // -------------------------
     public boolean isActive() {
         LocalDate now = LocalDate.now();
-        return startDate != null && (finishDate == null || finishDate.isAfter(now));
+        return startDate != null
+                && (finishDate == null || finishDate.isAfter(now));
     }
 
     public boolean isValid() {
-        return idFund != null && idAsset != null &&
-                pesoPorcentual > 0 && quantity > 0 && investedValue > 0;
+        return idFund != null
+                && idAsset != null
+                && pesoPorcentual > 0
+                && quantity > 0
+                && investedValue > 0;
     }
 
     @Override
     public String toString() {
-        return String.format("%s → %s (%.1f%% | %.0f uds | %.0f€)",
-                idFund, idAsset, pesoPorcentual, quantity, investedValue);
+        return String.format(
+                "%s → %s (%.1f%% | %.0f uds | %.0f€)",
+                idFund,
+                idAsset,
+                pesoPorcentual,
+                quantity,
+                investedValue
+        );
     }
 }

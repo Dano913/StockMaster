@@ -31,7 +31,7 @@ public class PriceRecordWriter {
                     .getParentFile(); // raíz del proyecto
 
             String resolved = projectRoot + "/src/main/resources/data/precio_asset.json";
-            System.out.println("📁 PriceRecordWriter → " + resolved);
+            //System.out.println("📁 PriceRecordWriter → " + resolved);
             return resolved;
 
         } catch (Exception e) {

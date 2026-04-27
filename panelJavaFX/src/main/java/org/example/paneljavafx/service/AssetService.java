@@ -1,43 +1,83 @@
 package org.example.paneljavafx.service;
 
+import org.example.paneljavafx.data.AssetDataSource;
+import org.example.paneljavafx.model.Asset;
 import org.example.paneljavafx.model.FundPosition;
 import org.example.paneljavafx.service.dto.AssetMetrics;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class AssetService {
 
-    public List<FundPosition> filterByAsset(List<FundPosition> all, String assetId) {
-        if (all == null || assetId == null) return List.of();
+    private static final AssetService INSTANCE = new AssetService();
 
-        return all.stream()
-                .filter(p -> assetId.equals(p.getIdAsset()))
-                .toList();
+    public static AssetService getInstance() {
+        return INSTANCE;
     }
 
-    public AssetMetrics calculateMetrics(List<FundPosition> all, String assetId) {
+    private AssetService() {}
 
-        List<FundPosition> positions = filterByAsset(all, assetId);
+    private final AssetDataSource assetDataSource = new AssetDataSource();
+    private final FundPositionService positionService = FundPositionService.getInstance();
 
-        if (positions.isEmpty()) {
+    public final List<Asset> assets = new ArrayList<>();
+    private boolean loaded = false;
+
+    public void load() {
+        if (loaded) return;
+        loaded = true;
+
+        assets.clear();
+        assets.addAll(assetDataSource.load());
+
+        assetDataSource.printAssets(assets);
+    }
+
+    public List<Asset> getAll() {
+        return assets;
+    }
+
+    public Asset getById(String id) {
+        return assets.stream()
+                .filter(a -> a.getId().equals(id))
+                .findFirst()
+                .orElse(null);
+    }
+
+    public AssetMetrics calculateMetrics(List<FundPosition> positions, String assetId) {
+
+        if (positions == null || assetId == null) {
             return new AssetMetrics(0, 0, 0, 0);
         }
 
-        double totalExposure = positions.stream()
-                .mapToDouble(FundPosition::getValorPosicion)
-                .sum();
+        double totalExposure = 0;
+        long fundsExposed = 0;
 
-        long fundsExposed = positions.stream()
-                .map(FundPosition::getIdFund)
-                .distinct()
-                .count();
+        Set<String> uniqueFunds = new HashSet<>();
 
-        // normalización simple (ajustable luego)
-        double exposureRatio = Math.min(totalExposure / 1_000_000.0, 1.0);
+        double totalPortfolioValue = 0; // necesario para ratios
 
-        double globalWeight = positions.stream()
-                .mapToDouble(FundPosition::getPesoPorcentual)
-                .sum();
+        for (FundPosition p : positions) {
+
+            double value = p.getInvestedValue();
+            totalPortfolioValue += value;
+
+            if (assetId.equals(p.getIdAsset())) {
+                totalExposure += value;
+                uniqueFunds.add(p.getIdFund());
+            }
+        }
+
+        fundsExposed = uniqueFunds.size();
+
+        double exposureRatio = (totalPortfolioValue == 0)
+                ? 0
+                : totalExposure / totalPortfolioValue;
+
+        double globalWeight = exposureRatio; // si no tienes otra métrica más compleja aún
 
         return new AssetMetrics(
                 totalExposure,
@@ -46,4 +86,6 @@ public class AssetService {
                 globalWeight
         );
     }
+
+
 }
