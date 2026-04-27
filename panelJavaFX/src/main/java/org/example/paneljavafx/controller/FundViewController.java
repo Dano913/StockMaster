@@ -142,30 +142,22 @@ public class FundViewController implements TabDataReceiver<Fund> {
 
     // =========================
     // TABLA — REFRESCO
+    // Usa FundService.getSummaryByFund para obtener valor real de cada posición
+    // en lugar de parsear los strings de topMovers
     // =========================
     private void refreshTable(List<String> topMovers) {
         if (topAssetsTable == null) return;
 
         tableData.clear();
 
-        // Parsea strings con formato "TICKER: XX.XX%" que devuelve FundService.
-        // Si tu FundMetrics ya expone pares (nombre, pct), adáptalos aquí directamente.
-        for (String mover : topMovers) {
-            try {
-                String[] parts = mover.split(":");
-                if (parts.length == 2) {
-                    String nombre = parts[0].trim();
-                    double pct = Double.parseDouble(
-                            parts[1].trim().replace("%", "").replace(",", ".")
-                    );
-                    tableData.add(new AssetRow(nombre, pct));
-                } else {
-                    tableData.add(new AssetRow(mover, 0.0));
-                }
-            } catch (NumberFormatException e) {
-                tableData.add(new AssetRow(mover, 0.0));
-            }
-        }
+        // getSummaryByFund devuelve TODAS las posiciones ordenadas por valor,
+        // con el peso real calculado sobre el NAV total del fondo
+        List<FundService.PositionSummary> summaries =
+                fundService.getSummaryByFund(fundPositions);
+
+        summaries.forEach(s ->
+                tableData.add(new AssetRow(s.idAsset(), s.returnPct()))
+        );
     }
 
     // =========================
@@ -203,7 +195,10 @@ public class FundViewController implements TabDataReceiver<Fund> {
     private void updateUI(FundMetrics m) {
         if (fundValue == null || fundChange == null) return;
 
-        fundValue.setText(DF.format(m.getTotalValue()) + " €");
+        // NAV total real (todas las posiciones, no solo top 5)
+        double navTotal = fundService.calculateTotalNAV(fundPositions);
+
+        fundValue.setText(DF.format(navTotal) + " €");
 
         fundChange.setText(String.format("%+.2f%%", m.getChangePct()));
         fundChange.setTextFill(m.getChangePct() >= 0
@@ -218,8 +213,16 @@ public class FundViewController implements TabDataReceiver<Fund> {
         }
 
         if (totalAUM != null) {
-            totalAUM.setText(DF.format(m.getTotalValue()) + " AUM");
+            totalAUM.setText(DF.format(navTotal) + " AUM");
         }
+
+        // Log del valor total del fondo en cada tick
+        System.out.printf("💰 [%s] NAV total: %s € | Cambio: %+.2f%% | Δ: %+.0f €%n",
+                currentFund != null ? currentFund.getIdFondo() : "?",
+                DF.format(navTotal),
+                m.getChangePct(),
+                m.getTotalChange()
+        );
 
         refreshTable(m.getTopMovers());
     }

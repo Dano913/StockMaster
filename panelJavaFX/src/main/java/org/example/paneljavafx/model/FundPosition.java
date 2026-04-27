@@ -14,7 +14,7 @@ import java.time.LocalDate;
 @AllArgsConstructor
 public class FundPosition {
 
-    @JsonProperty("id_fund_position")
+    @JsonProperty("id_posicion")
     private String idFundPosition;
 
     @JsonProperty("id_fund")

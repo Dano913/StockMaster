@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
 
 public class Posicion {
-    @JsonProperty("id_fondo") private int idFondo;
+    @JsonProperty("id_fondo") private String idFondo;
     @JsonProperty("nombre_fondo") private String nombreFondo;
     private double cantidad;
 
@@ -16,14 +16,14 @@ public class Posicion {
     public Posicion() {}
 
     // Getters
-    public int getIdFondo() { return idFondo; }
+    public String getIdFondo() { return idFondo; }
     public String getNombreFondo() { return nombreFondo; }
     public double getCantidad() { return cantidad; }
     public double getValorActual() { return valorActual; }
     public List<Transaccion> getTransacciones() { return transacciones; }
 
     // Setters
-    public void setIdFondo(int idFondo) { this.idFondo = idFondo; }
+    public void setIdFondo(String idFondo) { this.idFondo = idFondo; }
     public void setNombreFondo(String nombreFondo) { this.nombreFondo = nombreFondo; }
     public void setCantidad(double cantidad) { this.cantidad = cantidad; }
     public void setValorActual(double valorActual) { this.valorActual = valorActual; }

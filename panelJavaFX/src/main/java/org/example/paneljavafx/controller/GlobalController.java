@@ -1,7 +1,5 @@
 package org.example.paneljavafx.controller;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -21,44 +19,43 @@ import org.example.paneljavafx.data.DataStore;
 import org.example.paneljavafx.model.Asset;
 import org.example.paneljavafx.model.Fund;
 import org.example.paneljavafx.model.FundPosition;
-import org.example.paneljavafx.service.AssetService;
-import org.example.paneljavafx.service.ExposureService;
-import org.example.paneljavafx.service.FundService;
-import org.example.paneljavafx.service.MarketService;
-import org.example.paneljavafx.service.dto.AssetMetrics;
-import org.example.paneljavafx.service.dto.FundMetrics;
+import org.example.paneljavafx.service.GlobalService;
+import org.example.paneljavafx.service.GlobalService.AssetSnapshot;
+import org.example.paneljavafx.service.GlobalService.FondoSnapshot;
+import org.example.paneljavafx.service.GlobalService.GlobalSnapshot;
+import org.example.paneljavafx.service.GlobalService.MonthlyBar;
 import org.example.paneljavafx.simulation.MarketClock;
-import org.example.paneljavafx.simulation.MarketEngine;
 
-import java.text.DecimalFormat;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
+/**
+ * GlobalController — solo responsabilidades de UI:
+ *  - Inyección de @FXML
+ *  - Setup de tablas y listeners
+ *  - Render de canvas (línea y barras)
+ *  - Actualización de labels / pie chart
+ *
+ * Toda la lógica de negocio está en GlobalService.
+ */
 public class GlobalController {
 
     // =========================
-    // MODELOS INTERNOS TABLA
+    // MODELOS DE TABLA (JavaFX)
     // =========================
 
     public static class FondoRow {
         private final SimpleStringProperty nombre = new SimpleStringProperty();
         private final SimpleDoubleProperty valor  = new SimpleDoubleProperty();
-        private final SimpleDoubleProperty cambio = new SimpleDoubleProperty();
 
-        public FondoRow(String nombre, double valor, double cambio) {
-            this.nombre.set(nombre);
-            this.valor.set(valor);
-            this.cambio.set(cambio);
+        public FondoRow(FondoSnapshot s) {
+            nombre.set(s.nombre());
+            valor.set(s.nav());
         }
 
         public SimpleStringProperty nombreProperty() { return nombre; }
         public SimpleDoubleProperty valorProperty()  { return valor;  }
-        public SimpleDoubleProperty cambioProperty() { return cambio; }
-        public double getValor()  { return valor.get(); }
-        public double getCambio() { return cambio.get(); }
+        public double getValor() { return valor.get(); }
     }
 
     public static class AssetGlobalRow {
@@ -66,10 +63,10 @@ public class GlobalController {
         private final SimpleDoubleProperty precio = new SimpleDoubleProperty();
         private final SimpleDoubleProperty cambio = new SimpleDoubleProperty();
 
-        public AssetGlobalRow(String nombre, double precio, double cambio) {
-            this.nombre.set(nombre);
-            this.precio.set(precio);
-            this.cambio.set(cambio);
+        public AssetGlobalRow(AssetSnapshot s) {
+            nombre.set(s.label());
+            precio.set(s.precioActual());
+            cambio.set(s.changePct());
         }
 
         public SimpleStringProperty nombreProperty() { return nombre; }
@@ -105,7 +102,7 @@ public class GlobalController {
     @FXML private TableView<FondoRow>           topFondsTable;
     @FXML private TableColumn<FondoRow, String> colFondoNombre;
     @FXML private TableColumn<FondoRow, Number> colFondoValor;
-    @FXML private TableColumn<FondoRow, Number> colFondoCambio;
+    @FXML private Label                         navTotalLabel;
 
     // =========================
     // FXML — TOP ACTIVOS
@@ -125,7 +122,7 @@ public class GlobalController {
     private AdminViewController adminController;
 
     // =========================
-    // DATA
+    // STATE
     // =========================
     @Getter private List<Asset>        assets    = new ArrayList<>();
     @Getter private List<Fund>         funds     = new ArrayList<>();
@@ -136,23 +133,21 @@ public class GlobalController {
     private final ObservableList<FondoRow>       fondoRows    = FXCollections.observableArrayList();
     private final ObservableList<AssetGlobalRow> assetRows    = FXCollections.observableArrayList();
 
-    // Histórico de capital total para el gráfico de línea
+    // Histórico de capital total tick a tick para el gráfico de línea
     private final List<Double> portfolioHistory = new ArrayList<>();
 
-    // Snapshots del tick anterior para calcular deltas
+    // Snapshots del tick anterior — los guarda el controller porque son estado de UI
     private double prevCapital  = 0;
     private double prevFondos   = 0;
     private double prevActivos  = 0;
 
-    // =========================
-    // SERVICES
-    // =========================
-    private final MarketService   marketService   = new MarketService();
-    private final FundService     fundService     = new FundService();
-    private final ExposureService exposureService = new ExposureService();
-    private final AssetService    assetService    = new AssetService();
+    // pie chart solo se calcula una vez (distribución estática sobre NAV inicial)
+    private boolean pieChartInitialized = false;
 
-    private final DecimalFormat DF = new DecimalFormat("#,###.##");
+    // =========================
+    // SERVICE
+    // =========================
+    private final GlobalService globalService = new GlobalService();
 
     // =========================
     // INIT
@@ -160,9 +155,26 @@ public class GlobalController {
     @FXML
     public void initialize() {
 
-        loadData();
-        bootstrapMarket();
+        // 1. Cargar datos vía service
+        GlobalService.LoadResult loaded = globalService.loadData(getClass());
+        funds     = loaded.funds();
+        assets    = loaded.assets();
+        positions = loaded.positions();
 
+        // 2. Bootstrap de mercado
+        globalService.bootstrapMarket();
+
+        // 3. Sync DataStore
+        DataStore.assets.clear();
+        DataStore.assets.addAll(assets);
+        DataStore.funds.clear();
+        DataStore.funds.addAll(funds);
+
+        // 4. Poblar lista maestra de búsqueda
+        masterData.addAll(funds);
+        masterData.addAll(assets);
+
+        // 5. Setup UI
         setupTables();
         setupSearch();
         setupCellFactory();
@@ -170,155 +182,69 @@ public class GlobalController {
         resultsList.setItems(filteredData);
         filteredData.setAll(masterData);
 
-        DataStore.assets.clear();
-        DataStore.assets.addAll(assets);
-        DataStore.funds.clear();
-        DataStore.funds.addAll(funds);
+        // 6. Primer render + bind al MarketClock
+        tick();
+        MarketClock.getInstance().addListener(() -> Platform.runLater(this::tick));
+    }
 
-        // Primer render + bind al MarketClock
-        recalculatePosition();
-        MarketClock.getInstance().addListener(() ->
-                Platform.runLater(this::recalculatePosition)
+    // =========================
+    // TICK — delega cálculo al service, aplica a UI
+    // =========================
+    private void tick() {
+
+        GlobalSnapshot snap = globalService.calculateSnapshot(
+                funds, assets, positions,
+                prevCapital, prevFondos, prevActivos
         );
-    }
 
-    // =========================
-    // DATA LOADING
-    // =========================
-    private void loadData() {
-        try {
-            ObjectMapper mapper = new ObjectMapper();
+        prevCapital = snap.capitalTotal();
+        prevFondos  = snap.totalFondos();
+        prevActivos = snap.totalActivos();
 
-            var fundsStream     = getClass().getResourceAsStream("/data/funds.json");
-            var assetsStream    = getClass().getResourceAsStream("/data/assets.json");
-            var positionsStream = getClass().getResourceAsStream("/data/positions.json");
+        portfolioHistory.add(snap.capitalTotal());
 
-            if (fundsStream != null) {
-                funds = mapper.readValue(fundsStream, new TypeReference<>() {});
-                masterData.addAll(funds);
-            }
+        // NAV total = suma de NAV de todos los fondos
+        double navTotal = snap.fondos().stream()
+                .mapToDouble(FondoSnapshot::nav)
+                .sum();
 
-            if (assetsStream != null) {
-                assets = mapper.readValue(assetsStream, new TypeReference<>() {});
-                masterData.addAll(assets);
-            }
+        // ── Aplicar a UI ─────────────────────────────────────────
+        renderKpis(snap);
+        renderTopFondos(snap.fondos(), navTotal);
+        renderTopActivos(snap.activos());
 
-            // Si tienes un JSON con todas las FundPositions del sistema
-            if (positionsStream != null) {
-                positions = mapper.readValue(positionsStream, new TypeReference<>() {});
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
+        // Pie chart: solo se calcula la primera vez (estático)
+        if (!pieChartInitialized) {
+            renderPieChart(snap.fondos());
+            pieChartInitialized = true;
         }
-    }
 
-    // =========================
-    // MARKET BOOTSTRAP
-    // =========================
-    private void bootstrapMarket() {
-        marketService.bootstrapMarket()
-                .forEach(engine ->
-                        DataStore.engines.put(engine.getAsset().getId(), engine)
-                );
-        System.out.println("🚀 GlobalController: Market inicializado");
-    }
-
-    // =========================
-    // CÁLCULO POSICIÓN TOTAL
-    // ─────────────────────────
-    // Delega en FundService para el NAV de cada fondo
-    // y en MarketEngine.getLastPrice() para los assets directos.
-    // ExposureService calcula la exposición total del sistema.
-    // =========================
-    private void recalculatePosition() {
-
-        // ── 1. NAV de cada fondo vía FundService ────────────────
-        double totalFondos = funds.stream()
-                .mapToDouble(fund -> {
-                    List<FundPosition> posFund =
-                            fundService.getPositionsByFund(positions, fund.getIdFondo());
-
-                    FundMetrics metrics = fundService.calculateMetrics(
-                            fund, posFund, 0   // previousValue=0 → changePct irrelevante aquí
-                    );
-                    return metrics.getTotalValue();
-                })
-                .sum();
-
-        // ── 2. Valor de activos vía AssetService ─────────────────
-        // AssetService.calculateMetrics suma quantity × engine.getLastPrice()
-        // para todas las FundPositions de ese asset.
-        double totalActivos = assets.stream()
-                .mapToDouble(asset ->
-                        assetService.calculateMetrics(positions, asset.getId())
-                                .getTotalExposure()
-                )
-                .sum();
-
-        // ── 3. Exposición total del sistema vía ExposureService ──
-        // (suma de todas las posiciones de todos los fondos)
-        double exposicionTotal = exposureService.calculateTotalExposure(positions);
-
-        double capitalTotal = totalFondos + totalActivos;
-
-        // ── 4. Deltas tick a tick ────────────────────────────────
-        double deltaCapital = prevCapital > 0
-                ? ((capitalTotal - prevCapital) / prevCapital) * 100 : 0;
-        double deltaFondos  = prevFondos > 0
-                ? ((totalFondos - prevFondos) / prevFondos) * 100 : 0;
-        double deltaActivos = prevActivos > 0
-                ? ((totalActivos - prevActivos) / prevActivos) * 100 : 0;
-
-        // ── 5. Rentabilidad global acumulada ─────────────────────
-        // Exposición (coste invertido) vs valor actual
-        double rentabilidad = exposicionTotal > 0
-                ? ((capitalTotal - exposicionTotal) / exposicionTotal) * 100
-                : 0;
-
-        prevCapital  = capitalTotal;
-        prevFondos   = totalFondos;
-        prevActivos  = totalActivos;
-
-        portfolioHistory.add(capitalTotal);
-
-        // ── 6. Actualizar UI ─────────────────────────────────────
-        updateKpis(capitalTotal, deltaCapital, totalFondos, deltaFondos,
-                totalActivos, deltaActivos, rentabilidad);
-
-        updateTopFondos();
-        updateTopActivos();
-        updatePieChart(totalFondos, totalActivos);
         drawLineChart();
         drawBarChart();
     }
 
     // =========================
-    // KPI STRIP
+    // RENDER — KPI STRIP
     // =========================
-    private void updateKpis(double capital, double dCapital,
-                            double fondos,  double dFondos,
-                            double activos, double dActivos,
-                            double rentabilidad) {
-
+    private void renderKpis(GlobalSnapshot snap) {
         if (kpiCapitalTotal == null) return;
 
-        kpiCapitalTotal.setText(formatShort(capital));
-        setDelta(kpiCapitalDelta, dCapital);
+        kpiCapitalTotal.setText(globalService.formatShort(snap.capitalTotal()));
+        setDelta(kpiCapitalDelta, snap.deltaCapital());
 
-        kpiRentabilidad.setText(String.format("%.2f%%", rentabilidad));
-        setDelta(kpiRentabilidadDelta, rentabilidad);
+        kpiRentabilidad.setText(String.format("%.2f%%", snap.rentabilidad()));
+        setDelta(kpiRentabilidadDelta, snap.rentabilidad());
 
-        kpiFondos.setText(formatShort(fondos));
-        setDelta(kpiFondosDelta, dFondos);
+        kpiFondos.setText(globalService.formatShort(snap.totalFondos()));
+        setDelta(kpiFondosDelta, snap.deltaFondos());
 
-        kpiActivos.setText(formatShort(activos));
-        setDelta(kpiActivosDelta, dActivos);
+        kpiActivos.setText(globalService.formatShort(snap.totalActivos()));
+        setDelta(kpiActivosDelta, snap.deltaActivos());
 
-        // Flujo: peso de fondos sobre capital total
-        double pesoFondos = capital > 0 ? (fondos / capital) * 100 : 0;
+        double pesoFondos = snap.capitalTotal() > 0
+                ? (snap.totalFondos() / snap.capitalTotal()) * 100 : 0;
         kpiFlujo.setText(String.format("%.1f%%", pesoFondos) + " fondos");
-        setDelta(kpiFlujoBar, dCapital);
+        setDelta(kpiFlujoBar, snap.deltaCapital());
     }
 
     private void setDelta(Label label, double pct) {
@@ -329,140 +255,51 @@ public class GlobalController {
     }
 
     // =========================
-    // TOP FONDOS
-    // Usa FundService.calculateMetrics por fondo
+    // RENDER — TOP FONDOS
     // =========================
-    private void updateTopFondos() {
+    private void renderTopFondos(List<FondoSnapshot> snapshots, double navTotal) {
         if (topFondsTable == null) return;
 
+        // NAV total de la empresa (suma de todos los fondos)
+        if (navTotalLabel != null) {
+            navTotalLabel.setText(globalService.formatShort(navTotal));
+        }
+
         fondoRows.clear();
-
-        funds.stream()
-                .map(fund -> {
-                    List<FundPosition> posFund =
-                            fundService.getPositionsByFund(positions, fund.getIdFondo());
-
-                    // previousValue = 0 para que changePct refleje rentabilidad vs coste
-                    FundMetrics metrics = fundService.calculateMetrics(fund, posFund, 0);
-
-                    return new FondoRow(
-                            fund.getNombre(),
-                            metrics.getTotalValue(),
-                            metrics.getChangePct()
-                    );
-                })
-                .sorted(Comparator.comparingDouble(FondoRow::getValor).reversed())
+        snapshots.stream()
                 .limit(10)
+                .map(FondoRow::new)
                 .forEach(fondoRows::add);
     }
 
     // =========================
-    // TOP ACTIVOS
-    // Usa MarketEngine.getLastPrice() + getChange()
+    // RENDER — TOP ACTIVOS
     // =========================
-    private void updateTopActivos() {
+    private void renderTopActivos(List<AssetSnapshot> snapshots) {
         if (topAssetsGlobalTable == null) return;
-
         assetRows.clear();
-
-        assets.stream()
-                .map(asset -> {
-                    MarketEngine engine = DataStore.engines.get(asset.getId());
-                    if (engine == null) return null;
-
-                    String label = asset.getTicker() != null
-                            ? asset.getTicker() : asset.getName();
-
-                    return new AssetGlobalRow(
-                            label,
-                            engine.getLastPrice(),   // precio actual vía engine
-                            engine.getChange()       // cambio % del último tick vía engine
-                    );
-                })
-                .filter(r -> r != null)
-                .sorted(Comparator.comparingDouble(
-                        (AssetGlobalRow r) -> Math.abs(r.getCambio())
-                ).reversed())
+        snapshots.stream()
                 .limit(10)
+                .map(AssetGlobalRow::new)
                 .forEach(assetRows::add);
     }
 
     // =========================
-    // PIE CHART (fondos vs activos)
+    // RENDER — PIE CHART
     // =========================
-    private void updatePieChart(double fondos, double activos) {
+    private void renderPieChart(List<FondoSnapshot> snapshots) {
         if (globalPieChart == null) return;
 
-        globalPieChart.setData(FXCollections.observableArrayList(
-                new PieChart.Data("Fondos",  fondos),
-                new PieChart.Data("Activos", activos)
-        ));
+        ObservableList<PieChart.Data> data = FXCollections.observableArrayList();
+        snapshots.stream()
+                .filter(s -> s.nav() > 0)
+                .forEach(s -> data.add(new PieChart.Data(s.nombre(), s.nav())));
+
+        globalPieChart.setData(data);
     }
 
     // =========================
-    // BARCHART — EXPOSICIÓN POR SECTOR
-    // Usa AssetService.calculateMetrics agrupando por sector del Asset
-    // =========================
-    private void drawBarChart() {
-        if (barChartCanvas == null || barChartCanvas.getWidth() == 0) return;
-
-        // Agrupa assets por sector y suma exposición vía AssetService
-        Map<String, Double> sectorMap = assets.stream()
-                .collect(Collectors.groupingBy(
-                        a -> a.getSector() != null ? a.getSector() : "Otros",
-                        Collectors.summingDouble(a ->
-                                assetService.calculateMetrics(positions, a.getId())
-                                        .getTotalExposure()
-                        )
-                ));
-
-        if (sectorMap.isEmpty()) return;
-
-        double W = barChartCanvas.getWidth();
-        double H = barChartCanvas.getHeight();
-        GraphicsContext g = barChartCanvas.getGraphicsContext2D();
-        g.clearRect(0, 0, W, H);
-
-        double maxVal = sectorMap.values().stream().mapToDouble(d -> d).max().orElse(1);
-        String[] colors = { "#6C63FF", "#00D09C", "#FFB347", "#FF5C7A", "#4ECDC4", "#A09CB8" };
-
-        List<Map.Entry<String, Double>> entries = sectorMap.entrySet().stream()
-                .sorted(Map.Entry.<String, Double>comparingByValue().reversed())
-                .limit(6)
-                .toList();
-
-        int total = entries.size();
-        double barH = (H - 10) / total - 6;
-        double padX = 8;
-        double labelW = 70;
-
-        for (int i = 0; i < total; i++) {
-            var entry  = entries.get(i);
-            double pct = entry.getValue() / maxVal;
-            double y   = i * (barH + 6) + 5;
-            double barW = (W - padX * 2 - labelW) * pct;
-
-            // Track
-            g.setFill(Color.web("#25223080"));
-            g.fillRoundRect(padX + labelW, y, W - padX * 2 - labelW, barH, 4, 4);
-
-            // Fill
-            g.setFill(Color.web(colors[i % colors.length]));
-            g.fillRoundRect(padX + labelW, y, barW, barH, 4, 4);
-
-            // Etiqueta sector
-            g.setFill(Color.web("#A09CB8"));
-            g.setFont(javafx.scene.text.Font.font(11));
-            g.fillText(truncate(entry.getKey(), 9), padX, y + barH / 2.0 + 4);
-
-            // Valor
-            g.setFill(Color.web("#F0EEF8"));
-            g.fillText(formatShort(entry.getValue()), padX + labelW + barW + 4, y + barH / 2.0 + 4);
-        }
-    }
-
-    // =========================
-    // GRÁFICO DE LÍNEA GLOBAL
+    // RENDER — GRÁFICO LÍNEA
     // =========================
     private void drawLineChart() {
         if (globalChartCanvas == null || globalChartCanvas.getWidth() == 0) return;
@@ -474,7 +311,7 @@ public class GlobalController {
         g.clearRect(0, 0, W, H);
 
         List<Double> data = portfolioHistory;
-        int n    = data.size();
+        int n     = data.size();
         double mn = data.stream().mapToDouble(d -> d).min().orElse(0) * 0.998;
         double mx = data.stream().mapToDouble(d -> d).max().orElse(1) * 1.002;
 
@@ -493,7 +330,7 @@ public class GlobalController {
             ys[i] = H - ((data.get(i) - mn) / (mx - mn)) * (H - 10) - 5;
         }
 
-        // Área
+        // Área rellena
         g.setFill(Color.web("#6C63FF22"));
         g.beginPath();
         g.moveTo(xs[0], H);
@@ -516,7 +353,80 @@ public class GlobalController {
     }
 
     // =========================
-    // TABLAS — SETUP
+    // RENDER — BAR CHART MENSUAL
+    // =========================
+    private void drawBarChart() {
+        if (barChartCanvas == null || barChartCanvas.getWidth() == 0) return;
+        if (portfolioHistory.size() < 2) return;
+
+        // Delega el cálculo de las barras al service
+        List<MonthlyBar> bars = globalService.calculateMonthlyBars(portfolioHistory, 12);
+        if (bars.isEmpty()) return;
+
+        double W = barChartCanvas.getWidth();
+        double H = barChartCanvas.getHeight();
+        GraphicsContext g = barChartCanvas.getGraphicsContext2D();
+        g.clearRect(0, 0, W, H);
+
+        double maxAbs = bars.stream()
+                .mapToDouble(b -> Math.abs(b.returnPct())).max().orElse(1);
+        if (maxAbs == 0) maxAbs = 1;
+
+        double padX    = 10;
+        double padTop  = 10;
+        double padBot  = 22;
+        double gap     = 4;
+        int    numBars = bars.size();
+        double totalW  = W - padX * 2;
+        double barW    = (totalW - gap * (numBars - 1)) / numBars;
+        double midY    = padTop + (H - padTop - padBot) / 2.0;
+        double halfH   = (H - padTop - padBot) / 2.0;
+
+        // Línea de cero
+        g.setStroke(Color.web("#2E2B3A"));
+        g.setLineWidth(1);
+        g.strokeLine(padX, midY, W - padX, midY);
+
+        // Escala
+        g.setFill(Color.web("#6B6880"));
+        g.setFont(javafx.scene.text.Font.font(10));
+        g.fillText(String.format("+%.1f%%", maxAbs), 0, padTop + 4);
+        g.fillText("0%",                              0, midY + 4);
+        g.fillText(String.format("-%.1f%%", maxAbs), 0, H - padBot + 4);
+
+        for (int i = 0; i < numBars; i++) {
+            MonthlyBar bar = bars.get(i);
+            double ret  = bar.returnPct();
+            double x    = padX + i * (barW + gap);
+            double barH = (Math.abs(ret) / maxAbs) * halfH;
+            boolean pos = ret >= 0;
+
+            String fillColor = pos ? "#00D09C" : "#FF5C7A";
+            double y = pos ? midY - barH : midY;
+
+            // Glow
+            g.setFill(Color.web(pos ? "#00D09C30" : "#FF5C7A30"));
+            g.fillRoundRect(x - 1, y - 1, barW + 2, barH + 2, 4, 4);
+
+            // Barra
+            g.setFill(Color.web(fillColor));
+            g.fillRoundRect(x, y, barW, barH, 3, 3);
+
+            // Valor
+            g.setFill(Color.web(fillColor));
+            g.setFont(javafx.scene.text.Font.font(9));
+            double textY = pos ? midY - barH - 3 : midY + barH + 10;
+            g.fillText(String.format("%+.1f%%", ret), x + barW / 2 - 10, textY);
+
+            // Etiqueta mes
+            g.setFill(Color.web("#6B6880"));
+            g.setFont(javafx.scene.text.Font.font(10));
+            g.fillText(bar.label(), x + barW / 2 - 8, H - 6);
+        }
+    }
+
+    // =========================
+    // SETUP TABLAS
     // =========================
     private void setupTables() {
         setupFondosTable();
@@ -533,13 +443,10 @@ public class GlobalController {
             @Override protected void updateItem(Number v, boolean empty) {
                 super.updateItem(v, empty);
                 if (empty || v == null) { setText(null); return; }
-                setText(formatShort(v.doubleValue()));
-                setStyle("-fx-text-fill: #F0EEF8;");
+                setText(globalService.formatShort(v.doubleValue()));
+                setStyle("-fx-text-fill: #F0EEF8; -fx-font-weight: bold;");
             }
         });
-
-        colFondoCambio.setCellValueFactory(c -> c.getValue().cambioProperty());
-        colFondoCambio.setCellFactory(col -> pctCell());
 
         topFondsTable.setItems(fondoRows);
         topFondsTable.setPlaceholder(new Label("Sin fondos"));
@@ -567,7 +474,6 @@ public class GlobalController {
         topAssetsGlobalTable.setPlaceholder(new Label("Sin activos"));
     }
 
-    /** CellFactory reutilizable para columnas de porcentaje con color */
     private <T> TableCell<T, Number> pctCell() {
         return new TableCell<>() {
             @Override protected void updateItem(Number v, boolean empty) {
@@ -583,46 +489,23 @@ public class GlobalController {
     }
 
     // =========================
-    // SEARCH
+    // SETUP BÚSQUEDA
     // =========================
     private void setupSearch() {
         searchField.textProperty().addListener((obs, old, newVal) -> {
-            if (newVal == null || newVal.isBlank()) {
-                filteredData.setAll(masterData);
-                return;
-            }
-            String q = newVal.toLowerCase();
-            filteredData.setAll(
-                    masterData.stream().filter(item -> matches(item, q)).toList()
-            );
+            List<Object> result = globalService.filter(new ArrayList<>(masterData), newVal);
+            filteredData.setAll(result);
         });
     }
 
-    private boolean matches(Object item, String q) {
-        if (item instanceof Fund f) {
-            return f.getNombre().toLowerCase().contains(q)
-                    || f.getTipo().toLowerCase().contains(q);
-        }
-        if (item instanceof Asset a) {
-            return a.getName().toLowerCase().contains(q)
-                    || a.getTicker().toLowerCase().contains(q)
-                    || a.getIsin().toLowerCase().contains(q)
-                    || a.getSector().toLowerCase().contains(q);
-        }
-        return false;
-    }
-
-    // =========================
-    // CELL FACTORY SEARCH LIST
-    // =========================
     private void setupCellFactory() {
         resultsList.setCellFactory(listView -> new ListCell<>() {
             @Override
             protected void updateItem(Object item, boolean empty) {
                 super.updateItem(item, empty);
                 if (empty || item == null) { setText(null); setStyle(""); return; }
-                if (item instanceof Fund f)   setText("FUND   " + f.getNombre());
-                if (item instanceof Asset a)  setText("ASSET  " + a.getName());
+                if (item instanceof Fund f)  setText("FUND   " + f.getNombre());
+                if (item instanceof Asset a) setText("ASSET  " + a.getName());
             }
         });
 
@@ -632,22 +515,5 @@ public class GlobalController {
             if (selected instanceof Fund fund)   adminController.openFund(fund);
             if (selected instanceof Asset asset) adminController.openAsset(asset);
         });
-    }
-
-    // =========================
-    // HELPERS
-    // =========================
-
-    /** Formatea en K / M / B */
-    private String formatShort(double v) {
-        if (v >= 1_000_000_000) return String.format("%.2fB €", v / 1_000_000_000);
-        if (v >= 1_000_000)     return String.format("%.2fM €", v / 1_000_000);
-        if (v >= 1_000)         return String.format("%.1fK €", v / 1_000);
-        return DF.format(v) + " €";
-    }
-
-    /** Trunca strings largos para las etiquetas del bar chart */
-    private String truncate(String s, int max) {
-        return s.length() > max ? s.substring(0, max - 1) + "…" : s;
     }
 }

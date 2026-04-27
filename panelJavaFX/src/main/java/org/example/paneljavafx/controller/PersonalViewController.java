@@ -4,25 +4,34 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.transformation.FilteredList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import org.example.paneljavafx.model.Cliente;
 import org.example.paneljavafx.model.Gestor;
+import org.example.paneljavafx.service.ClienteService;
 import org.example.paneljavafx.service.GestorService;
+
+import java.util.List;
 
 public class PersonalViewController {
 
     // =========================
-    // SERVICE
+    // SERVICES
     // =========================
     private final GestorService gestorService = new GestorService();
+    private final ClienteService clienteService = new ClienteService();
 
     // =========================
     // UI
     // =========================
     @FXML private TableView<Gestor> gestorsTable;
+    @FXML private TableView<Cliente> clientsTable;
 
     @FXML private TableColumn<Gestor, String> colName;
     @FXML private TableColumn<Gestor, String> colEmail;
     @FXML private TableColumn<Gestor, String> colExperience;
     @FXML private TableColumn<Gestor, String> colRisk;
+
+    @FXML private TableColumn<Cliente, String> colClientName;
+    @FXML private TableColumn<Cliente, String> colClientEmail;
 
     @FXML private TextField searchField;
 
@@ -37,17 +46,19 @@ public class PersonalViewController {
     @FXML
     public void initialize() {
 
-        // 🔥 carga datos desde datasource
         gestorService.load();
+        clienteService.load();
 
-        setupTable();
+        setupGestorTable();
+        setupClientTable();
         setupSearch();
+        setupSelection();
     }
 
     // =========================
-    // TABLE SETUP
+    // GESTOR TABLE
     // =========================
-    private void setupTable() {
+    private void setupGestorTable() {
 
         colName.setCellValueFactory(d ->
                 new SimpleStringProperty(d.getValue().getNombre()));
@@ -56,15 +67,52 @@ public class PersonalViewController {
                 new SimpleStringProperty(d.getValue().getEmail()));
 
         colExperience.setCellValueFactory(d ->
-                new SimpleStringProperty(
-                        String.valueOf(d.getValue().getAniosExperiencia())
-                ));
+                new SimpleStringProperty(String.valueOf(d.getValue().getAniosExperiencia())));
 
         colRisk.setCellValueFactory(d ->
                 new SimpleStringProperty(d.getValue().getPerfilRiesgo()));
 
         filteredGestors = new FilteredList<>(gestorService.getAll());
         gestorsTable.setItems(filteredGestors);
+    }
+
+    // =========================
+    // CLIENT TABLE
+    // =========================
+    private void setupClientTable() {
+
+        colClientName.setCellValueFactory(d ->
+                new SimpleStringProperty(d.getValue().getNombre() + " " + d.getValue().getApellido()));
+
+        colClientEmail.setCellValueFactory(d ->
+                new SimpleStringProperty(d.getValue().getEmail()));
+
+        clientsTable.setItems(javafx.collections.FXCollections.observableArrayList());
+    }
+
+    // =========================
+    // SELECTION LOGIC (🔥 LO IMPORTANTE)
+    // =========================
+    private void setupSelection() {
+
+        gestorsTable.getSelectionModel()
+                .selectedItemProperty()
+                .addListener((obs, oldSel, gestor) -> {
+
+                    if (gestor == null) {
+                        clientsTable.getItems().clear();
+                        return;
+                    }
+
+                    List<Cliente> clientes = clienteService.getAll().stream()
+                            .filter(c -> c.getGestor() == gestor.getIdGestor())
+                            .toList();
+
+                    clientsTable.getItems().setAll(clientes);
+
+                    System.out.println("👨‍💼 Gestor seleccionado: " + gestor.getNombre());
+                    System.out.println("   └── Clientes encontrados: " + clientes.size());
+                });
     }
 
     // =========================
