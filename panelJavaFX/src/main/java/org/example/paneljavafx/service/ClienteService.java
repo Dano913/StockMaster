@@ -6,6 +6,7 @@ import org.example.paneljavafx.data.ClienteDataSource;
 import org.example.paneljavafx.model.Cliente;
 import org.example.paneljavafx.model.Gestor;
 import org.example.paneljavafx.model.Posicion;
+import org.example.paneljavafx.model.Transaccion;
 
 import java.util.List;
 
@@ -62,6 +63,26 @@ public class ClienteService {
                 .filter(c -> c.getIdCliente() == clienteId)
                 .flatMap(c -> c.getPosiciones().stream())
                 .toList();
+    }
+
+    public double calcularCartera(Cliente cliente) {
+
+        if (cliente.getPosiciones() == null) return 0;
+
+        return cliente.getPosiciones().stream()
+                .flatMap(p -> p.getTransacciones().stream())
+                .mapToDouble(Transaccion::getImporte)
+                .sum();
+    }
+
+    public long contarFondosUnicos(Cliente cliente) {
+
+        if (cliente.getPosiciones() == null) return 0;
+
+        return cliente.getPosiciones().stream()
+                .map(Posicion::getIdFondo)
+                .distinct()
+                .count();
     }
 
     public Gestor getGestorByClientId(int clientId) {
