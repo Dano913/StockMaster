@@ -12,6 +12,7 @@ org\example\paneljavafx\controller\PersonalViewController.class
 org\example\paneljavafx\service\MarketService.class
 org\example\paneljavafx\model\PriceRecord.class
 org\example\paneljavafx\model\FundPosition.class
+org\example\paneljavafx\service\FundPositionService.class
 org\example\paneljavafx\service\ExposureService.class
 org\example\paneljavafx\service\GlobalService$MonthlyBar.class
 org\example\paneljavafx\data\PriceRecordWriter.class
@@ -20,6 +21,8 @@ org\example\paneljavafx\controller\FundViewController.class
 org\example\paneljavafx\service\FundService$PositionSummary.class
 org\example\paneljavafx\service\GestorService.class
 org\example\paneljavafx\service\GlobalService$GlobalSnapshot.class
+org\example\paneljavafx\controller\ClientePrivadoViewController.class
+org\example\paneljavafx\controller\GestorPrivadoViewController.class
 org\example\paneljavafx\controller\ClienteViewController.class
 org\example\paneljavafx\data\ClienteDataSource.class
 org\example\paneljavafx\model\Posicion.class
@@ -27,6 +30,7 @@ org\example\paneljavafx\model\Asset.class
 org\example\paneljavafx\service\dto\FundMetrics.class
 org\example\paneljavafx\service\FundService.class
 org\example\paneljavafx\controller\GlobalController$AssetGlobalRow.class
+org\example\paneljavafx\data\FundPositionDataSource.class
 org\example\paneljavafx\data\MarketDataSource$1.class
 org\example\paneljavafx\controller\AssetViewController.class
 org\example\paneljavafx\service\ClienteService.class
@@ -44,8 +48,9 @@ module-info.class
 org\example\paneljavafx\controller\GlobalController.class
 org\example\paneljavafx\service\GlobalService$LoadResult.class
 org\example\paneljavafx\data\MarketDataSource$2.class
-org\example\paneljavafx\data\DataStore.class
+org\example\paneljavafx\data\AssetDataSource$1.class
 org\example\paneljavafx\controller\AdminViewController.class
+org\example\paneljavafx\data\FundDataSource.class
 org\example\paneljavafx\service\AssetService.class
 org\example\paneljavafx\controller\GlobalController$FondoRow.class
 org\example\paneljavafx\model\Fund.class
@@ -53,14 +58,15 @@ org\example\paneljavafx\model\Transaccion.class
 org\example\paneljavafx\controller\GlobalController$4.class
 org\example\paneljavafx\service\GlobalService$2.class
 org\example\paneljavafx\service\GlobalService.class
+org\example\paneljavafx\viewmodel\TransactionRowView.class
 org\example\paneljavafx\controller\TabManagerController.class
 org\example\paneljavafx\data\PriceRecordReader.class
 org\example\paneljavafx\common\TabDataReceiver.class
 org\example\paneljavafx\service\ChartService$View.class
-org\example\paneljavafx\service\StorageService.class
 org\example\paneljavafx\service\dto\AssetMetrics.class
 org\example\paneljavafx\data\MarketDataSource.class
+org\example\paneljavafx\data\AssetDataSource.class
+org\example\paneljavafx\data\FundDataSource$1.class
 org\example\paneljavafx\controller\ChartController.class
-org\example\paneljavafx\data\FundPositionLoader.class
 org\example\paneljavafx\controller\GlobalController$1.class
 org\example\paneljavafx\MainApp.class

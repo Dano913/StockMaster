@@ -2,12 +2,14 @@ package org.example.paneljavafx.service;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import org.example.paneljavafx.dao.ClienteDAO;
 import org.example.paneljavafx.data.ClienteDataSource;
 import org.example.paneljavafx.model.Cliente;
 import org.example.paneljavafx.model.Gestor;
 import org.example.paneljavafx.model.Posicion;
 import org.example.paneljavafx.model.Transaccion;
 
+import java.util.Collections;
 import java.util.List;
 
 public class ClienteService {
@@ -25,16 +27,23 @@ public class ClienteService {
     private ClienteService() {}
 
     private final ClienteDataSource clienteDataSource = new ClienteDataSource();
+    private final ClienteDAO clienteDAO = new ClienteDAO();
     private final ObservableList<Cliente> clientes = FXCollections.observableArrayList();
 
     // =========================
     // LOAD
     // =========================
     public void load() {
+        List<Cliente> data = clienteDAO.findAll();
 
-        List<Cliente> loadedData = clienteDataSource.load();
+        // 🔥 IMPORTANTE: evitar nulls en posiciones
+        data.forEach(c -> {
+            if (c.getPosiciones() == null) {
+                c.setPosiciones(Collections.emptyList());
+            }
+        });
 
-        clientes.setAll(loadedData);
+        clientes.setAll(data);
 
         clienteDataSource.printClientesDetallado(clientes);
     }
@@ -47,9 +56,8 @@ public class ClienteService {
     }
 
     public Cliente getById(int id) {
-
         return clientes.stream()
-                .filter(g -> g.getIdCliente() == id)
+                .filter(c -> c.getIdCliente() == id)
                 .findFirst()
                 .orElse(null);
     }
@@ -58,10 +66,12 @@ public class ClienteService {
     // POSICIONES
     // =========================
     public List<Posicion> getPosicionesByClienteId(int clienteId) {
-
         return clientes.stream()
                 .filter(c -> c.getIdCliente() == clienteId)
-                .flatMap(c -> c.getPosiciones().stream())
+                .flatMap(c ->
+                        (c.getPosiciones() == null ? Collections.<Posicion>emptyList() : c.getPosiciones())
+                                .stream()
+                )
                 .toList();
     }
 
@@ -90,8 +100,7 @@ public class ClienteService {
         return clientes.stream()
                 .filter(c -> c.getIdCliente() == clientId)
                 .findFirst()
-                .map(c -> GestorService.getInstance()
-                        .getById(c.getIdGestor()))
+                .map(c -> gestorService.getById(c.getIdGestor()))
                 .orElse(null);
     }
 
