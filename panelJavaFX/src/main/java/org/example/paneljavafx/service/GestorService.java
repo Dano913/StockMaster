@@ -5,6 +5,7 @@ import javafx.collections.ObservableList;
 import org.example.paneljavafx.data.GestorDataSource;
 import org.example.paneljavafx.model.Cliente;
 import org.example.paneljavafx.model.Gestor;
+import org.example.paneljavafx.model.Transaccion;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -71,6 +72,16 @@ public class GestorService {
         return allClientes.stream()
                 .filter(c -> c.getIdGestor() == gestorId)
                 .collect(Collectors.toList());
+    }
+
+    public double calcularPatrimonioGestionado(int gestorId, List<Cliente> allClientes) {
+
+        return allClientes.stream()
+                .filter(c -> c.getIdGestor() == gestorId)
+                .flatMap(c -> c.getPosiciones().stream())
+                .flatMap(p -> p.getTransacciones().stream())
+                .mapToDouble(Transaccion::getImporte)
+                .sum();
     }
 
     public List<Gestor> search(String query) {

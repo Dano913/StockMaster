@@ -3,13 +3,17 @@ package org.example.paneljavafx.controller;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.transformation.FilteredList;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
 import javafx.scene.control.*;
+import javafx.scene.layout.VBox;
 import org.example.paneljavafx.model.Cliente;
 import org.example.paneljavafx.model.Gestor;
 import org.example.paneljavafx.service.ClienteService;
 import org.example.paneljavafx.service.GestorService;
 
 import java.util.List;
+import java.util.Objects;
 
 public class PersonalViewController {
 
@@ -19,20 +23,17 @@ public class PersonalViewController {
     private final GestorService gestorService = GestorService.getInstance();
     private final ClienteService clienteService = ClienteService.getInstance();
 
-
     // =========================
     // UI
     // =========================
     @FXML private TableView<Gestor> gestorsTable;
-    @FXML private TableView<Cliente> clientsTable;
+    @FXML
+    private VBox gestorDetailContainer;
 
     @FXML private TableColumn<Gestor, String> colName;
     @FXML private TableColumn<Gestor, String> colEmail;
     @FXML private TableColumn<Gestor, String> colExperience;
     @FXML private TableColumn<Gestor, String> colRisk;
-
-    @FXML private TableColumn<Cliente, String> colClientName;
-    @FXML private TableColumn<Cliente, String> colClientEmail;
 
     @FXML private TextField searchField;
 
@@ -47,10 +48,11 @@ public class PersonalViewController {
     @FXML
     public void initialize() {
 
+        // 🔥 IMPORTANTE: cargar datos
         gestorService.load();
+        clienteService.load();
 
         setupGestorTable();
-        setupClientTable();
         setupSearch();
         setupSelection();
     }
@@ -61,37 +63,30 @@ public class PersonalViewController {
     private void setupGestorTable() {
 
         colName.setCellValueFactory(d ->
-                new SimpleStringProperty(d.getValue().getNombre()));
+                new SimpleStringProperty(d.getValue().getNombre())
+        );
 
         colEmail.setCellValueFactory(d ->
-                new SimpleStringProperty(d.getValue().getEmail()));
+                new SimpleStringProperty(d.getValue().getEmail())
+        );
 
         colExperience.setCellValueFactory(d ->
-                new SimpleStringProperty(String.valueOf(d.getValue().getAniosExperiencia())));
+                new SimpleStringProperty(
+                        String.valueOf(d.getValue().getAniosExperiencia())
+                )
+        );
 
         colRisk.setCellValueFactory(d ->
-                new SimpleStringProperty(d.getValue().getPerfilRiesgo()));
+                new SimpleStringProperty(d.getValue().getPerfilRiesgo())
+        );
 
         filteredGestors = new FilteredList<>(gestorService.getAll());
+
         gestorsTable.setItems(filteredGestors);
     }
 
     // =========================
-    // CLIENT TABLE
-    // =========================
-    private void setupClientTable() {
-
-        colClientName.setCellValueFactory(d ->
-                new SimpleStringProperty(d.getValue().getNombre() + " " + d.getValue().getApellido()));
-
-        colClientEmail.setCellValueFactory(d ->
-                new SimpleStringProperty(d.getValue().getEmail()));
-
-        clientsTable.setItems(javafx.collections.FXCollections.observableArrayList());
-    }
-
-    // =========================
-    // SELECTION LOGIC (🔥 LO IMPORTANTE)
+    // SELECTION
     // =========================
     private void setupSelection() {
 
@@ -100,18 +95,27 @@ public class PersonalViewController {
                 .addListener((obs, oldSel, gestor) -> {
 
                     if (gestor == null) {
-                        clientsTable.getItems().clear();
+                        gestorDetailContainer.getChildren().clear();
                         return;
                     }
 
-                    List<Cliente> clientes = clienteService.getAll().stream()
-                            .filter(c -> c.getIdGestor() == gestor.getIdGestor())
-                            .toList();
+                    try {
+                        FXMLLoader loader = new FXMLLoader(
+                                getClass().getResource("/org/example/paneljavafx/gestor-privado-view.fxml")
+                        );
 
-                    clientsTable.getItems().setAll(clientes);
+                        Parent view = loader.load();
 
-                    System.out.println("👨‍💼 Gestor seleccionado: " + gestor.getNombre());
-                    System.out.println("   └── Clientes encontrados: " + clientes.size());
+                        GestorPrivadoViewController controller = loader.getController();
+                        controller.setGestor(gestor);
+
+                        gestorDetailContainer.getChildren().setAll(view);
+
+                        System.out.println("👨‍💼 Gestor seleccionado: " + gestor.getNombre());
+
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 });
     }
 

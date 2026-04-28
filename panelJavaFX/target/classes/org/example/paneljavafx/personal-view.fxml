@@ -1,21 +1,33 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.layout.*?>
-<?import javafx.scene.control.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
 
-<AnchorPane prefHeight="900" prefWidth="1900.0"
-            style="-fx-background-color: #121018;"
-            xmlns="http://javafx.com/javafx/17"
-            xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="org.example.paneljavafx.controller.PersonalViewController">
+<AnchorPane
+        prefHeight="900"
+        prefWidth="1900.0"
+        stylesheets="@trading-theme.css"
+        xmlns="http://javafx.com/javafx/17"
+        xmlns:fx="http://javafx.com/fxml/1"
+        fx:controller="org.example.paneljavafx.controller.PersonalViewController">
 
    <children>
-      <GridPane AnchorPane.topAnchor="0"
-                AnchorPane.bottomAnchor="0"
-                AnchorPane.leftAnchor="0"
-                AnchorPane.rightAnchor="0"
-                hgap="20"
-                style="-fx-border-color: cyan; -fx-border-radius: 10;">
+
+      <GridPane
+              styleClass="cliente-grid"
+              hgap="16"
+              AnchorPane.topAnchor="0"
+              AnchorPane.bottomAnchor="0"
+              AnchorPane.leftAnchor="0"
+              AnchorPane.rightAnchor="0">
 
          <columnConstraints>
             <ColumnConstraints hgrow="ALWAYS" percentWidth="50"/>
@@ -26,50 +38,61 @@
             <RowConstraints vgrow="ALWAYS"/>
          </rowConstraints>
 
-         <!-- LEFT PANEL -->
-         <VBox spacing="15" GridPane.columnIndex="0">
+         <!-- ═══════════════════════════════════════
+              PANEL IZQUIERDO — Lista de gestores
+         ════════════════════════════════════════ -->
+         <VBox styleClass="cliente-left-panel"
+               GridPane.columnIndex="0"
+               GridPane.rowIndex="0">
 
-            <Label text="👤 Gestors"
-                   style="-fx-font-size: 16px; -fx-font-weight: bold;"/>
+            <Label text="GESTORES"
+                   styleClass="cliente-panel-title"/>
 
             <TextField fx:id="searchField"
-                       promptText="Search gestors..."/>
+                       styleClass="cliente-search"
+                       promptText="Buscar por nombre, email..."/>
 
-            <TableView fx:id="gestorsTable" VBox.vgrow="ALWAYS">
-
+            <TableView fx:id="gestorsTable"
+                       styleClass="cliente-table"
+                       VBox.vgrow="ALWAYS">
+               <columnResizePolicy>
+                  <TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
+               </columnResizePolicy>
+               <VBox.margin>
+                  <Insets top="4" left="4" right="4" bottom="4"/>
+               </VBox.margin>
                <columns>
-                  <TableColumn fx:id="colName" text="Name"/>
-                  <TableColumn fx:id="colEmail" text="Email"/>
-
-                  <!-- FIX IMPORTANTE -->
-                  <TableColumn fx:id="colExperience" text="Experience"/>
-                  <TableColumn fx:id="colRisk" text="Risk"/>
+                  <TableColumn fx:id="colName"       text="Nombre Completo" prefWidth="220"/>
+                  <TableColumn fx:id="colEmail"      text="Email"           prefWidth="200"/>
+                  <TableColumn fx:id="colExperience" text="Experiencia"     prefWidth="110"/>
+                  <TableColumn fx:id="colRisk"       text="Riesgo"          prefWidth="90"/>
                </columns>
-
+               <placeholder>
+                  <Label text="Sin gestores" styleClass="kpi-label"/>
+               </placeholder>
             </TableView>
 
          </VBox>
 
-         <!-- RIGHT PANEL -->
-         <!-- RIGHT PANEL -->
-         <VBox spacing="15" GridPane.columnIndex="1">
+         <!-- ═══════════════════════════════════════
+              PANEL DERECHO — Detalle del gestor
+         ════════════════════════════════════════ -->
+         <VBox fx:id="gestorDetailContainer"
+               styleClass="cliente-right-panel"
+               GridPane.columnIndex="1"
+               GridPane.rowIndex="0">
 
-            <Label text="👤 Clientes del gestor"
-                   style="-fx-font-size: 16px; -fx-font-weight: bold;"/>
-
-            <TableView fx:id="clientsTable" VBox.vgrow="ALWAYS">
-
-               <columns>
-                  <TableColumn fx:id="colClientName" text="Nombre"/>
-                  <TableColumn fx:id="colClientEmail" text="Email"/>
-                  <TableColumn fx:id="colClientFund" text="Fondo"/>
-               </columns>
-
-            </TableView>
+            <VBox styleClass="cliente-detail-empty"
+                  VBox.vgrow="ALWAYS"
+                  alignment="CENTER">
+               <Label text="👤" styleClass="cliente-empty-icon"/>
+               <Label text="Selecciona un gestor para ver su detalle"
+                      styleClass="cliente-empty-text"/>
+            </VBox>
 
          </VBox>
 
       </GridPane>
-   </children>
 
+   </children>
 </AnchorPane>
