@@ -24,6 +24,9 @@ public class DatabaseConnection {
             throw new RuntimeException("Error conectando a la base de datos", e);
         }
 
+        System.out.println("USER: " + USER);
+        System.out.println("PASS: " + PASSWORD);
+
         return connection;
     }
 }

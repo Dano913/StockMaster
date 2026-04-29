@@ -77,7 +77,9 @@ public class PersonalViewController {
         );
 
         colRisk.setCellValueFactory(d ->
-                new SimpleStringProperty(d.getValue().getPerfilRiesgo())
+                new SimpleStringProperty(
+                        d.getValue().getPerfilRiesgo().name()
+                )
         );
 
         filteredGestors = new FilteredList<>(gestorService.getAll());
@@ -134,7 +136,7 @@ public class PersonalViewController {
 
                 return g.getNombre().toLowerCase().contains(filter)
                         || g.getEmail().toLowerCase().contains(filter)
-                        || g.getPerfilRiesgo().toLowerCase().contains(filter)
+                        || g.getPerfilRiesgo().name().toLowerCase().contains(filter)
                         || String.valueOf(g.getAniosExperiencia()).contains(filter);
             });
         });
