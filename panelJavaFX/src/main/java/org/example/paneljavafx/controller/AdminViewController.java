@@ -6,7 +6,8 @@ import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.layout.AnchorPane;
 
-import org.example.paneljavafx.data.FundPositionDataSource;
+import org.example.paneljavafx.dao.FundPositionDAO;
+import org.example.paneljavafx.dao.impl.FundPositionImpl;
 import org.example.paneljavafx.model.Asset;
 import org.example.paneljavafx.model.Fund;
 import org.example.paneljavafx.model.FundPosition;
@@ -28,13 +29,15 @@ public class AdminViewController {
 
     private List<FundPosition> cachedPositions;
 
-    private final FundService fundService = FundService.getInstance();
-    private final AssetService assetService = AssetService.getInstance();
+    private final FundService        fundService        = FundService.getInstance();
+    private final AssetService       assetService       = AssetService.getInstance();
+    private final FundPositionDAO    fundPositionDAO    = new FundPositionImpl(); // ← sustituye FundPositionDataSource
 
     @FXML
     public void initialize() {
         loadGlobalView();
-        cachedPositions = FundPositionDataSource.load();
+
+        cachedPositions = fundPositionDAO.findAll();
 
         fundService.load();
         assetService.load();
@@ -106,9 +109,8 @@ public class AdminViewController {
             AnchorPane view = loader.load();
 
             AssetViewController controller = loader.getController();
-
-            controller.loadData(asset);
             controller.loadPositions(cachedPositions);
+            controller.loadData(asset);
 
             Tab tab = new Tab(asset.getName());
             tab.setContent(view);

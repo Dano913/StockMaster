@@ -13,14 +13,8 @@ import org.example.paneljavafx.service.ClienteService;
 
 public class ClienteViewController {
 
-    // =========================
-    // SERVICE
-    // =========================
     private final ClienteService clienteService = ClienteService.getInstance();
 
-    // =========================
-    // TABLE UI
-    // =========================
     @FXML private TableView<Cliente> clientsTable;
     @FXML private TableColumn<Cliente, String> colName;
     @FXML private TableColumn<Cliente, String> colEmail;
@@ -29,40 +23,32 @@ public class ClienteViewController {
     @FXML private TextField searchField;
     @FXML private Label titleLabel;
 
-    // =========================
-    // DETAIL PANEL
-    // =========================
     @FXML private VBox clienteDetailContainer;
 
-    // =========================
-    // OVERLAY (FORMULARIO)
-    // =========================
     @FXML private StackPane rootContainer;
     @FXML private VBox overlayContainer;
 
-    // =========================
-    // STATE
-    // =========================
     private FilteredList<Cliente> filteredClientes;
 
-    // =========================
-    // INIT
-    // =========================
     @FXML
     public void initialize() {
 
-        clienteService.load();
+        try {
+            clienteService.load(); // 🔥 ahora protegido
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.err.println("Error cargando clientes desde BD");
+        }
 
         setupClientsTable();
         setupSearch();
 
-        overlayContainer.setVisible(false);
-        overlayContainer.setManaged(false);
+        if (overlayContainer != null) {
+            overlayContainer.setVisible(false);
+            overlayContainer.setManaged(false);
+        }
     }
 
-    // =========================
-    // TABLE
-    // =========================
     private void setupClientsTable() {
 
         colName.setCellValueFactory(d ->
@@ -75,15 +61,16 @@ public class ClienteViewController {
                 new SimpleStringProperty(d.getValue().getEmail())
         );
 
-        // 🔹 COLUMNA ACCIONES
         colActions.setCellFactory(param -> new TableCell<>() {
 
-            private final Button btn = new Button("Ver");
+            private final Button btn = new Button("Ver / Editar");
 
             {
                 btn.setOnAction(event -> {
                     Cliente cliente = getTableView().getItems().get(getIndex());
-                    openEditCliente(cliente);
+                    if (cliente != null) {
+                        openEditCliente(cliente);
+                    }
                 });
             }
 
@@ -97,7 +84,6 @@ public class ClienteViewController {
         filteredClientes = new FilteredList<>(clienteService.getAll());
         clientsTable.setItems(filteredClientes);
 
-        // 🔹 PANEL DERECHO (detalle)
         clientsTable.getSelectionModel()
                 .selectedItemProperty()
                 .addListener((obs, oldVal, selected) -> {
@@ -126,9 +112,6 @@ public class ClienteViewController {
                 });
     }
 
-    // =========================
-    // SEARCH
-    // =========================
     private void setupSearch() {
 
         searchField.textProperty().addListener((obs, oldVal, newVal) -> {
@@ -146,35 +129,16 @@ public class ClienteViewController {
         });
     }
 
-    // =========================
-    // OPEN FORM (CREAR)
-    // =========================
     @FXML
     private void openAddCliente() {
-
-        try {
-            FXMLLoader loader = new FXMLLoader(
-                    getClass().getResource("/org/example/paneljavafx/add-cliente-view.fxml")
-            );
-
-            Parent form = loader.load();
-
-            AddClienteController controller = loader.getController();
-            controller.init(null, this); // 👈 clave
-
-            overlayContainer.getChildren().setAll(form);
-            overlayContainer.setVisible(true);
-            overlayContainer.setManaged(true);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        openForm(null);
     }
 
-    // =========================
-    // OPEN FORM (EDITAR)
-    // =========================
     private void openEditCliente(Cliente cliente) {
+        openForm(cliente);
+    }
+
+    private void openForm(Cliente cliente) {
 
         try {
             FXMLLoader loader = new FXMLLoader(
@@ -184,7 +148,7 @@ public class ClienteViewController {
             Parent form = loader.load();
 
             AddClienteController controller = loader.getController();
-            controller.init(cliente, this); // 👈 clave
+            controller.init(cliente, this);
 
             overlayContainer.getChildren().setAll(form);
             overlayContainer.setVisible(true);
@@ -195,16 +159,10 @@ public class ClienteViewController {
         }
     }
 
-    // =========================
-    // REFRESH
-    // =========================
     public void refreshTable() {
         clientsTable.refresh();
     }
 
-    // =========================
-    // CLOSE OVERLAY
-    // =========================
     public void closeAddClienteForm() {
 
         overlayContainer.getChildren().clear();

@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns="http://javafx.com/javafx/17"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="org.example.paneljavafx.controller.AddPositionController"
+      spacing="15"
+      alignment="CENTER"
+      styleClass="modal-container">
+
+    <padding>
+        <Insets top="20" right="20" bottom="20" left="20"/>
+    </padding>
+
+    <!-- =========================
+         TITULO
+    ========================== -->
+    <Label text="NUEVA POSICIÓN"
+           styleClass="modal-title"/>
+
+    <!-- =========================
+         FORM
+    ========================== -->
+    <VBox spacing="10" maxWidth="320">
+
+        <!-- FONDO -->
+        <Label text="Fondo"/>
+
+        <ComboBox fx:id="fundCombo"
+                  prefWidth="300"
+                  promptText="Selecciona un fondo"/>
+
+        <!-- CANTIDAD -->
+        <Label text="Cantidad"/>
+
+        <TextField fx:id="amountField"
+                   promptText="Introduce cantidad"
+                   maxWidth="300"/>
+
+    </VBox>
+
+    <!-- =========================
+         BOTONES
+    ========================== -->
+    <HBox spacing="10" alignment="CENTER">
+
+        <Button text="Guardar"
+                onAction="#save"
+                styleClass="btn-primary"
+                minWidth="90"/>
+
+        <Button text="Cancelar"
+                onAction="#cancel"
+                styleClass="btn-secondary"
+                minWidth="90"/>
+
+        <Button fx:id="deleteButton"
+                text="Eliminar"
+                onAction="#sell"
+                styleClass="btn-danger"
+                minWidth="90"
+                visible="false"
+                managed="false"/>
+
+    </HBox>
+
+</VBox>

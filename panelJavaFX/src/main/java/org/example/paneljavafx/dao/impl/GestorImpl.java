@@ -17,6 +17,9 @@ public class GestorImpl implements GestorDAO {
         return DriverManager.getConnection(URL, USER, PASS);
     }
 
+    // =========================
+    // FIND ALL
+    // =========================
     @Override
     public List<Gestor> findAll() {
 
@@ -29,23 +32,7 @@ public class GestorImpl implements GestorDAO {
              ResultSet rs = ps.executeQuery()) {
 
             while (rs.next()) {
-
-                Gestor g = new Gestor(
-                        rs.getInt("id_gestor"),
-                        rs.getInt("id_empresa"),
-                        rs.getInt("id_fondo"),
-                        rs.getString("dni"),
-                        rs.getString("nombre"),
-                        rs.getString("apellidos"),
-                        rs.getInt("anios_experiencia"),
-                        Gestor.PerfilRiesgo.valueOf(
-                                rs.getString("perfil_riesgo").toUpperCase()
-                        ),
-                        rs.getString("email"),
-                        rs.getString("telefono")
-                );
-
-                list.add(g);
+                list.add(mapGestor(rs));
             }
 
         } catch (SQLException e) {
@@ -55,6 +42,9 @@ public class GestorImpl implements GestorDAO {
         return list;
     }
 
+    // =========================
+    // FIND BY ID
+    // =========================
     @Override
     public Gestor findById(int id) {
 
@@ -68,20 +58,7 @@ public class GestorImpl implements GestorDAO {
             ResultSet rs = ps.executeQuery();
 
             if (rs.next()) {
-                return new Gestor(
-                        rs.getInt("id_gestor"),
-                        rs.getInt("id_empresa"),
-                        rs.getInt("id_fondo"),
-                        rs.getString("dni"),
-                        rs.getString("nombre"),
-                        rs.getString("apellidos"),
-                        rs.getInt("anios_experiencia"),
-                        Gestor.PerfilRiesgo.valueOf(
-                                rs.getString("perfil_riesgo").toUpperCase()
-                        ),
-                        rs.getString("email"),
-                        rs.getString("telefono")
-                );
+                return mapGestor(rs);
             }
 
         } catch (SQLException e) {
@@ -91,31 +68,55 @@ public class GestorImpl implements GestorDAO {
         return null;
     }
 
+    // =========================
+    // SAVE (AUTO_INCREMENT FIX)
+    // =========================
     @Override
     public void save(Gestor g) {
-        String sql = "INSERT INTO gestor VALUES (?,?,?,?,?,?,?,?,?,?)";
+
+        String sql = """
+            INSERT INTO gestor
+            (id_empresa, id_fondo, dni, nombre, apellidos,
+             anios_experiencia, perfil_riesgo, email, telefono)
+            VALUES (?,?,?,?,?,?,?,?,?)
+        """;
 
         try (Connection con = getConnection();
-             PreparedStatement ps = con.prepareStatement(sql)) {
+             PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
-            ps.setInt(1, g.getIdGestor());
-            ps.setInt(2, g.getIdEmpresa());
-            ps.setInt(3, g.getIdFondo());
-            ps.setString(4, g.getDni());
-            ps.setString(5, g.getNombre());
-            ps.setString(6, g.getApellidos());
-            ps.setInt(7, g.getAniosExperiencia());
-            ps.setString(8, g.getPerfilRiesgo().name());
-            ps.setString(9, g.getEmail());
-            ps.setString(10, g.getTelefono());
+            ps.setInt(1, g.getIdEmpresa());
+            ps.setInt(2, g.getIdFondo());
+            ps.setString(3, g.getDni());
+            ps.setString(4, g.getNombre());
+            ps.setString(5, g.getApellidos());
+            ps.setInt(6, g.getAniosExperiencia());
+
+            ps.setString(7,
+                    g.getPerfilRiesgo() != null
+                            ? g.getPerfilRiesgo().name()
+                            : "BAJO"
+            );
+
+            ps.setString(8, g.getEmail());
+            ps.setString(9, g.getTelefono());
 
             ps.executeUpdate();
+
+            // 🔥 IMPORTANTE: recuperar ID generado
+            try (ResultSet keys = ps.getGeneratedKeys()) {
+                if (keys.next()) {
+                    g.setIdGestor(keys.getInt(1));
+                }
+            }
 
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }
 
+    // =========================
+    // UPDATE (FIX COMPLETO)
+    // =========================
     @Override
     public void update(Gestor g) {
 
@@ -135,7 +136,13 @@ public class GestorImpl implements GestorDAO {
             ps.setString(4, g.getNombre());
             ps.setString(5, g.getApellidos());
             ps.setInt(6, g.getAniosExperiencia());
-            ps.setString(8, g.getPerfilRiesgo().name());
+
+            ps.setString(7,
+                    g.getPerfilRiesgo() != null
+                            ? g.getPerfilRiesgo().name()
+                            : "BAJO"
+            );
+
             ps.setString(8, g.getEmail());
             ps.setString(9, g.getTelefono());
             ps.setInt(10, g.getIdGestor());
@@ -147,6 +154,9 @@ public class GestorImpl implements GestorDAO {
         }
     }
 
+    // =========================
+    // DELETE
+    // =========================
     @Override
     public void delete(int id) {
 
@@ -161,5 +171,38 @@ public class GestorImpl implements GestorDAO {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    // =========================
+    // MAPPER ROBUSTO
+    // =========================
+    private Gestor mapGestor(ResultSet rs) throws SQLException {
+
+        String perfilStr = rs.getString("perfil_riesgo");
+
+        Gestor.PerfilRiesgo perfil;
+
+        if (perfilStr == null || perfilStr.isBlank()) {
+            perfil = Gestor.PerfilRiesgo.CONSERVADOR;
+        } else {
+            try {
+                perfil = Gestor.PerfilRiesgo.valueOf(perfilStr.toUpperCase());
+            } catch (Exception e) {
+                perfil = Gestor.PerfilRiesgo.CONSERVADOR;
+            }
+        }
+
+        return new Gestor(
+                rs.getInt("id_gestor"),
+                rs.getInt("id_empresa"),
+                rs.getInt("id_fondo"),
+                rs.getString("dni"),
+                rs.getString("nombre"),
+                rs.getString("apellidos"),
+                rs.getInt("anios_experiencia"),
+                perfil,
+                rs.getString("email"),
+                rs.getString("telefono")
+        );
     }
 }

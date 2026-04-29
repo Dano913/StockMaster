@@ -19,7 +19,7 @@ public class ClienteImpl implements ClienteDAO {
 
         List<Cliente> clientes = new ArrayList<>();
 
-        String sql = "SELECT * FROM clientes";
+        String sql = "SELECT * FROM cliente";
 
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql);
@@ -42,7 +42,7 @@ public class ClienteImpl implements ClienteDAO {
     @Override
     public Cliente findById(int id) {
 
-        String sql = "SELECT * FROM clientes WHERE id_cliente=?";
+        String sql = "SELECT * FROM cliente WHERE id_cliente=?";
 
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -69,7 +69,7 @@ public class ClienteImpl implements ClienteDAO {
     public Cliente save(Cliente c) {
 
         String sql = """
-            INSERT INTO clientes
+            INSERT INTO cliente
             (id_gestor, nombre, apellido, email, dni, fecha_alta, pais)
             VALUES (?, ?, ?, ?, ?, ?, ?)
         """;
@@ -106,7 +106,7 @@ public class ClienteImpl implements ClienteDAO {
     public void update(Cliente c) {
 
         String sql = """
-            UPDATE clientes
+            UPDATE cliente
             SET id_gestor=?,
                 nombre=?,
                 apellido=?,
@@ -142,7 +142,7 @@ public class ClienteImpl implements ClienteDAO {
     @Override
     public void delete(int id) {
 
-        String sql = "DELETE FROM clientes WHERE id_cliente=?";
+        String sql = "DELETE FROM cliente WHERE id_cliente=?";
 
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -163,15 +163,15 @@ public class ClienteImpl implements ClienteDAO {
         Cliente c = new Cliente();
 
         c.setIdCliente(rs.getInt("id_cliente"));
-        c.setIdGestor(rs.getObject("id_gestor") != null ? rs.getInt("id_gestor") : null);
+        c.setIdGestor(rs.getObject("id_gestor", Integer.class));
 
         c.setNombre(rs.getString("nombre"));
         c.setApellido(rs.getString("apellido"));
         c.setEmail(rs.getString("email"));
         c.setDni(rs.getString("dni"));
         c.setPais(rs.getString("pais"));
-        Date sqlDate = rs.getDate("fecha_alta");
 
+        Date sqlDate = rs.getDate("fecha_alta");
         c.setFechaAlta(sqlDate != null ? sqlDate.toLocalDate() : null);
 
         return c;
