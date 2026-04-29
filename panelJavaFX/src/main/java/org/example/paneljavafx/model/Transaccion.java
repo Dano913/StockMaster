@@ -1,16 +1,17 @@
 package org.example.paneljavafx.model;
 
+import lombok.*;
+
+import java.time.LocalDateTime;
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Transaccion {
-    private String tipo, fecha;
+    private Integer idTransaccion;
+    private Integer idPosicion;
+    private String tipo;
     private double importe;
-
-    public Transaccion() {}
-
-    public String getTipo() { return tipo; }
-    public String getFecha() { return fecha; }
-    public double getImporte() { return importe; }
-
-    public void setTipo(String tipo) { this.tipo = tipo; }
-    public void setFecha(String fecha) { this.fecha = fecha; }
-    public void setImporte(double importe) { this.importe = importe; }
+    private LocalDateTime fecha;
 }

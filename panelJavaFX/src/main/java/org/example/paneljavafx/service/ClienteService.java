@@ -2,21 +2,21 @@ package org.example.paneljavafx.service;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import org.example.paneljavafx.data.ClienteDataSource;
+import org.example.paneljavafx.dao.ClienteDAO;
+import org.example.paneljavafx.dao.PosicionDAO;
+import org.example.paneljavafx.dao.impl.ClienteImpl;
+import org.example.paneljavafx.dao.impl.PosicionImpl;
 import org.example.paneljavafx.model.Cliente;
-import org.example.paneljavafx.model.Gestor;
 import org.example.paneljavafx.model.Posicion;
 import org.example.paneljavafx.model.Transaccion;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class ClienteService {
 
-    // =========================
-    // SINGLETON
-    // =========================
+    // ========================= SINGLETON =========================
     private static final ClienteService INSTANCE = new ClienteService();
-    private final GestorService gestorService = GestorService.getInstance();
 
     public static ClienteService getInstance() {
         return INSTANCE;
@@ -24,77 +24,57 @@ public class ClienteService {
 
     private ClienteService() {}
 
-    private final ClienteDataSource clienteDataSource = new ClienteDataSource();
+    // ========================= DAO =========================
+    private final ClienteDAO clienteDAO = new ClienteImpl();
+    private final PosicionDAO posicionDAO = new PosicionImpl();
+
+    // ========================= CACHE =========================
     private final ObservableList<Cliente> clientes = FXCollections.observableArrayList();
 
-    // =========================
-    // LOAD
-    // =========================
+    // ========================= LOAD =========================
     public void load() {
 
-        List<Cliente> loadedData = clienteDataSource.load();
+        try {
+            List<Cliente> data = clienteDAO.findAll();
 
-        clientes.setAll(loadedData);
+            for (Cliente c : data) {
 
-        clienteDataSource.printClientesDetallado(clientes);
+                // 🔥 SOLO posiciones aquí (no transacciones)
+                List<Posicion> posiciones = posicionDAO.findByClienteId(c.getIdCliente());
+
+                // inicializa lista vacía segura
+                if (posiciones == null) {
+                    posiciones = new ArrayList<>();
+                }
+
+                c.setPosiciones(posiciones);
+            }
+
+            clientes.setAll(data);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.err.println("Error cargando clientes o posiciones desde BD");
+        }
     }
 
-    // =========================
-    // GETTERS
-    // =========================
+    // ========================= GETTERS =========================
     public ObservableList<Cliente> getAll() {
         return clientes;
     }
 
     public Cliente getById(int id) {
-
         return clientes.stream()
-                .filter(g -> g.getIdCliente() == id)
+                .filter(c -> c.getIdCliente() == id)
                 .findFirst()
                 .orElse(null);
     }
 
-    // =========================
-    // POSICIONES
-    // =========================
-    public List<Posicion> getPosicionesByClienteId(int clienteId) {
-
-        return clientes.stream()
-                .filter(c -> c.getIdCliente() == clienteId)
-                .flatMap(c -> c.getPosiciones().stream())
-                .toList();
+    public long count() {
+        return clientes.size();
     }
 
-    public double calcularCartera(Cliente cliente) {
-
-        if (cliente.getPosiciones() == null) return 0;
-
-        return cliente.getPosiciones().stream()
-                .flatMap(p -> p.getTransacciones().stream())
-                .mapToDouble(Transaccion::getImporte)
-                .sum();
-    }
-
-    public long contarFondosUnicos(Cliente cliente) {
-
-        if (cliente.getPosiciones() == null) return 0;
-
-        return cliente.getPosiciones().stream()
-                .map(Posicion::getIdFondo)
-                .distinct()
-                .count();
-    }
-
-    public Gestor getGestorByClientId(int clientId) {
-
-        return clientes.stream()
-                .filter(c -> c.getIdCliente() == clientId)
-                .findFirst()
-                .map(c -> GestorService.getInstance()
-                        .getById(c.getIdGestor()))
-                .orElse(null);
-    }
-
+    // ========================= SEARCH =========================
     public List<Cliente> search(String query) {
 
         if (query == null || query.isBlank()) {
@@ -113,12 +93,117 @@ public class ClienteService {
     }
 
     public boolean existsEmail(String email) {
-
         return clientes.stream()
                 .anyMatch(c -> c.getEmail().equalsIgnoreCase(email));
     }
 
-    public long count() {
-        return clientes.size();
+    // ========================= POSICIONES =========================
+    public List<Posicion> getPosicionesByClienteId(int clienteId) {
+
+        try {
+            List<Posicion> posiciones = posicionDAO.findByClienteId(clienteId);
+
+            return posiciones != null ? posiciones : new ArrayList<>();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ArrayList<>();
+        }
+    }
+
+    // ========================= CRUD =========================
+    public void save(Cliente cliente) {
+
+        Cliente saved = clienteDAO.save(cliente);
+
+        if (saved != null) {
+            clientes.add(saved);
+        }
+    }
+
+    public void update(Cliente cliente) {
+
+        clienteDAO.update(cliente);
+
+        for (int i = 0; i < clientes.size(); i++) {
+            if (clientes.get(i).getIdCliente() == cliente.getIdCliente()) {
+                clientes.set(i, cliente);
+                return;
+            }
+        }
+    }
+
+    public void delete(int idCliente) {
+
+        clienteDAO.delete(idCliente);
+        clientes.removeIf(c -> c.getIdCliente() == idCliente);
+    }
+
+    // ========================= POSICIONES CRUD =========================
+    public void addPosition(int clienteId, Posicion posicion) {
+
+        Cliente cliente = getById(clienteId);
+        if (cliente == null) return;
+
+        try {
+            posicionDAO.save(clienteId, posicion);
+
+            if (cliente.getPosiciones() == null) {
+                cliente.setPosiciones(new ArrayList<>());
+            }
+
+            cliente.getPosiciones().add(posicion);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void updatePosition(int clienteId, Posicion updatedPosition) {
+
+        Cliente cliente = getById(clienteId);
+        if (cliente == null || cliente.getPosiciones() == null) return;
+
+        List<Posicion> posiciones = cliente.getPosiciones();
+
+        for (int i = 0; i < posiciones.size(); i++) {
+
+            Posicion p = posiciones.get(i);
+
+            if (p.getIdFondo().equals(updatedPosition.getIdFondo())) {
+
+                posiciones.set(i, updatedPosition);
+
+                try {
+                    posicionDAO.update(updatedPosition);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+                return;
+            }
+        }
+    }
+
+    public long contarFondosUnicos(Cliente cliente) {
+
+        if (cliente == null || cliente.getPosiciones() == null) return 0;
+
+        return cliente.getPosiciones().stream()
+                .map(Posicion::getIdFondo)
+                .filter(id -> id != null)
+                .distinct()
+                .count();
+    }
+
+    public double calcularCartera(Cliente cliente) {
+
+        if (cliente == null || cliente.getPosiciones() == null) return 0;
+
+        return cliente.getPosiciones().stream()
+                .filter(p -> p.getTransacciones() != null)
+                .flatMap(p -> p.getTransacciones().stream())
+                .mapToDouble(Transaccion::getImporte)
+                .sum();
     }
 }
