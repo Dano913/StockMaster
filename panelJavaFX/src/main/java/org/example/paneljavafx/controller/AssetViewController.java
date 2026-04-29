@@ -69,21 +69,20 @@ public class AssetViewController implements TabDataReceiver<Asset> {
     // =========================
     @Override
     public void loadData(Asset asset) {
-
-
-
         this.currentAsset = asset;
 
         colFund.setCellValueFactory(data ->
                 new SimpleStringProperty(data.getValue().get("fund"))
         );
-
         colValue.setCellValueFactory(data ->
                 new SimpleStringProperty(data.getValue().get("value"))
         );
 
         bindMarket();
+
+        // ← ahora currentAsset ya está seteado, renderizamos
         renderExposure();
+        renderExposurePieChart();
         recalculate();
     }
 
@@ -92,8 +91,11 @@ public class AssetViewController implements TabDataReceiver<Asset> {
     // =========================
     public void loadPositions(List<FundPosition> positions) {
         this.cachedPositions = positions;
-        renderExposure();
-        renderExposurePieChart();
+
+        if (currentAsset != null) {      // ← guardia
+            renderExposure();
+            renderExposurePieChart();
+        }
     }
 
     // =========================
@@ -122,7 +124,6 @@ public class AssetViewController implements TabDataReceiver<Asset> {
     // REACTIVE UPDATE
     // =========================
     private void recalculate() {
-
         if (currentAsset == null || cachedPositions == null) return;
 
         AssetMetrics metrics = assetService.calculateMetrics(
@@ -130,7 +131,8 @@ public class AssetViewController implements TabDataReceiver<Asset> {
                 currentAsset.getId()
         );
 
-        Platform.runLater(() -> updateUI(metrics));
+        Platform.runLater(() -> updateUI(metrics)); // ← solo llama updateUI
+        // ← nunca llama renderExposure() ni renderExposurePieChart()
     }
 
     // =========================
@@ -159,26 +161,24 @@ public class AssetViewController implements TabDataReceiver<Asset> {
 
         if (currentAsset == null || cachedPositions == null) return;
 
-        tabla_exposicion.getItems().clear();
-
         ObservableList<Map<String, String>> items = FXCollections.observableArrayList();
 
-        cachedPositions.stream()
-                .filter(p -> p.getIdAsset().equals(currentAsset.getId()))
-                .forEach(p -> {
+        for (FundPosition p : cachedPositions) {
 
-                    Fund fund = fundService.getById(p.getIdFund());
+            if (!p.getIdAsset().equals(currentAsset.getId())) continue;
 
-                    String fundName = (fund != null)
-                            ? fund.getNombre()
-                            : p.getIdFund();
+            Fund fund = fundService.getById(p.getIdFund());
 
-                    Map<String, String> row = new HashMap<>();
-                    row.put("fund", fundName);
-                    row.put("value", String.format("%.2f €", p.getInvestedValue()));
+            String fundName = (fund != null)
+                    ? fund.getNombre()
+                    : p.getIdFund();
 
-                    items.add(row);
-                });
+            Map<String, String> row = new HashMap<>();
+            row.put("fund", fundName);
+            row.put("value", String.format("%.2f €", p.getInvestedValue()));
+
+            items.add(row);
+        }
 
         tabla_exposicion.setItems(items);
     }
@@ -199,18 +199,18 @@ public class AssetViewController implements TabDataReceiver<Asset> {
 
         ObservableList<PieChart.Data> pieData = FXCollections.observableArrayList();
 
-        cachedPositions.stream()
-                .filter(p -> p.getIdAsset().equals(currentAsset.getId()))
-                .forEach(p -> {
+        for (FundPosition p : cachedPositions) {
 
-                    Fund fund = fundService.getById(p.getIdFund());
+            if (!p.getIdAsset().equals(currentAsset.getId())) continue;
 
-                    String name = (fund != null)
-                            ? fund.getNombre()
-                            : p.getIdFund();
+            Fund fund = fundService.getById(p.getIdFund());
 
-                    pieData.add(new PieChart.Data(name, p.getInvestedValue()));
-                });
+            String name = (fund != null)
+                    ? fund.getNombre()
+                    : p.getIdFund();
+
+            pieData.add(new PieChart.Data(name, p.getInvestedValue()));
+        }
 
         pieChart.setData(pieData);
         assetPieChart.getChildren().add(pieChart);

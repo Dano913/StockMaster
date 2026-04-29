@@ -1,5 +1,12 @@
 package org.example.paneljavafx.model;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class Candle {
 
     private double open;
@@ -8,32 +15,9 @@ public class Candle {
     private double close;
     private long timestamp;
 
-    // -------------------------
-    // CONSTRUCTOR
-    // -------------------------
-    public Candle(double open, double high, double low, double close, long timestamp) {
-        this.open = open;
-        this.high = high;
-        this.low = low;
-        this.close = close;
-        this.timestamp = timestamp;
-    }
-
-    // -------------------------
-    // UPDATE (opcional para MarketEngine)
-    // -------------------------
     public void update(double price) {
-        close = price;
+        this.close = price;
         if (price > high) high = price;
         if (price < low) low = price;
     }
-
-    // -------------------------
-    // GETTERS
-    // -------------------------
-    public double getOpen() { return open; }
-    public double getHigh() { return high; }
-    public double getLow() { return low; }
-    public double getClose() { return close; }
-    public long getTimestamp() { return timestamp; }
 }

@@ -15,6 +15,10 @@ import javafx.scene.paint.Color;
 import lombok.Getter;
 import lombok.Setter;
 
+import org.example.paneljavafx.dao.AssetDAO;
+import org.example.paneljavafx.dao.FundDAO;
+import org.example.paneljavafx.dao.impl.AssetImpl;
+import org.example.paneljavafx.dao.impl.FundImpl;
 import org.example.paneljavafx.model.Asset;
 import org.example.paneljavafx.model.Fund;
 import org.example.paneljavafx.model.FundPosition;
@@ -128,23 +132,29 @@ public class GlobalController {
     // =========================
     // SERVICES
     // =========================
-    private final GlobalService globalService = new GlobalService();
-    FundService  fundService   = FundService.getInstance();
-    AssetService assetService  = AssetService.getInstance();
-    GestorService gestorService   = GestorService.getInstance();
+    private final GlobalService  globalService  = new GlobalService();
+    private final AssetDAO assetDAO       = new AssetImpl();
+    private final FundDAO fundDAO        = new FundImpl();
+
+    FundService    fundService    = FundService.getInstance();
+    AssetService   assetService   = AssetService.getInstance();
+    GestorService  gestorService  = GestorService.getInstance();
     ClienteService clienteService = ClienteService.getInstance();
 
     // =========================
-    // INIT
-    // =========================
+// INIT
+// =========================
     @FXML
     public void initialize() {
-        GlobalService.LoadResult loaded = globalService.loadData(getClass());
-        funds     = loaded.funds();
-        assets    = loaded.assets();
-        positions = loaded.positions();
+
+        // ← ANTES: GlobalService.LoadResult loaded = globalService.loadData(getClass());
+        // ← AHORA: carga directa desde DAO
+        assets    = assetDAO.findAll();
+        funds     = fundDAO.findAll();
+        FundPositionService.getInstance().load();
 
         globalService.bootstrapMarket();
+
         if (kpiGestores != null)
             kpiGestores.setText(String.valueOf(gestorService.getAll().size()));
         if (kpiClientes != null)
@@ -164,8 +174,6 @@ public class GlobalController {
 
         resultsList.setItems(filteredData);
         filteredData.setAll(masterData);
-
-        FundPositionService.getInstance().load();
 
         tick();
         MarketClock.getInstance().addListener(() -> Platform.runLater(this::tick));

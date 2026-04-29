@@ -73,15 +73,15 @@
                                 <Insets top="4" left="4" right="4" bottom="4"/>
                             </VBox.margin>
                             <columns>
-                                <TableColumn fx:id="colActions"
-                                             text="Acciones"
-                                             prefWidth="120"/>
                                 <TableColumn fx:id="colName"
                                              text="Nombre Completo"
                                              prefWidth="300"/>
                                 <TableColumn fx:id="colEmail"
                                              text="Email"
                                              prefWidth="250"/>
+                                <TableColumn fx:id="colActions"
+                                             text="Acciones"
+                                             prefWidth="120"/>
                             </columns>
                             <placeholder>
                                 <Label text="Sin clientes" styleClass="kpi-label"/>

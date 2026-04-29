@@ -1,98 +1,143 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.TableColumn?>
-<?import javafx.scene.control.TableView?>
-<?import javafx.scene.control.TextField?>
-<?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.layout.ColumnConstraints?>
-<?import javafx.scene.layout.GridPane?>
-<?import javafx.scene.layout.RowConstraints?>
-<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
 
-<AnchorPane
-        prefHeight="900"
-        prefWidth="1900.0"
-        stylesheets="@trading-theme.css"
+<StackPane
         xmlns="http://javafx.com/javafx/17"
         xmlns:fx="http://javafx.com/fxml/1"
-        fx:controller="org.example.paneljavafx.controller.PersonalViewController">
+        fx:controller="org.example.paneljavafx.controller.PersonalViewController"
+        prefHeight="900"
+        prefWidth="1900"
+        stylesheets="@trading-theme.css">
 
    <children>
 
-      <GridPane
-              styleClass="cliente-grid"
-              hgap="16"
-              AnchorPane.topAnchor="0"
-              AnchorPane.bottomAnchor="0"
-              AnchorPane.leftAnchor="0"
-              AnchorPane.rightAnchor="0">
+      <!-- =========================
+           MAIN LAYOUT
+      ========================== -->
+      <AnchorPane>
 
-         <columnConstraints>
-            <ColumnConstraints hgrow="ALWAYS" percentWidth="50"/>
-            <ColumnConstraints hgrow="ALWAYS" percentWidth="50"/>
-         </columnConstraints>
+         <children>
 
-         <rowConstraints>
-            <RowConstraints vgrow="ALWAYS"/>
-         </rowConstraints>
+            <GridPane
+                    styleClass="cliente-grid"
+                    hgap="16"
+                    AnchorPane.topAnchor="0"
+                    AnchorPane.bottomAnchor="0"
+                    AnchorPane.leftAnchor="0"
+                    AnchorPane.rightAnchor="0">
 
-         <!-- ═══════════════════════════════════════
-              PANEL IZQUIERDO — Lista de gestores
-         ════════════════════════════════════════ -->
-         <VBox styleClass="cliente-left-panel"
-               GridPane.columnIndex="0"
-               GridPane.rowIndex="0">
+               <columnConstraints>
+                  <ColumnConstraints hgrow="ALWAYS" percentWidth="50"/>
+                  <ColumnConstraints hgrow="ALWAYS" percentWidth="50"/>
+               </columnConstraints>
 
-            <Label text="GESTORES"
-                   styleClass="cliente-panel-title"/>
+               <rowConstraints>
+                  <RowConstraints vgrow="ALWAYS"/>
+               </rowConstraints>
 
-            <TextField fx:id="searchField"
-                       styleClass="cliente-search"
-                       promptText="Buscar por nombre, email..."/>
+               <!-- ═══════════════════════════════
+                    LEFT PANEL
+               ════════════════════════════════ -->
+               <VBox styleClass="cliente-left-panel"
+                     GridPane.columnIndex="0"
+                     GridPane.rowIndex="0">
 
-            <TableView fx:id="gestorsTable"
-                       styleClass="cliente-table"
-                       VBox.vgrow="ALWAYS">
-               <columnResizePolicy>
-                  <TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
-               </columnResizePolicy>
-               <VBox.margin>
-                  <Insets top="4" left="4" right="4" bottom="4"/>
-               </VBox.margin>
-               <columns>
-                  <TableColumn fx:id="colName"       text="Nombre Completo" prefWidth="220"/>
-                  <TableColumn fx:id="colEmail"      text="Email"           prefWidth="200"/>
-                  <TableColumn fx:id="colExperience" text="Experiencia"     prefWidth="110"/>
-                  <TableColumn fx:id="colRisk"       text="Riesgo"          prefWidth="90"/>
-               </columns>
-               <placeholder>
-                  <Label text="Sin gestores" styleClass="kpi-label"/>
-               </placeholder>
-            </TableView>
+                  <Label text="GESTORES"
+                         styleClass="cliente-panel-title"/>
 
-         </VBox>
+                  <Button text="➕ Añadir Gestor"
+                          onAction="#openAddGestor"
+                          styleClass="btn-primary"/>
 
-         <!-- ═══════════════════════════════════════
-              PANEL DERECHO — Detalle del gestor
-         ════════════════════════════════════════ -->
-         <VBox fx:id="gestorDetailContainer"
-               styleClass="cliente-right-panel"
-               GridPane.columnIndex="1"
-               GridPane.rowIndex="0">
+                  <TextField fx:id="searchField"
+                             styleClass="cliente-search"
+                             promptText="Buscar gestor..."/>
 
-            <VBox styleClass="cliente-detail-empty"
-                  VBox.vgrow="ALWAYS"
-                  alignment="CENTER">
-               <Label text="👤" styleClass="cliente-empty-icon"/>
-               <Label text="Selecciona un gestor para ver su detalle"
-                      styleClass="cliente-empty-text"/>
-            </VBox>
+                  <TableView fx:id="gestorsTable"
+                             styleClass="cliente-table"
+                             VBox.vgrow="ALWAYS">
 
-         </VBox>
+                     <columnResizePolicy>
+                        <TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
+                     </columnResizePolicy>
 
-      </GridPane>
+                     <columns>
+
+                        <TableColumn fx:id="colName"
+                                     text="Nombre"
+                                     prefWidth="220"/>
+
+                        <TableColumn fx:id="colEmail"
+                                     text="Email"
+                                     prefWidth="200"/>
+
+                        <TableColumn fx:id="colExperience"
+                                     text="Exp"
+                                     prefWidth="100"/>
+
+                        <TableColumn fx:id="colRisk"
+                                     text="Riesgo"
+                                     prefWidth="100"/>
+
+                        <!-- BOTÓN ACCIÓN (lo crea controller igual que cliente) -->
+                        <TableColumn text="Acciones"
+                                     prefWidth="120"/>
+
+                     </columns>
+
+                     <placeholder>
+                        <Label text="Sin gestores"
+                               styleClass="kpi-label"/>
+                     </placeholder>
+
+                  </TableView>
+
+               </VBox>
+
+               <!-- ═══════════════════════════════
+                    RIGHT PANEL (detalle opcional)
+               ════════════════════════════════ -->
+               <VBox fx:id="gestorDetailContainer"
+                     styleClass="cliente-right-panel"
+                     GridPane.columnIndex="1"
+                     GridPane.rowIndex="0">
+
+                  <VBox styleClass="cliente-detail-empty"
+                        alignment="CENTER"
+                        VBox.vgrow="ALWAYS">
+
+                     <Label text="👤"
+                            styleClass="cliente-empty-icon"/>
+
+                     <Label text="Selecciona un gestor o edítalo"
+                            styleClass="cliente-empty-text"/>
+
+                  </VBox>
+
+               </VBox>
+
+            </GridPane>
+
+         </children>
+
+      </AnchorPane>
+
+      <!-- =========================
+           OVERLAY MODAL (🔥 CLAVE)
+      ========================== -->
+      <VBox fx:id="overlayContainer"
+            visible="false"
+            managed="false"
+            alignment="CENTER"
+            StackPane.alignment="CENTER"
+            style="-fx-background-color: rgba(0,0,0,0.45);">
+
+         <!-- AQUÍ SE INYECTA EL FORMULARIO -->
+      </VBox>
 
    </children>
-</AnchorPane>
+
+</StackPane>

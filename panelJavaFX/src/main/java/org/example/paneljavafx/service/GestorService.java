@@ -13,6 +13,7 @@ import java.util.List;
 public class GestorService {
 
     private final ClienteService clienteService = ClienteService.getInstance();
+
     private static final GestorService INSTANCE = new GestorService();
 
     public static GestorService getInstance() {
@@ -21,14 +22,8 @@ public class GestorService {
 
     private GestorService() {}
 
-    // =========================
-    // DAO (implementación concreta)
-    // =========================
     private final GestorDAO gestorDAO = new GestorImpl();
 
-    // =========================
-    // STATE UI
-    // =========================
     private final ObservableList<Gestor> gestores =
             FXCollections.observableArrayList();
 
@@ -38,7 +33,6 @@ public class GestorService {
     // LOAD
     // =========================
     public void load() {
-
         if (loaded) return;
         loaded = true;
 
@@ -61,7 +55,9 @@ public class GestorService {
     // =========================
 
     public List<Cliente> getClientesByGestorId(int gestorId, List<Cliente> clientes) {
+
         return clientes.stream()
+                .filter(c -> c.getIdGestor() != null)
                 .filter(c -> c.getIdGestor() == gestorId)
                 .toList();
     }
@@ -69,6 +65,7 @@ public class GestorService {
     public double calcularPatrimonioGestionado(int gestorId, List<Cliente> clientes) {
 
         return clientes.stream()
+                .filter(c -> c.getIdGestor() != null)
                 .filter(c -> c.getIdGestor() == gestorId)
                 .flatMap(c -> c.getPosiciones().stream())
                 .flatMap(p -> p.getTransacciones().stream())
@@ -87,16 +84,14 @@ public class GestorService {
                         g.getNombre().toLowerCase().contains(q) ||
                                 g.getApellidos().toLowerCase().contains(q) ||
                                 g.getEmail().toLowerCase().contains(q) ||
-                                g.getPerfilRiesgo().name().contains(q.toUpperCase())
+                                g.getPerfilRiesgo().name().toLowerCase().contains(q)
                 )
                 .toList();
     }
 
     public int countClientsByGestor(int gestorId) {
 
-        return clienteService.getAll() == null
-                ? 0
-                : (int) clienteService.getAll().stream()
+        return (int) clienteService.getAll().stream()
                 .filter(c -> c.getIdGestor() != null)
                 .filter(c -> c.getIdGestor() == gestorId)
                 .count();
@@ -105,6 +100,7 @@ public class GestorService {
     public Gestor getGestorWithLessClients() {
 
         return gestores.stream()
+                .filter(g -> g.getIdGestor() != 0)
                 .min((g1, g2) ->
                         Integer.compare(
                                 countClientsByGestor(g1.getIdGestor()),
@@ -112,5 +108,37 @@ public class GestorService {
                         )
                 )
                 .orElse(null);
+    }
+
+    public void save(Gestor gestor) {
+
+        // 1. Persistir en base de datos
+        gestorDAO.save(gestor);
+
+        // 2. Actualizar lista observable (UI)
+        gestores.add(gestor);
+    }
+
+    public void update(Gestor gestor) {
+
+        // 1. Persistir en base de datos
+        gestorDAO.update(gestor);
+
+        // 2. Refrescar lista observable (UI)
+        for (int i = 0; i < gestores.size(); i++) {
+            if (gestores.get(i).getIdGestor() == gestor.getIdGestor()) {
+                gestores.set(i, gestor);
+                break;
+            }
+        }
+    }
+
+    public void delete(Integer id) {
+
+        if (id == null || id == 0) return;
+
+        gestorDAO.delete(id);
+
+        gestores.removeIf(g -> id.equals(g.getIdGestor()));
     }
 }

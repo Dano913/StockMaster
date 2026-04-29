@@ -1,6 +1,7 @@
 package org.example.paneljavafx.service;
 
-import org.example.paneljavafx.data.FundPositionDataSource;
+import org.example.paneljavafx.dao.FundPositionDAO;
+import org.example.paneljavafx.dao.impl.FundPositionImpl;
 import org.example.paneljavafx.model.FundPosition;
 
 import java.util.ArrayList;
@@ -12,33 +13,41 @@ public class FundPositionService {
     // SINGLETON
     // =========================
     private static final FundPositionService INSTANCE = new FundPositionService();
-    private List<FundPosition> positions = new ArrayList<>();
 
-    public static FundPositionService getInstance() {
-        return INSTANCE;
-    }
+    public static FundPositionService getInstance() { return INSTANCE; }
 
     private FundPositionService() {}
 
     // =========================
-    // DEPENDENCY
+    // DEPENDENCIES
     // =========================
-    private final MarketService marketService = MarketService.getInstance();
+    private final FundPositionDAO positionDAO   = new FundPositionImpl(); // ← sustituye FundPositionDataSource
+    private final MarketService   marketService = MarketService.getInstance();
 
-    public void load() {
+    // =========================
+    // STATE
+    // =========================
+    private List<FundPosition> positions = new ArrayList<>();
+    private boolean loaded = false;
 
-        positions = FundPositionDataSource.load();
+    // =========================
+    // LOAD
+    // =========================
+    public List<FundPosition> load() {
+        if (loaded) return positions;
+        loaded = true;
 
-        FundPositionDataSource.printPositions(positions);
+        positions = positionDAO.findAll();  // ← BD en lugar de JSON
+        return positions;
     }
+
+    public List<FundPosition> getAll() { return positions; }
 
     // =========================
     // GET BY FUND
     // =========================
     public List<FundPosition> getByFundId(List<FundPosition> all, String fundId) {
-
         if (all == null || fundId == null) return List.of();
-
         return all.stream()
                 .filter(p -> fundId.equals(p.getIdFund()))
                 .toList();
@@ -48,9 +57,7 @@ public class FundPositionService {
     // GET BY ASSET
     // =========================
     public List<FundPosition> getByAssetId(List<FundPosition> all, String assetId) {
-
         if (all == null || assetId == null) return List.of();
-
         return all.stream()
                 .filter(p -> assetId.equals(p.getIdAsset()))
                 .toList();
@@ -60,40 +67,29 @@ public class FundPositionService {
     // VALOR POSICIÓN
     // =========================
     public double getValue(FundPosition p) {
-
-        double price = marketService.getPrice(p.getIdAsset());
-        return p.getQuantity() * price;
+        return p.getQuantity() * marketService.getPrice(p.getIdAsset());
     }
 
     // =========================
     // DAILY RETURN
     // =========================
     public double getDailyReturn(FundPosition p) {
-
-        double price = marketService.getPrice(p.getIdAsset());
-        return (p.getQuantity() * price) - p.getInvestedValue();
+        return getValue(p) - p.getInvestedValue();
     }
 
     // =========================
     // RETURN %
     // =========================
     public double getReturnPct(FundPosition p) {
-
-        double price = marketService.getPrice(p.getIdAsset());
-
         if (p.getInvestedValue() <= 0) return 0;
-
-        return ((p.getQuantity() * price) - p.getInvestedValue())
-                / p.getInvestedValue() * 100;
+        return (getValue(p) - p.getInvestedValue()) / p.getInvestedValue() * 100;
     }
 
     // =========================
     // NAV TOTAL
     // =========================
     public double calculateNAV(List<FundPosition> positions) {
-
         if (positions == null || positions.isEmpty()) return 0;
-
         return positions.stream()
                 .filter(FundPosition::isValid)
                 .mapToDouble(this::getValue)
@@ -101,31 +97,16 @@ public class FundPositionService {
     }
 
     // =========================
-    // TOP POSITIONS
-    // =========================
-    // =========================
-    // TOP MOVERS (POR MOVIMIENTO ABSOLUTO)
+    // TOP MOVERS
     // =========================
     public List<FundPosition> getTopByMovement(List<FundPosition> positions, int limit) {
-
         if (positions == null) return List.of();
-
         return positions.stream()
                 .filter(FundPosition::isValid)
-                .sorted((p1, p2) -> {
-
-                    double price1 = marketService.getPrice(p1.getIdAsset());
-                    double value1 = p1.getQuantity() * price1;
-
-                    double diff1 = Math.abs(value1 - p1.getInvestedValue());
-
-                    double price2 = marketService.getPrice(p2.getIdAsset());
-                    double value2 = p2.getQuantity() * price2;
-
-                    double diff2 = Math.abs(value2 - p2.getInvestedValue());
-
-                    return Double.compare(diff2, diff1);
-                })
+                .sorted((p1, p2) -> Double.compare(
+                        Math.abs(getValue(p2) - p2.getInvestedValue()),
+                        Math.abs(getValue(p1) - p1.getInvestedValue())
+                ))
                 .limit(limit)
                 .toList();
     }

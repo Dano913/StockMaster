@@ -1,5 +1,7 @@
 package org.example.paneljavafx.service;
 
+import org.example.paneljavafx.dao.AssetDAO;
+import org.example.paneljavafx.dao.impl.AssetImpl;
 import org.example.paneljavafx.data.AssetDataSource;
 import org.example.paneljavafx.model.Asset;
 import org.example.paneljavafx.model.FundPosition;
@@ -20,31 +22,31 @@ public class AssetService {
 
     private AssetService() {}
 
-    private final AssetDataSource assetDataSource = new AssetDataSource();
+
+    private final AssetDAO assetDAO = new AssetImpl();
     private final FundPositionService positionService = FundPositionService.getInstance();
 
     public final List<Asset> assets = new ArrayList<>();
+
     private boolean loaded = false;
 
     public void load() {
         if (loaded) return;
+
         loaded = true;
 
-        assets.clear();
-        assets.addAll(assetDataSource.load());
+        List<Asset> assetsFromDao = assetDAO.findAll();
 
-        assetDataSource.printAssets(assets);
+        assets.clear();
+        assets.addAll(assetsFromDao);
     }
 
     public List<Asset> getAll() {
-        return assets;
+        return assetDAO.findAll();
     }
 
     public Asset getById(String id) {
-        return assets.stream()
-                .filter(a -> a.getId().equals(id))
-                .findFirst()
-                .orElse(null);
+        return assetDAO.findById(id).orElse(null);
     }
 
     public AssetMetrics calculateMetrics(List<FundPosition> positions, String assetId) {
@@ -54,11 +56,9 @@ public class AssetService {
         }
 
         double totalExposure = 0;
-        long fundsExposed = 0;
+        double totalPortfolioValue = 0;
 
         Set<String> uniqueFunds = new HashSet<>();
-
-        double totalPortfolioValue = 0; // necesario para ratios
 
         for (FundPosition p : positions) {
 
@@ -71,21 +71,15 @@ public class AssetService {
             }
         }
 
-        fundsExposed = uniqueFunds.size();
-
         double exposureRatio = (totalPortfolioValue == 0)
                 ? 0
                 : totalExposure / totalPortfolioValue;
 
-        double globalWeight = exposureRatio; // si no tienes otra métrica más compleja aún
-
         return new AssetMetrics(
                 totalExposure,
                 exposureRatio,
-                fundsExposed,
-                globalWeight
+                uniqueFunds.size(),
+                exposureRatio
         );
     }
-
-
 }

@@ -2,157 +2,159 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.chart.PieChart?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.TableColumn?>
-<?import javafx.scene.control.TableView?>
-<?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.layout.ColumnConstraints?>
-<?import javafx.scene.layout.GridPane?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.RowConstraints?>
-<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
 
-<!--
-    cliente-privado-view.fxml — Detalle del cliente privado
-    CSS externo: trading-theme.css
-    Estructura respetada: VBox → Header / HBox(datos+pie) / tabla
--->
-<AnchorPane
-        stylesheets="@trading-theme.css"
-        xmlns="http://javafx.com/javafx/17"
-        xmlns:fx="http://javafx.com/fxml/1"
-        fx:controller="org.example.paneljavafx.controller.ClientePrivadoViewController">
+<StackPane xmlns="http://javafx.com/javafx/17"
+           xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="org.example.paneljavafx.controller.ClientePrivadoViewController"
+           prefHeight="900"
+           prefWidth="1900"
+           stylesheets="@trading-theme.css">
 
     <children>
 
-        <VBox spacing="16"
-              AnchorPane.topAnchor="20"
-              AnchorPane.bottomAnchor="20"
-              AnchorPane.leftAnchor="20"
-              AnchorPane.rightAnchor="20">
+        <BorderPane>
 
-            <!-- ══════════════════════════════════════════
-                 HEADER — Nombre y email
-            ═══════════════════════════════════════════ -->
-            <VBox spacing="4">
-                <children>
-                    <Label fx:id="labelNombre" styleClass="cp-nombre"/>
-                    <Label fx:id="labelEmail"  styleClass="cp-email"/>
-                </children>
-            </VBox>
+            <!-- =========================
+                 LEFT (SIDEBAR)
+            ========================== -->
+            <left>
 
-            <!-- ══════════════════════════════════════════
-                 FILA CENTRAL — Datos + Pie chart
-            ═══════════════════════════════════════════ -->
-            <HBox spacing="16">
-                <children>
+                <VBox spacing="14"
+                      prefWidth="360"
+                      styleClass="cliente-left-panel">
 
-                    <!-- DATOS DEL CLIENTE -->
-                    <GridPane styleClass="cp-data-card"
-                              hgap="16" vgap="0"
-                              HBox.hgrow="ALWAYS">
+                    <padding>
+                        <Insets top="16" right="16" bottom="16" left="16"/>
+                    </padding>
 
-                        <columnConstraints>
-                            <ColumnConstraints percentWidth="25"/>
-                            <ColumnConstraints percentWidth="25"/>
-                            <ColumnConstraints percentWidth="25"/>
-                            <ColumnConstraints percentWidth="25"/>
-                        </columnConstraints>
+                    <Label text="DETALLE CLIENTE"
+                           styleClass="cliente-panel-title"/>
 
-                        <rowConstraints>
-                            <RowConstraints prefHeight="68"/>
-                            <RowConstraints prefHeight="68"/>
-                            <RowConstraints prefHeight="68"/>
-                            <RowConstraints prefHeight="68"/>
-                        </rowConstraints>
+                    <Button text="➕ Nueva Posición"
+                            onAction="#openAddPosicion"
+                            styleClass="btn-primary"
+                            maxWidth="Infinity"/>
 
-                        <!-- ROW 0 — ID + DNI -->
-                        <VBox spacing="4" GridPane.columnIndex="0" GridPane.rowIndex="0">
-                            <Label text="ID CLIENTE" styleClass="cp-field-label"/>
-                            <Label fx:id="labelIdCliente" styleClass="cp-field-value"/>
-                        </VBox>
+                    <VBox spacing="6">
 
-                        <VBox spacing="4" GridPane.columnIndex="1" GridPane.rowIndex="0">
-                            <Label text="DNI" styleClass="cp-field-label"/>
-                            <Label fx:id="labelDni" styleClass="cp-field-value"/>
-                        </VBox>
+                        <Label fx:id="labelIdCliente"/>
+                        <Label fx:id="labelNombre"/>
+                        <Label fx:id="labelEmail"/>
+                        <Label fx:id="labelDni"/>
+                        <Label fx:id="labelPais"/>
+                        <Label fx:id="labelFechaAlta"/>
 
-                        <!-- ROW 1 — País + Fecha alta -->
-                        <VBox spacing="4" GridPane.columnIndex="0" GridPane.rowIndex="1">
-                            <Label text="PAÍS" styleClass="cp-field-label"/>
-                            <Label fx:id="labelPais" styleClass="cp-field-value"/>
-                        </VBox>
-
-                        <VBox spacing="4" GridPane.columnIndex="1" GridPane.rowIndex="1">
-                            <Label text="FECHA ALTA" styleClass="cp-field-label"/>
-                            <Label fx:id="labelFechaAlta" styleClass="cp-field-value"/>
-                        </VBox>
-
-                        <!-- ROW 2 — Gestor + Valor cartera -->
-                        <VBox spacing="4" GridPane.columnIndex="0" GridPane.rowIndex="2">
-                            <Label text="GESTOR" styleClass="cp-field-label"/>
-                            <Label fx:id="labelGestor" styleClass="cp-field-value"/>
-                        </VBox>
-
-                        <VBox spacing="4" GridPane.columnIndex="1" GridPane.rowIndex="2"
-                              GridPane.columnSpan="2">
-                            <Label text="VALOR CARTERA" styleClass="cp-field-label"/>
-                            <Label fx:id="labelValorCartera" styleClass="cp-field-value-accent"/>
-                        </VBox>
-
-                        <!-- ROW 3 — Rentabilidad -->
-                        <VBox spacing="4" GridPane.columnIndex="0" GridPane.rowIndex="3"
-                              GridPane.columnSpan="2">
-                            <Label text="RENTABILIDAD" styleClass="cp-field-label"/>
-                            <Label fx:id="labelRentabilidad" styleClass="cp-field-value-positive"/>
-                        </VBox>
-
-                    </GridPane>
-
-                    <!-- PIE CHART -->
-                    <VBox styleClass="cp-pie-card" prefWidth="400">
-                        <children>
-                            <Label text="DISTRIBUCIÓN POR FONDOS" styleClass="cp-pie-title"/>
-                            <PieChart fx:id="portfolioPieChart"
-                                      styleClass="cp-pie-chart"
-                                      labelsVisible="false"
-                                      legendVisible="true"
-                                      legendSide="BOTTOM"
-                                      prefHeight="260"
-                                      prefWidth="360"
-                                      VBox.vgrow="ALWAYS"/>
-                        </children>
                     </VBox>
 
-                </children>
-            </HBox>
+                </VBox>
 
-            <!-- ══════════════════════════════════════════
-                 TABLA — Inversiones / Transacciones
-            ═══════════════════════════════════════════ -->
-            <VBox styleClass="cp-data-card" VBox.vgrow="ALWAYS" spacing="12">
-                <children>
-                    <Label text="INVERSIONES" styleClass="cp-pie-title"/>
-                    <TableView fx:id="inversionesTable"
-                               styleClass="cp-table"
-                               VBox.vgrow="ALWAYS">
-                        <columnResizePolicy>
-                            <TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
-                        </columnResizePolicy>
-                        <columns>
-                            <TableColumn fx:id="colFund"            text="Fondo"/>
-                            <TableColumn fx:id="colTypeTransaction"  text="Tipo"           prefWidth="100"/>
-                            <TableColumn fx:id="colAmountTransaction" text="Importe"        prefWidth="130"/>
-                            <TableColumn fx:id="colTotalPosition"   text="Total Posición"  prefWidth="150"/>
-                        </columns>
-                        <placeholder>
-                            <Label text="Sin inversiones registradas" styleClass="cp-field-label"/>
-                        </placeholder>
-                    </TableView>
-                </children>
-            </VBox>
+            </left>
 
-        </VBox>
+            <!-- =========================
+                 RIGHT (MAIN DASHBOARD)
+            ========================== -->
+            <center>
+
+                <VBox spacing="14"
+                      styleClass="cliente-right-panel"
+                      prefWidth="1200">
+
+                    <padding>
+                        <Insets top="16" right="16" bottom="16" left="16"/>
+                    </padding>
+
+                    <!-- ===== TOP: KPIs + PIE ===== -->
+                    <HBox spacing="20">
+
+                        <!-- KPIs -->
+                        <VBox spacing="8" prefWidth="300">
+
+                            <Label fx:id="labelGestor"/>
+                            <Label fx:id="labelValorCartera"/>
+                            <Label fx:id="labelRentabilidad"/>
+
+                        </VBox>
+
+                        <!-- PIE CHART -->
+                        <VBox VBox.vgrow="ALWAYS">
+
+                            <Label text="Distribución cartera"/>
+                            <PieChart fx:id="portfolioPieChart"
+                                      prefHeight="220"/>
+
+                        </VBox>
+
+                    </HBox>
+
+                    <Separator/>
+
+                    <!-- ===== BOTTOM: TABLES ===== -->
+                    <VBox spacing="16" VBox.vgrow="ALWAYS">
+
+                        <!-- POSICIONES -->
+                        <VBox spacing="6" VBox.vgrow="ALWAYS">
+
+                            <Label text="📊 Posiciones"/>
+
+                            <TableView fx:id="posicionesTable"
+                                       VBox.vgrow="ALWAYS">
+
+                                <columnResizePolicy>
+                                    <TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
+                                </columnResizePolicy>
+
+                                <columns>
+                                    <TableColumn fx:id="colPosFund" text="Fondo"/>
+                                    <TableColumn fx:id="colPosCantidad" text="Cantidad"/>
+                                    <TableColumn fx:id="colPosValor" text="Valor"/>
+                                    <TableColumn fx:id="colPosTotal" text="Total"/>
+                                </columns>
+
+                            </TableView>
+
+                        </VBox>
+
+                        <!-- TRANSACCIONES -->
+                        <VBox spacing="6" VBox.vgrow="ALWAYS">
+
+                            <Label text="💰 Transacciones"/>
+
+                            <TableView fx:id="inversionesTable"
+                                       VBox.vgrow="ALWAYS">
+
+                                <columnResizePolicy>
+                                    <TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
+                                </columnResizePolicy>
+
+                                <columns>
+                                    <TableColumn fx:id="colFund" text="Fondo"/>
+                                    <TableColumn fx:id="colTypeTransaction" text="Tipo"/>
+                                    <TableColumn fx:id="colAmountTransaction" text="Importe"/>
+                                </columns>
+
+                            </TableView>
+
+                        </VBox>
+
+                    </VBox>
+
+                </VBox>
+
+            </center>
+
+        </BorderPane>
+
+        <!-- =========================
+             OVERLAY
+        ========================== -->
+        <StackPane fx:id="overlayContainer"
+                   visible="false"
+                   managed="false"
+                   alignment="CENTER"
+                   style="-fx-background-color: rgba(0,0,0,0.45);"/>
 
     </children>
-</AnchorPane>
+
+</StackPane>

@@ -10,9 +10,9 @@ public interface GestorDAO {
 
     Gestor findById(int id);
 
-    void save(Gestor gestor);
+    void save(Gestor g);
 
-    void update(Gestor gestor);
+    void update(Gestor g);
 
     void delete(int id);
 }
