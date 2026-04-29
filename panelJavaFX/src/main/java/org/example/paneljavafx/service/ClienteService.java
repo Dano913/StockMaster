@@ -3,7 +3,7 @@ package org.example.paneljavafx.service;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import org.example.paneljavafx.dao.ClienteDAO;
-import org.example.paneljavafx.data.ClienteDataSource;
+import org.example.paneljavafx.dao.impl.ClienteImpl;
 import org.example.paneljavafx.model.Cliente;
 import org.example.paneljavafx.model.Gestor;
 import org.example.paneljavafx.model.Posicion;
@@ -18,7 +18,6 @@ public class ClienteService {
     // SINGLETON
     // =========================
     private static final ClienteService INSTANCE = new ClienteService();
-    private final GestorService gestorService = GestorService.getInstance();
 
     public static ClienteService getInstance() {
         return INSTANCE;
@@ -26,17 +25,25 @@ public class ClienteService {
 
     private ClienteService() {}
 
-    private final ClienteDataSource clienteDataSource = new ClienteDataSource();
-    private final ClienteDAO clienteDAO = new ClienteDAO();
+    // =========================
+    // DEPENDENCIAS
+    // =========================
+    private final ClienteDAO clienteDAO = new ClienteImpl();
+    private final GestorService gestorService = GestorService.getInstance();
+
+    // =========================
+    // CACHE UI (JavaFX)
+    // =========================
     private final ObservableList<Cliente> clientes = FXCollections.observableArrayList();
 
     // =========================
     // LOAD
     // =========================
     public void load() {
+
         List<Cliente> data = clienteDAO.findAll();
 
-        // 🔥 IMPORTANTE: evitar nulls en posiciones
+        // Evitar nulls en relaciones
         data.forEach(c -> {
             if (c.getPosiciones() == null) {
                 c.setPosiciones(Collections.emptyList());
@@ -44,8 +51,6 @@ public class ClienteService {
         });
 
         clientes.setAll(data);
-
-        clienteDataSource.printClientesDetallado(clientes);
     }
 
     // =========================
@@ -62,15 +67,47 @@ public class ClienteService {
                 .orElse(null);
     }
 
+    public long count() {
+        return clientes.size();
+    }
+
     // =========================
-    // POSICIONES
+    // SEARCH
+    // =========================
+    public List<Cliente> search(String query) {
+
+        if (query == null || query.isBlank()) {
+            return clientes;
+        }
+
+        String q = query.toLowerCase();
+
+        return clientes.stream()
+                .filter(c ->
+                        c.getNombre().toLowerCase().contains(q) ||
+                                c.getApellido().toLowerCase().contains(q) ||
+                                c.getEmail().toLowerCase().contains(q)
+                )
+                .toList();
+    }
+
+    public boolean existsEmail(String email) {
+        return clientes.stream()
+                .anyMatch(c -> c.getEmail().equalsIgnoreCase(email));
+    }
+
+    // =========================
+    // RELACIONES
     // =========================
     public List<Posicion> getPosicionesByClienteId(int clienteId) {
+
         return clientes.stream()
                 .filter(c -> c.getIdCliente() == clienteId)
                 .flatMap(c ->
-                        (c.getPosiciones() == null ? Collections.<Posicion>emptyList() : c.getPosiciones())
-                                .stream()
+                        (c.getPosiciones() == null
+                                ? Collections.<Posicion>emptyList()
+                                : c.getPosiciones()
+                        ).stream()
                 )
                 .toList();
     }
@@ -100,34 +137,38 @@ public class ClienteService {
         return clientes.stream()
                 .filter(c -> c.getIdCliente() == clientId)
                 .findFirst()
-                .map(c -> gestorService.getById(c.getIdGestor()))
+                .map(c -> c.getIdGestor() != null
+                        ? gestorService.getById(c.getIdGestor())
+                        : null
+                )
                 .orElse(null);
     }
 
-    public List<Cliente> search(String query) {
+    // =========================
+    // CRUD
+    // =========================
+    public void save(Cliente cliente) {
 
-        if (query == null || query.isBlank()) {
-            return clientes;
+        Cliente saved = clienteDAO.save(cliente);
+        clientes.add(saved);
+    }
+
+    public void update(Cliente cliente) {
+
+        clienteDAO.update(cliente);
+
+        for (int i = 0; i < clientes.size(); i++) {
+            if (clientes.get(i).getIdCliente() == cliente.getIdCliente()) {
+                clientes.set(i, cliente);
+                return;
+            }
         }
-
-        String q = query.toLowerCase();
-
-        return clientes.stream()
-                .filter(c ->
-                        c.getNombre().toLowerCase().contains(q) ||
-                                c.getApellido().toLowerCase().contains(q) ||
-                                c.getEmail().toLowerCase().contains(q)
-                )
-                .toList();
     }
 
-    public boolean existsEmail(String email) {
+    public void delete(int idCliente) {
 
-        return clientes.stream()
-                .anyMatch(c -> c.getEmail().equalsIgnoreCase(email));
-    }
+        clienteDAO.delete(idCliente);
 
-    public long count() {
-        return clientes.size();
+        clientes.removeIf(c -> c.getIdCliente() == idCliente);
     }
 }

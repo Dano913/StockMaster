@@ -10,102 +10,123 @@
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.StackPane?>
 
-<!--
-    cliente-view.fxml
-    CSS externo: trading-theme.css
-    Estructura: GridPane 2 columnas — lista izquierda / detalle derecha
--->
-<AnchorPane
-        prefHeight="900"
-        prefWidth="1900.0"
-        stylesheets="@trading-theme.css"
+<?import javafx.scene.control.Button?>
+<StackPane
         xmlns="http://javafx.com/javafx/17"
         xmlns:fx="http://javafx.com/fxml/1"
-        fx:controller="org.example.paneljavafx.controller.ClienteViewController">
+        fx:controller="org.example.paneljavafx.controller.ClienteViewController"
+        prefHeight="900"
+        prefWidth="1900"
+        stylesheets="@trading-theme.css">
 
     <children>
+        <!-- =========================
+             MAIN UI
+        ========================== -->
+        <AnchorPane>
+            <children>
+                <GridPane
+                        styleClass="cliente-grid"
+                        hgap="16"
+                        AnchorPane.topAnchor="0"
+                        AnchorPane.bottomAnchor="0"
+                        AnchorPane.leftAnchor="0"
+                        AnchorPane.rightAnchor="0">
 
-        <GridPane
-                styleClass="cliente-grid"
-                hgap="16"
-                AnchorPane.topAnchor="0"
-                AnchorPane.bottomAnchor="0"
-                AnchorPane.leftAnchor="0"
-                AnchorPane.rightAnchor="0">
+                    <columnConstraints>
+                        <ColumnConstraints hgrow="ALWAYS" percentWidth="50"/>
+                        <ColumnConstraints hgrow="ALWAYS" percentWidth="50"/>
+                    </columnConstraints>
 
-            <columnConstraints>
-                <ColumnConstraints hgrow="ALWAYS" percentWidth="50"/>
-                <ColumnConstraints hgrow="ALWAYS" percentWidth="50"/>
-            </columnConstraints>
+                    <rowConstraints>
+                        <RowConstraints vgrow="ALWAYS"/>
+                    </rowConstraints>
 
-            <rowConstraints>
-                <RowConstraints vgrow="ALWAYS"/>
-            </rowConstraints>
+                    <!-- ═══════════════════════════════════════
+                         PANEL IZQUIERDO — Lista de clientes
+                    ════════════════════════════════════════ -->
+                    <VBox styleClass="cliente-left-panel"
+                          GridPane.columnIndex="0"
+                          GridPane.rowIndex="0">
 
-            <!-- ═══════════════════════════════════════
-                 PANEL IZQUIERDO — Lista de clientes
-            ════════════════════════════════════════ -->
-            <VBox styleClass="cliente-left-panel"
-                  GridPane.columnIndex="0"
-                  GridPane.rowIndex="0">
+                        <!-- Cabecera -->
+                        <Label text="CLIENTES"
+                               styleClass="cliente-panel-title"/>
+                        <Button text="Añadir Cliente" onAction="#openAddCliente"/>
 
-                <!-- Cabecera -->
-                <Label text="CLIENTES"
-                       styleClass="cliente-panel-title"/>
 
-                <!-- Búsqueda -->
-                <TextField fx:id="searchField"
-                           styleClass="cliente-search"
-                           promptText="Buscar por nombre, email..."/>
+                        <!-- Búsqueda -->
+                        <TextField fx:id="searchField"
+                                   styleClass="cliente-search"
+                                   promptText="Buscar por nombre, email..."/>
 
-                <!-- Tabla -->
-                <TableView fx:id="clientsTable"
-                           styleClass="cliente-table"
-                           VBox.vgrow="ALWAYS">
-                    <columnResizePolicy>
-                        <TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
-                    </columnResizePolicy>
-                    <VBox.margin>
-                        <Insets top="4" left="4" right="4" bottom="4"/>
-                    </VBox.margin>
-                    <columns>
-                        <TableColumn fx:id="colName"
-                                     text="Nombre Completo"
-                                     prefWidth="300"/>
-                        <TableColumn fx:id="colEmail"
-                                     text="Email"
-                                     prefWidth="250"/>
-                    </columns>
-                    <placeholder>
-                        <Label text="Sin clientes" styleClass="kpi-label"/>
-                    </placeholder>
-                </TableView>
+                        <!-- Tabla -->
+                        <TableView fx:id="clientsTable"
+                                   styleClass="cliente-table"
+                                   VBox.vgrow="ALWAYS">
+                            <columnResizePolicy>
+                                <TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
+                            </columnResizePolicy>
+                            <VBox.margin>
+                                <Insets top="4" left="4" right="4" bottom="4"/>
+                            </VBox.margin>
+                            <columns>
+                                <TableColumn fx:id="colActions"
+                                             text="Acciones"
+                                             prefWidth="120"/>
+                                <TableColumn fx:id="colName"
+                                             text="Nombre Completo"
+                                             prefWidth="300"/>
+                                <TableColumn fx:id="colEmail"
+                                             text="Email"
+                                             prefWidth="250"/>
+                            </columns>
+                            <placeholder>
+                                <Label text="Sin clientes" styleClass="kpi-label"/>
+                            </placeholder>
+                        </TableView>
 
-            </VBox>
+                    </VBox>
 
-            <!-- ═══════════════════════════════════════
-                 PANEL DERECHO — Detalle del cliente
-            ════════════════════════════════════════ -->
-            <VBox fx:id="clienteDetailContainer"
-                  styleClass="cliente-right-panel"
-                  GridPane.columnIndex="1"
-                  GridPane.rowIndex="0">
+                    <!-- ═══════════════════════════════════════
+                         PANEL DERECHO — Detalle del cliente
+                    ════════════════════════════════════════ -->
+                    <VBox fx:id="clienteDetailContainer"
+                          styleClass="cliente-right-panel"
+                          GridPane.columnIndex="1"
+                          GridPane.rowIndex="0">
 
-                <!-- Estado vacío por defecto -->
-                <VBox styleClass="cliente-detail-empty"
-                      VBox.vgrow="ALWAYS"
-                      alignment="CENTER">
-                    <children>
-                        <Label text="👤" styleClass="cliente-empty-icon"/>
-                        <Label text="Selecciona un cliente para ver su detalle"
-                               styleClass="cliente-empty-text"/>
-                    </children>
-                </VBox>
+                        <!-- Estado vacío por defecto -->
+                        <VBox styleClass="cliente-detail-empty"
+                              VBox.vgrow="ALWAYS"
+                              alignment="CENTER">
+                            <children>
+                                <Label text="👤" styleClass="cliente-empty-icon"/>
+                                <Label text="Selecciona un cliente para ver su detalle"
+                                       styleClass="cliente-empty-text"/>
+                            </children>
+                        </VBox>
+                    </VBox>
+                </GridPane>
+            </children>
+        </AnchorPane>
+        <!-- =========================
+                     OVERLAY CENTRADO
+                ========================== -->
+        <VBox fx:id="overlayContainer"
+              visible="false"
+              managed="false"
+              alignment="CENTER"
+              spacing="10"
+              style="-fx-background-color: rgba(0,0,0,0.4);">
 
-            </VBox>
+            <!-- aquí se inyecta el formulario -->
+            <VBox alignment="CENTER"/>
 
-        </GridPane>
+        </VBox>
 
     </children>
-</AnchorPane>
+
+</StackPane>

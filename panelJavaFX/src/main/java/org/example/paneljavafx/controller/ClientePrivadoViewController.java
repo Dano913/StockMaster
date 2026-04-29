@@ -72,7 +72,7 @@ public class ClientePrivadoViewController {
         labelEmail.setText(selected.getEmail());
         labelDni.setText(selected.getDni());
         labelPais.setText(selected.getPais());
-        labelFechaAlta.setText(selected.getFechaAlta());
+        labelFechaAlta.setText(String.valueOf(selected.getFechaAlta()));
 
         // =========================
         // GESTOR

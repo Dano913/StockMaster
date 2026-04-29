@@ -1,29 +1,53 @@
 package org.example.paneljavafx.controller;
 
 import javafx.beans.property.SimpleStringProperty;
-import javafx.collections.FXCollections;
 import javafx.collections.transformation.FilteredList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.control.*;
+import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import org.example.paneljavafx.model.Cliente;
 import org.example.paneljavafx.service.ClienteService;
 
 public class ClienteViewController {
 
+    // =========================
+    // SERVICE
+    // =========================
+    private final ClienteService clienteService = ClienteService.getInstance();
+
+    // =========================
+    // TABLE UI
+    // =========================
     @FXML private TableView<Cliente> clientsTable;
     @FXML private TableColumn<Cliente, String> colName;
     @FXML private TableColumn<Cliente, String> colEmail;
+    @FXML private TableColumn<Cliente, Void> colActions;
 
     @FXML private TextField searchField;
+    @FXML private Label titleLabel;
 
-    // contenedor donde se inserta la vista del cliente privado
-    @FXML private javafx.scene.layout.VBox clienteDetailContainer;
+    // =========================
+    // DETAIL PANEL
+    // =========================
+    @FXML private VBox clienteDetailContainer;
 
-    private final ClienteService clienteService = ClienteService.getInstance();
+    // =========================
+    // OVERLAY (FORMULARIO)
+    // =========================
+    @FXML private StackPane rootContainer;
+    @FXML private VBox overlayContainer;
+
+    // =========================
+    // STATE
+    // =========================
     private FilteredList<Cliente> filteredClientes;
 
+    // =========================
+    // INIT
+    // =========================
     @FXML
     public void initialize() {
 
@@ -31,10 +55,13 @@ public class ClienteViewController {
 
         setupClientsTable();
         setupSearch();
+
+        overlayContainer.setVisible(false);
+        overlayContainer.setManaged(false);
     }
 
     // =========================
-    // CLIENTES TABLE
+    // TABLE
     // =========================
     private void setupClientsTable() {
 
@@ -48,9 +75,29 @@ public class ClienteViewController {
                 new SimpleStringProperty(d.getValue().getEmail())
         );
 
+        // 🔹 COLUMNA ACCIONES
+        colActions.setCellFactory(param -> new TableCell<>() {
+
+            private final Button btn = new Button("Ver");
+
+            {
+                btn.setOnAction(event -> {
+                    Cliente cliente = getTableView().getItems().get(getIndex());
+                    openEditCliente(cliente);
+                });
+            }
+
+            @Override
+            protected void updateItem(Void item, boolean empty) {
+                super.updateItem(item, empty);
+                setGraphic(empty ? null : btn);
+            }
+        });
+
         filteredClientes = new FilteredList<>(clienteService.getAll());
         clientsTable.setItems(filteredClientes);
 
+        // 🔹 PANEL DERECHO (detalle)
         clientsTable.getSelectionModel()
                 .selectedItemProperty()
                 .addListener((obs, oldVal, selected) -> {
@@ -71,7 +118,6 @@ public class ClienteViewController {
 
                         controller.loadCliente(selected);
 
-                        // insertamos la vista en el panel derecho
                         clienteDetailContainer.getChildren().setAll(view);
 
                     } catch (Exception e) {
@@ -98,5 +144,71 @@ public class ClienteViewController {
                         || c.getEmail().toLowerCase().contains(filter);
             });
         });
+    }
+
+    // =========================
+    // OPEN FORM (CREAR)
+    // =========================
+    @FXML
+    private void openAddCliente() {
+
+        try {
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/org/example/paneljavafx/add-cliente-view.fxml")
+            );
+
+            Parent form = loader.load();
+
+            AddClienteController controller = loader.getController();
+            controller.init(null, this); // 👈 clave
+
+            overlayContainer.getChildren().setAll(form);
+            overlayContainer.setVisible(true);
+            overlayContainer.setManaged(true);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    // =========================
+    // OPEN FORM (EDITAR)
+    // =========================
+    private void openEditCliente(Cliente cliente) {
+
+        try {
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/org/example/paneljavafx/add-cliente-view.fxml")
+            );
+
+            Parent form = loader.load();
+
+            AddClienteController controller = loader.getController();
+            controller.init(cliente, this); // 👈 clave
+
+            overlayContainer.getChildren().setAll(form);
+            overlayContainer.setVisible(true);
+            overlayContainer.setManaged(true);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    // =========================
+    // REFRESH
+    // =========================
+    public void refreshTable() {
+        clientsTable.refresh();
+    }
+
+    // =========================
+    // CLOSE OVERLAY
+    // =========================
+    public void closeAddClienteForm() {
+
+        overlayContainer.getChildren().clear();
+        overlayContainer.setVisible(false);
+        overlayContainer.setManaged(false);
     }
 }
