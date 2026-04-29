@@ -6,6 +6,7 @@ module org.example.paneljavafx {
     requires static lombok;
     requires com.google.gson;
     requires jdk.compiler;
+    requires java.sql;
 
     opens org.example.paneljavafx to javafx.fxml;
     exports org.example.paneljavafx;
