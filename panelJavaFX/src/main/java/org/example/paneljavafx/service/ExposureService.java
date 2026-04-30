@@ -1,57 +1,50 @@
 package org.example.paneljavafx.service;
 
-import org.example.paneljavafx.model.FundPosition;
+import org.example.paneljavafx.model.FundAssetPosition;
 
 import java.util.List;
 
 public class ExposureService {
 
+    // ========================= INSTANCE =========================
     private final FundService fundService = FundService.getInstance();
 
-    // -------------------------
-    // FILTRAR POR ASSET
-    // -------------------------
-    public List<FundPosition> filterByAsset(
-            List<FundPosition> positions,
+    // ========================= GET EXPOSURE BY ASSET =========================
+    public List<FundAssetPosition> filterByAsset(
+            List<FundAssetPosition> positions,
             String assetId
     ) {
         if (positions == null || assetId == null) return List.of();
 
         return positions.stream()
-                .filter(FundPosition::isValid)
+                .filter(FundAssetPosition::isValid)
                 .filter(p -> assetId.equals(p.getIdAsset()))
                 .toList();
     }
 
-    // -------------------------
-    // EXPOSICIÓN TOTAL
-    // -------------------------
-    public double calculateTotalExposure(List<FundPosition> positions) {
+    // ========================= GET TOTAL EXPOSURE  =========================
+    public double calculateTotalExposure(List<FundAssetPosition> positions) {
         if (positions == null || positions.isEmpty()) return 0;
 
         return fundService.calculateTotalNAV(positions);
     }
 
-    // -------------------------
-    // EXPOSICIÓN POR ASSET
-    // -------------------------
+    // ========================= GET EXPOSURE BY ASSET =========================
     public double calculateExposureByAsset(
-            List<FundPosition> positions,
+            List<FundAssetPosition> positions,
             String assetId
     ) {
         return fundService.calculateTotalNAV(filterByAsset(positions, assetId));
     }
 
-    // -------------------------
-    // FONDOS EXPUESTOS
-    // -------------------------
+    // ========================= DATA =========================
     public long countFundsExposedToAsset(
-            List<FundPosition> positions,
+            List<FundAssetPosition> positions,
             String assetId
     ) {
         return filterByAsset(positions, assetId)
                 .stream()
-                .map(FundPosition::getIdFund)
+                .map(FundAssetPosition::getIdFund)
                 .distinct()
                 .count();
     }
@@ -60,7 +53,7 @@ public class ExposureService {
     // PESO GLOBAL
     // -------------------------
     public double calculateGlobalAssetWeight(
-            List<FundPosition> positions,
+            List<FundAssetPosition> positions,
             String assetId
     ) {
         double total = calculateTotalExposure(positions);

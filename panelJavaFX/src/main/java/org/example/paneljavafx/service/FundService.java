@@ -3,7 +3,7 @@ package org.example.paneljavafx.service;
 import org.example.paneljavafx.dao.FundDAO;
 import org.example.paneljavafx.dao.impl.FundImpl;
 import org.example.paneljavafx.model.Fund;
-import org.example.paneljavafx.model.FundPosition;
+import org.example.paneljavafx.model.FundAssetPosition;
 import org.example.paneljavafx.service.dto.FundMetrics;
 
 import java.util.ArrayList;
@@ -12,71 +12,53 @@ import java.util.List;
 
 public class FundService {
 
-    // =========================
-    // SINGLETON
-    // =========================
+    // ========================= SINGLETON =========================
     private static final FundService INSTANCE = new FundService();
-
     public static FundService getInstance() { return INSTANCE; }
-
     private FundService() {}
 
-    // =========================
-    // DEPENDENCIES
-    // =========================
-    private final FundDAO           fundDAO         = new FundImpl();          // ← sustituye FundDataSource
-    private final MarketService     marketService   = MarketService.getInstance();
+    // ========================= DAO =========================
+    private final FundDAO fundDAO = new FundImpl();
+
+    // ========================= INSTANCE =========================
+    private final MarketService marketService = MarketService.getInstance();
     private final FundPositionService positionService = FundPositionService.getInstance();
 
-    // =========================
-    // STATE
-    // =========================
-    public final List<Fund> funds  = new ArrayList<>();
-    private boolean         loaded = false;
+    // ========================= CACHE =========================
+    public final List<Fund> funds = new ArrayList<>();
+    private boolean loaded = false;
 
-    // =========================
-    // LOAD
-    // =========================
+    // ========================= LOAD =========================
     public void load() {
         if (loaded) return;
         loaded = true;
 
         funds.clear();
-        funds.addAll(fundDAO.findAll());   // ← BD en lugar de JSON
+        funds.addAll(fundDAO.findAll());
     }
 
-    // =========================
-    // GET ALL
-    // =========================
+    // ========================= GET FUND =========================
     public List<Fund> getAll() { return funds; }
 
-    // =========================
-    // GET BY ID
-    // =========================
     public Fund getById(String id) {
         return funds.stream()
-                .filter(f -> f.getIdFondo().equals(id))
+                .filter(f -> f.getFundId().equals(id))
                 .findFirst()
                 .orElse(null);
     }
 
-    // =========================
-    // POSITIONS BY FUND
-    // =========================
-    public List<FundPosition> getPositionsByFund(List<FundPosition> all, String fundId) {
+    // ========================= GET POSITION =========================
+
+    public List<FundAssetPosition> getPositionsByFund(List<FundAssetPosition> all, String fundId) {
         return positionService.getByFundId(all, fundId);
     }
 
-    // =========================
-    // NAV TOTAL
-    // =========================
-    public double calculateTotalNAV(List<FundPosition> positions) {
+    // ========================= GET NAV =========================
+    public double calculateTotalNAV(List<FundAssetPosition> positions) {
         return positionService.calculateNAV(positions);
     }
 
-    // =========================
-    // POSITION SUMMARY
-    // =========================
+    // ========================= POSITION SUMMARY =========================
     public record PositionSummary(
             String idAsset,
             double valorActual,
@@ -87,13 +69,14 @@ public class FundService {
             double pesoPorcentual
     ) {}
 
-    public List<PositionSummary> getSummaryByFund(List<FundPosition> positions) {
+    // ========================= GET SUMMARY =========================
+    public List<PositionSummary> getSummaryByFund(List<FundAssetPosition> positions) {
         if (positions == null) return List.of();
 
         double navTotal = calculateTotalNAV(positions);
 
         return positions.stream()
-                .filter(FundPosition::isValid)
+                .filter(FundAssetPosition::isValid)
                 .map(pos -> {
                     double price      = marketService.getPrice(pos.getIdAsset());
                     double valorActual = pos.getQuantity() * price;
@@ -111,16 +94,14 @@ public class FundService {
                 .toList();
     }
 
-    // =========================
-    // METRICS
-    // =========================
-    public FundMetrics calculateMetrics(Fund fund, List<FundPosition> positions, double previousValue) {
+    // ========================= METRICS =========================
+    public FundMetrics calculateMetrics(Fund fund, List<FundAssetPosition> positions, double previousValue) {
         if (positions == null || positions.isEmpty())
             return new FundMetrics(0, 0, 0, List.of());
 
         double totalValue  = calculateTotalNAV(positions);
         double totalChange = positions.stream()
-                .filter(FundPosition::isValid)
+                .filter(FundAssetPosition::isValid)
                 .mapToDouble(p -> {
                     double price        = marketService.getPrice(p.getIdAsset());
                     double currentValue = p.getQuantity() * price;
@@ -129,7 +110,7 @@ public class FundService {
                 .sum();
 
         List<String> topMovers = new ArrayList<>();
-        for (FundPosition pos : positionService.getTopByMovement(positions, 5)) {
+        for (FundAssetPosition pos : positionService.getTopByMovement(positions, 5)) {
             double price     = marketService.getPrice(pos.getIdAsset());
             double value     = pos.getQuantity() * price;
             double returnPct = pos.getInvestedValue() > 0

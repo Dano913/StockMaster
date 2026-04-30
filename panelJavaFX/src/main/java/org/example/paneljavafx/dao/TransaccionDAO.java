@@ -1,15 +1,12 @@
 package org.example.paneljavafx.dao;
 
-import org.example.paneljavafx.model.Transaccion;
+import org.example.paneljavafx.model.Transaction;
 
 import java.util.List;
 
 public interface TransaccionDAO {
 
-    List<Transaccion> findByPosicionId(int posicionId);
+    Transaction save(Transaction transaction);
 
-    List<Transaccion> findByClienteId(int clienteId);
-
-    Transaccion save(int posicionId, Transaccion transaccion);
-
+    List<Transaction> findByPositionId(int positionId);
 }

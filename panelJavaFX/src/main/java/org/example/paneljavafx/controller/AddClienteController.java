@@ -4,8 +4,8 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
-import org.example.paneljavafx.model.Cliente;
-import org.example.paneljavafx.service.ClienteService;
+import org.example.paneljavafx.model.Client;
+import org.example.paneljavafx.service.ClientService;
 
 public class AddClienteController {
 
@@ -24,15 +24,15 @@ public class AddClienteController {
     // =========================
     // STATE
     // =========================
-    private Cliente clienteActual;
+    private Client clienteActual;
     private ClienteViewController parent;
 
-    private final ClienteService clienteService = ClienteService.getInstance();
+    private final ClientService clienteService = ClientService.getInstance();
 
     // =========================
     // INIT (ÚNICO PUNTO DE ENTRADA)
     // =========================
-    public void init(Cliente cliente, ClienteViewController parent) {
+    public void init(Client cliente, ClienteViewController parent) {
         this.parent = parent;
         this.clienteActual = cliente;
 
@@ -51,16 +51,16 @@ public class AddClienteController {
         deleteButton.setVisible(false);
     }
 
-    private void setupEditMode(Cliente cliente) {
+    private void setupEditMode(Client cliente) {
 
         titleLabel.setText("Editar Cliente");
         deleteButton.setVisible(true);
 
-        nombreField.setText(cliente.getNombre());
-        apellidoField.setText(cliente.getApellido());
+        nombreField.setText(cliente.getName());
+        apellidoField.setText(cliente.getSurname());
         emailField.setText(cliente.getEmail());
-        dniField.setText(cliente.getDni());
-        paisField.setText(cliente.getPais());
+        dniField.setText(cliente.getNationalId());
+        paisField.setText(cliente.getCountry());
     }
 
     // =========================
@@ -71,7 +71,7 @@ public class AddClienteController {
 
         if (clienteActual == null) {
             // CREAR
-            Cliente nuevo = new Cliente();
+            Client nuevo = new Client();
             fillCliente(nuevo);
             clienteService.save(nuevo);
 
@@ -89,7 +89,7 @@ public class AddClienteController {
     private void deleteCliente() {
 
         if (clienteActual != null) {
-            clienteService.delete(clienteActual.getIdCliente());
+            clienteService.delete(clienteActual.getClientId());
             parent.refreshTable();
             parent.closeAddClienteForm();
         }
@@ -103,11 +103,11 @@ public class AddClienteController {
     // =========================
     // UTIL
     // =========================
-    private void fillCliente(Cliente c) {
-        c.setNombre(nombreField.getText());
-        c.setApellido(apellidoField.getText());
+    private void fillCliente(Client c) {
+        c.setName(nombreField.getText());
+        c.setSurname(apellidoField.getText());
         c.setEmail(emailField.getText());
-        c.setDni(dniField.getText());
-        c.setPais(paisField.getText());
+        c.setNationalId(dniField.getText());
+        c.setCountry(paisField.getText());
     }
 }

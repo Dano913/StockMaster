@@ -7,25 +7,26 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+
 public class Gestor {
 
-    public enum PerfilRiesgo {
+    public enum RiskProfile {
         CONSERVADOR,
         MODERADO,
         AGRESIVO
     }
 
-    private int idGestor;
-    private int idEmpresa;
-    private int idFondo;
+    private int gestorId;
+    private int companyId;
+    private int fundId;
+    private int yearsOfExperience;
 
-    private String dni;
-    private String nombre;
-    private String apellidos;
-
-    private int aniosExperiencia;
-    private PerfilRiesgo perfilRiesgo;
+    private String name;
+    private String surname;
+    private String nationalId;
 
     private String email;
-    private String telefono;
+    private String phone;
+
+    private RiskProfile riskProfile;
 }

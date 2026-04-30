@@ -13,10 +13,10 @@ public class CandleImpl implements CandleDAO {
 
     @Override
     public void save(Candle candle) {
+
         String sql = """
-            INSERT INTO candle (
-                timestamp, open, high, low, close
-            ) VALUES (?, ?, ?, ?, ?)
+            INSERT INTO candle (timestamp, open, high, low, close)
+            VALUES (?, ?, ?, ?, ?)
         """;
 
         try (Connection conn = DatabaseConnection.getConnection();
@@ -31,12 +31,13 @@ public class CandleImpl implements CandleDAO {
             stmt.executeUpdate();
 
         } catch (SQLException e) {
-            throw new RuntimeException("Error insertando Candle", e);
+            throw new RuntimeException("Error inserting Candle", e);
         }
     }
 
     @Override
     public List<Candle> findAll() {
+
         List<Candle> list = new ArrayList<>();
 
         String sql = "SELECT * FROM candle ORDER BY timestamp ASC";
@@ -50,14 +51,15 @@ public class CandleImpl implements CandleDAO {
             }
 
         } catch (SQLException e) {
-            throw new RuntimeException("Error leyendo candles", e);
+            throw new RuntimeException("Error reading candles", e);
         }
 
         return list;
     }
 
     @Override
-    public Optional<Candle> findByTimestamp(long timestamp) {
+    public Optional<Candle> findById(long timestamp) {
+
         String sql = "SELECT * FROM candle WHERE timestamp = ?";
 
         try (Connection conn = DatabaseConnection.getConnection();
@@ -65,10 +67,10 @@ public class CandleImpl implements CandleDAO {
 
             stmt.setLong(1, timestamp);
 
-            ResultSet rs = stmt.executeQuery();
-
-            if (rs.next()) {
-                return Optional.of(map(rs));
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return Optional.of(map(rs));
+                }
             }
 
         } catch (SQLException e) {
@@ -79,10 +81,11 @@ public class CandleImpl implements CandleDAO {
     }
 
     @Override
-    public boolean update(long timestamp, Candle candle) {
+    public boolean update(Candle candle) {
+
         String sql = """
-            UPDATE candle SET
-                open=?, high=?, low=?, close=?
+            UPDATE candle
+            SET open=?, high=?, low=?, close=?
             WHERE timestamp=?
         """;
 
@@ -93,7 +96,7 @@ public class CandleImpl implements CandleDAO {
             stmt.setDouble(2, candle.getHigh());
             stmt.setDouble(3, candle.getLow());
             stmt.setDouble(4, candle.getClose());
-            stmt.setLong(5, timestamp);
+            stmt.setLong(5, candle.getTimestamp());
 
             return stmt.executeUpdate() > 0;
 
@@ -103,7 +106,8 @@ public class CandleImpl implements CandleDAO {
     }
 
     @Override
-    public boolean delete(long timestamp) {
+    public boolean deleteById(long timestamp) {
+
         String sql = "DELETE FROM candle WHERE timestamp=?";
 
         try (Connection conn = DatabaseConnection.getConnection();

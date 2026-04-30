@@ -6,11 +6,11 @@ import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.layout.AnchorPane;
 
-import org.example.paneljavafx.dao.FundPositionDAO;
+import org.example.paneljavafx.dao.FundAssetPositionDAO;
 import org.example.paneljavafx.dao.impl.FundPositionImpl;
 import org.example.paneljavafx.model.Asset;
 import org.example.paneljavafx.model.Fund;
-import org.example.paneljavafx.model.FundPosition;
+import org.example.paneljavafx.model.FundAssetPosition;
 import org.example.paneljavafx.service.AssetService;
 import org.example.paneljavafx.service.FundService;
 
@@ -27,11 +27,11 @@ public class AdminViewController {
     @FXML private TabPane fundTabPane;
     @FXML private TabPane assetTabPane;
 
-    private List<FundPosition> cachedPositions;
+    private List<FundAssetPosition> cachedPositions;
 
     private final FundService        fundService        = FundService.getInstance();
     private final AssetService       assetService       = AssetService.getInstance();
-    private final FundPositionDAO    fundPositionDAO    = new FundPositionImpl(); // ← sustituye FundPositionDataSource
+    private final FundAssetPositionDAO fundPositionDAO    = new FundPositionImpl(); // ← sustituye FundPositionDataSource
 
     @FXML
     public void initialize() {
@@ -77,13 +77,13 @@ public class AdminViewController {
 
             FundViewController controller = loader.getController();
 
-            List<FundPosition> fundSpecificPositions =
-                    fundService.getPositionsByFund(cachedPositions, fund.getIdFondo());
+            List<FundAssetPosition> fundSpecificPositions =
+                    fundService.getPositionsByFund(cachedPositions, fund.getFundId());
 
             controller.loadData(fund);
             controller.loadPositions(fundSpecificPositions);
 
-            Tab tab = new Tab(fund.getNombre());
+            Tab tab = new Tab(fund.getName());
             tab.setContent(view);
             tab.setClosable(true);
 

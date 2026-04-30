@@ -29,12 +29,12 @@ public class ClientePrivadoViewController {
     @FXML private Label labelRentabilidad;
 
     // ========================= TABLAS =========================
-    @FXML private TableView<Posicion> posicionesTable;
+    @FXML private TableView<ClientFundPosition> posicionesTable;
 
-    @FXML private TableColumn<Posicion, String> colPosFund;
-    @FXML private TableColumn<Posicion, Double> colPosCantidad;
-    @FXML private TableColumn<Posicion, Double> colPosValor;
-    @FXML private TableColumn<Posicion, Double> colPosTotal;
+    @FXML private TableColumn<ClientFundPosition, String> colPosFund;
+    @FXML private TableColumn<ClientFundPosition, Double> colPosCantidad;
+    @FXML private TableColumn<ClientFundPosition, Double> colPosValor;
+    @FXML private TableColumn<ClientFundPosition, Double> colPosTotal;
 
     @FXML private TableView<TransactionRowView> inversionesTable;
 
@@ -47,12 +47,13 @@ public class ClientePrivadoViewController {
     @FXML private StackPane overlayContainer;
 
     // ========================= SERVICES =========================
-    private final ClienteService clienteService = ClienteService.getInstance();
+    private final ClientService clientService = ClientService.getInstance();
     private final FundService fundService = FundService.getInstance();
     private final GestorService gestorService = GestorService.getInstance();
+    private final TransactionService transactionService = TransactionService.getInstance();
 
     private Map<String, String> fundNames;
-    private Cliente currentCliente;
+    private Client currentClient;
 
     // ========================= INIT =========================
     @FXML
@@ -63,8 +64,8 @@ public class ClientePrivadoViewController {
 
         fundNames = fundService.getAll().stream()
                 .collect(Collectors.toMap(
-                        Fund::getIdFondo,
-                        Fund::getNombre,
+                        Fund::getFundId,
+                        Fund::getName,
                         (a, b) -> a
                 ));
 
@@ -77,22 +78,21 @@ public class ClientePrivadoViewController {
     }
 
     // ========================= LOAD CLIENTE =========================
-    public void loadCliente(Cliente selected) {
+    public void loadCliente(Client selected) {
 
         if (selected == null) return;
 
-        this.currentCliente = selected;
+        this.currentClient = selected;
 
-        labelIdCliente.setText(String.valueOf(selected.getIdCliente()));
-        labelNombre.setText(selected.getNombre() + " " + selected.getApellido());
+        labelIdCliente.setText(String.valueOf(selected.getClientId()));
+        labelNombre.setText(selected.getName() + " " + selected.getSurname());
         labelEmail.setText(selected.getEmail());
-        labelDni.setText(selected.getDni());
-        labelPais.setText(selected.getPais());
-        labelFechaAlta.setText(String.valueOf(selected.getFechaAlta()));
+        labelDni.setText(selected.getNationalId());
+        labelPais.setText(selected.getCountry());
+        labelFechaAlta.setText(String.valueOf(selected.getJoinDate()));
 
-        String gestor = Optional.ofNullable(
-                        gestorService.getById(selected.getIdGestor())
-                ).map(g -> g.getNombre() + " " + g.getApellidos())
+        String gestor = gestorService.getById(selected.getGestorId())
+                .map(g -> g.getName() + " " + g.getSurname())
                 .orElse("Sin gestor");
 
         labelGestor.setText(gestor);
@@ -101,28 +101,16 @@ public class ClientePrivadoViewController {
     }
 
     // ========================= REFRESH =========================
-    private void refreshData(Cliente selected) {
+    private void refreshData(Client selected) {
 
-        List<Posicion> posiciones =
-                clienteService.getPosicionesByClienteId(selected.getIdCliente());
+        List<ClientFundPosition> posiciones =
+                clientService.getPositionsByClientId(selected.getClientId());
 
         posicionesTable.setItems(FXCollections.observableArrayList(posiciones));
 
-        // ========================= CARTERA =========================
-        Map<String, Double> valueByFund = new HashMap<>();
-        double totalCartera = 0;
-
-        for (Posicion p : posiciones) {
-
-            double totalPosition = p.getValorActual();
-            totalCartera += totalPosition;
-
-            String fundName = fundNames.getOrDefault(p.getIdFondo(), p.getIdFondo());
-
-            valueByFund.merge(fundName, totalPosition, Double::sum);
-        }
-
-        updatePieChart(valueByFund, totalCartera);
+        double totalCartera = posiciones.stream()
+                .mapToDouble(ClientFundPosition::getActualValue)
+                .sum();
 
         labelValorCartera.setText(String.format("€%.2f", totalCartera));
 
@@ -135,7 +123,7 @@ public class ClientePrivadoViewController {
         inversionesTable.setItems(FXCollections.observableArrayList());
     }
 
-    // ========================= SELECCIÓN =========================
+    // ========================= POSICIONES =========================
     private void setupPosicionSelectionListener() {
 
         posicionesTable.getSelectionModel()
@@ -147,27 +135,31 @@ public class ClientePrivadoViewController {
                         return;
                     }
 
-                    loadTransacciones(selected);
+                    loadTransactions(selected);
                 });
     }
 
-    private void loadTransacciones(Posicion p) {
+    private void loadTransactions(ClientFundPosition position) {
 
-        String fundName = fundNames.getOrDefault(p.getIdFondo(), p.getIdFondo());
+        if (position == null || position.getPositionId() == null) return;
 
-        // 🔥 SIEMPRE desde BD (no cache)
-        List<Transaccion> transacciones =
-                TransactionService.getInstance().getTransacciones(p);
+        String fundName = fundNames.getOrDefault(
+                position.getFundId(),
+                position.getFundId()
+        );
+
+        List<Transaction> transacciones =
+                transactionService.getTransactions(position);
 
         List<TransactionRowView> rows = new ArrayList<>();
 
-        for (Transaccion t : transacciones) {
+        for (Transaction transaction : transacciones) {
 
             rows.add(new TransactionRowView(
                     fundName,
-                    t.getTipo(),
-                    t.getImporte(),
-                    p.getValorActual()
+                    transaction.getType(),
+                    transaction.getAmount(),
+                    position.getActualValue()
             ));
         }
 
@@ -179,20 +171,20 @@ public class ClientePrivadoViewController {
 
         colPosFund.setCellValueFactory(d ->
                 new javafx.beans.property.SimpleStringProperty(
-                        fundNames.getOrDefault(d.getValue().getIdFondo(), d.getValue().getIdFondo())
+                        fundNames.getOrDefault(d.getValue().getFundId(), d.getValue().getFundId())
                 )
         );
 
         colPosCantidad.setCellValueFactory(d ->
-                new javafx.beans.property.SimpleObjectProperty<>(d.getValue().getCantidad())
+                new javafx.beans.property.SimpleObjectProperty<>(d.getValue().getQuantity())
         );
 
         colPosValor.setCellValueFactory(d ->
-                new javafx.beans.property.SimpleObjectProperty<>(d.getValue().getValorActual())
+                new javafx.beans.property.SimpleObjectProperty<>(d.getValue().getActualValue())
         );
 
         colPosTotal.setCellValueFactory(d ->
-                new javafx.beans.property.SimpleObjectProperty<>(d.getValue().getValorActual())
+                new javafx.beans.property.SimpleObjectProperty<>(d.getValue().getActualValue())
         );
     }
 
@@ -253,11 +245,9 @@ public class ClientePrivadoViewController {
             Parent form = loader.load();
 
             AddPositionController controller = loader.getController();
-
             controller.setParent(this);
-            controller.setCliente(currentCliente);
+            controller.setCliente(currentClient);
             controller.setFunds(fundService.getAll());
-
             controller.initCreate();
 
             overlayContainer.getChildren().setAll(form);
@@ -279,13 +269,11 @@ public class ClientePrivadoViewController {
 
     public void reloadCliente() {
 
-        if (currentCliente == null) return;
+        if (currentClient == null) return;
 
-        // 🔥 recarga todo desde BD (importante)
-        clienteService.load();
+        clientService.load();
+        currentClient = clientService.getById(currentClient.getClientId());
 
-        currentCliente = clienteService.getById(currentCliente.getIdCliente());
-
-        loadCliente(currentCliente);
+        loadCliente(currentClient);
     }
 }

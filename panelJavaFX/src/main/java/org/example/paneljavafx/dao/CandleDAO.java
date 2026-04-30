@@ -11,9 +11,9 @@ public interface CandleDAO {
 
     List<Candle> findAll();
 
-    Optional<Candle> findByTimestamp(long timestamp);
+    Optional<Candle> findById(long timestamp);
 
-    boolean update(long timestamp, Candle candle);
+    boolean update(Candle candle);
 
-    boolean delete(long timestamp);
+    boolean deleteById(long timestamp);
 }

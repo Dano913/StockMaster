@@ -9,14 +9,15 @@ import java.util.List;
 
 public class ChartService {
 
-    // ===== STATE =====
+    // ========================= STATE =========================
     private double candleWidth = 8;
     private double scrollX = 0;
     private double priceZoom = 1.0;
 
+    // ========================= ENGINE =========================
     private MarketEngine activeEngine;
 
-    // ===== PUBLIC API =====
+    // ========================= PUBLIC API ====================
     public void setEngine(MarketEngine engine) {
         this.activeEngine = engine;
     }
@@ -158,6 +159,7 @@ public class ChartService {
         }
     }
 
+    // ========================= EXTRA =========================
     private double priceToY(double price, View v, double H, double padTop) {
         return padTop + H - ((price - v.priceMin) / v.priceRange) * H;
     }

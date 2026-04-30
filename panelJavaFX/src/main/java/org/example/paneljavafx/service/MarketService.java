@@ -11,33 +11,22 @@ import java.util.Map;
 
 public class MarketService {
 
-    // =========================
-    // SINGLETON
-    // =========================
+    // ========================= SINGLETON =========================
     private static final MarketService INSTANCE = new MarketService();
-
     public static MarketService getInstance() {
         return INSTANCE;
     }
-
     private MarketService() {}
 
-    // =========================
-    // DEPENDENCY
-    // =========================
+    // ========================= DEPENDENCY =========================
     private final MarketDataSource dataSource = new MarketDataSource();
 
-    // =========================
-    // STATE
-    // =========================
+    // ========================= CACHE =========================
     private final Map<String, MarketEngine> engines = new HashMap<>();
     private final List<Asset> assets = new java.util.ArrayList<>();
-
     private boolean initialized = false;
 
-    // =========================
-    // BOOTSTRAP
-    // =========================
+    // ========================= BOOTSTRAP MARKET =========================
     public void bootstrapMarket() {
 
         if (initialized) return;
@@ -64,37 +53,15 @@ public class MarketService {
         }
 
         clock.start();
-
-        //System.out.println("🚀 Market inicializado: " + engines.size() + " engines");
     }
 
-    // =========================
-    // GET ENGINE
-    // =========================
+    // ========================= GET =========================
     public MarketEngine getEngine(String assetId) {
         return engines.get(assetId);
     }
 
-    // =========================
-    // GET PRICE
-    // =========================
     public double getPrice(String assetId) {
         MarketEngine e = engines.get(assetId);
         return e != null ? e.getLastPrice() : 0;
-    }
-
-    // =========================
-    // GET CHANGE (%)
-    // =========================
-    public double getChange(String assetId) {
-        MarketEngine e = engines.get(assetId);
-        return e != null ? e.getChange() : 0;
-    }
-
-    // =========================
-    // GET ALL ASSETS
-    // =========================
-    public List<Asset> getAllAssets() {
-        return assets;
     }
 }

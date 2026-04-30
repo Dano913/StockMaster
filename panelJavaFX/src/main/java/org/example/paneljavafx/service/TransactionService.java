@@ -2,17 +2,16 @@ package org.example.paneljavafx.service;
 
 import org.example.paneljavafx.dao.TransaccionDAO;
 import org.example.paneljavafx.dao.impl.TransaccionImpl;
-import org.example.paneljavafx.model.Posicion;
-import org.example.paneljavafx.model.Transaccion;
+import org.example.paneljavafx.model.ClientFundPosition;
+import org.example.paneljavafx.model.Transaction;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class TransactionService {
 
+    // ========================= SINGLETON =========================
     private static TransactionService instance;
-
-    private final TransaccionDAO transaccionDAO = new TransaccionImpl();
 
     public static TransactionService getInstance() {
         if (instance == null) {
@@ -21,27 +20,35 @@ public class TransactionService {
         return instance;
     }
 
-    // ========================= ADD TRANSACTION =========================
-    public void addTransaction(Posicion posicion, Transaccion t) {
+    private final TransaccionDAO transaccionDAO = new TransaccionImpl();
 
-        if (posicion == null || t == null) return;
+    // ========================= ADD =========================
+    public Transaction addTransaction(int positionId, Transaction transaction) {
 
-        if (posicion.getTransacciones() == null) {
-            posicion.setTransacciones(new ArrayList<>());
-        }
+        if (transaction == null) return null;
 
-        // 1. memoria (UI)
-        posicion.getTransacciones().add(t);
+        transaction.setPositionId(positionId);
 
-        // 2. persistencia (BD) 🔥
-        transaccionDAO.save(posicion.getIdPosicion(), t);
+        return transaccionDAO.save(transaction);
     }
 
-    // ========================= LOAD FROM DB =========================
-    public List<Transaccion> getTransacciones(Posicion posicion) {
+    // ========================= OVERLOAD (OBJETO) =========================
+    public Transaction addTransaction(ClientFundPosition position, Transaction transaction) {
 
-        if (posicion == null) return new ArrayList<>();
+        if (position == null || transaction == null) return null;
 
-        return transaccionDAO.findByPosicionId(posicion.getIdPosicion());
+        transaction.setPositionId(position.getPositionId());
+
+        return transaccionDAO.save(transaction);
+    }
+
+    // ========================= GET =========================
+    public List<Transaction> getTransactions(ClientFundPosition position) {
+
+        if (position == null || position.getPositionId() == null) {
+            return new ArrayList<>();
+        }
+
+        return transaccionDAO.findByPositionId(position.getPositionId());
     }
 }

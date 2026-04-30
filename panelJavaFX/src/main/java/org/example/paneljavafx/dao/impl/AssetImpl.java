@@ -28,7 +28,7 @@ public class AssetImpl implements AssetDAO {
             stmt.setDouble(2, asset.getInitialPrice());
             stmt.setString(3, asset.getTicker());
             stmt.setString(4, asset.getName());
-            stmt.setString(5, asset.getIsin());
+            stmt.setString(5, asset.getIsinCode());
 
             stmt.setString(6, asset.getType());
             stmt.setString(7, asset.getSector());
@@ -105,7 +105,7 @@ public class AssetImpl implements AssetDAO {
             stmt.setDouble(1, asset.getInitialPrice());
             stmt.setString(2, asset.getTicker());
             stmt.setString(3, asset.getName());
-            stmt.setString(4, asset.getIsin());
+            stmt.setString(4, asset.getIsinCode());
 
             stmt.setString(5, asset.getType());
             stmt.setString(6, asset.getSector());
@@ -144,17 +144,17 @@ public class AssetImpl implements AssetDAO {
     private Asset map(ResultSet rs) throws SQLException {
         return new Asset(
                 rs.getString("id_activo"),
-                rs.getDouble("precio_inicial"),
                 rs.getString("ticker"),
                 rs.getString("nombre"),
                 rs.getString("isin"),
                 rs.getString("tipo"),
                 rs.getString("sector"),
-                rs.getDouble("market_cap"),
-                rs.getDouble("volatilidad"),
                 rs.getString("riesgo"),
                 rs.getString("liquidez"),
-                rs.getString("variacion")
+                rs.getString("variacion"),
+                rs.getDouble("precio_inicial"),
+                rs.getDouble("market_cap"),
+                rs.getDouble("volatilidad")
         );
     }
 }

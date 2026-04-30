@@ -15,7 +15,7 @@ import javafx.scene.layout.VBox;
 import org.example.paneljavafx.common.TabDataReceiver;
 import org.example.paneljavafx.model.Asset;
 import org.example.paneljavafx.model.Fund;
-import org.example.paneljavafx.model.FundPosition;
+import org.example.paneljavafx.model.FundAssetPosition;
 import org.example.paneljavafx.service.AssetService;
 import org.example.paneljavafx.service.FundService;
 import org.example.paneljavafx.service.MarketService;
@@ -59,7 +59,7 @@ public class AssetViewController implements TabDataReceiver<Asset> {
     // STATE
     // =========================
     private Asset currentAsset;
-    private List<FundPosition> cachedPositions;
+    private List<FundAssetPosition> cachedPositions;
 
     private Runnable tickListener;
     private ChartController chartController;
@@ -89,7 +89,7 @@ public class AssetViewController implements TabDataReceiver<Asset> {
     // =========================
     // POSITIONS
     // =========================
-    public void loadPositions(List<FundPosition> positions) {
+    public void loadPositions(List<FundAssetPosition> positions) {
         this.cachedPositions = positions;
 
         if (currentAsset != null) {      // ← guardia
@@ -163,14 +163,14 @@ public class AssetViewController implements TabDataReceiver<Asset> {
 
         ObservableList<Map<String, String>> items = FXCollections.observableArrayList();
 
-        for (FundPosition p : cachedPositions) {
+        for (FundAssetPosition p : cachedPositions) {
 
             if (!p.getIdAsset().equals(currentAsset.getId())) continue;
 
             Fund fund = fundService.getById(p.getIdFund());
 
             String fundName = (fund != null)
-                    ? fund.getNombre()
+                    ? fund.getName()
                     : p.getIdFund();
 
             Map<String, String> row = new HashMap<>();
@@ -199,14 +199,14 @@ public class AssetViewController implements TabDataReceiver<Asset> {
 
         ObservableList<PieChart.Data> pieData = FXCollections.observableArrayList();
 
-        for (FundPosition p : cachedPositions) {
+        for (FundAssetPosition p : cachedPositions) {
 
             if (!p.getIdAsset().equals(currentAsset.getId())) continue;
 
             Fund fund = fundService.getById(p.getIdFund());
 
             String name = (fund != null)
-                    ? fund.getNombre()
+                    ? fund.getName()
                     : p.getIdFund();
 
             pieData.add(new PieChart.Data(name, p.getInvestedValue()));

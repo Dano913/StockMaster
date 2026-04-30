@@ -5,7 +5,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import lombok.Setter;
 import org.example.paneljavafx.model.*;
-import org.example.paneljavafx.service.ClienteService;
+import org.example.paneljavafx.service.ClientService;
 import org.example.paneljavafx.service.TransactionService;
 
 import java.util.List;
@@ -16,13 +16,12 @@ public class AddPositionController {
     @FXML private TextField amountField;
     @FXML private Button deleteButton;
 
-    private final ClienteService clienteService = ClienteService.getInstance();
+    private final ClientService clientService = ClientService.getInstance();
     private final TransactionService transactionService = TransactionService.getInstance();
 
-    private Integer clienteId;
-    private Cliente cliente;
+    private Integer clientId;
+    private Client client;
 
-    private Posicion posicion; // 🔥 única fuente de verdad
     private List<Fund> funds;
 
     @Setter
@@ -31,28 +30,24 @@ public class AddPositionController {
     // ========================= INIT =========================
     @FXML
     public void initialize() {
-        this.posicion = new Posicion();
+        deleteButton.setVisible(false);
     }
 
     public void initCreate() {
-
-        this.posicion = new Posicion();
-
         deleteButton.setVisible(false);
-
         loadFundsIfNeeded();
         clearForm();
     }
 
-    // ========================= INYECCIONES =========================
+    // ========================= SETTERS =========================
     public void setFunds(List<Fund> funds) {
         this.funds = funds;
         loadFundsIfNeeded();
     }
 
-    public void setCliente(Cliente cliente) {
-        this.cliente = cliente;
-        this.clienteId = cliente.getIdCliente();
+    public void setCliente(Client client) {
+        this.client = client;
+        this.clientId = client.getClientId();
     }
 
     // ========================= FUNDS =========================
@@ -66,7 +61,7 @@ public class AddPositionController {
             @Override
             protected void updateItem(Fund item, boolean empty) {
                 super.updateItem(item, empty);
-                setText(empty || item == null ? null : item.getNombre());
+                setText(empty || item == null ? null : item.getName());
             }
         });
 
@@ -74,12 +69,12 @@ public class AddPositionController {
             @Override
             protected void updateItem(Fund item, boolean empty) {
                 super.updateItem(item, empty);
-                setText(empty || item == null ? null : item.getNombre());
+                setText(empty || item == null ? null : item.getName());
             }
         });
     }
 
-    // ========================= SAVE =========================
+    // ========================= BUY =========================
     @FXML
     private void save() {
 
@@ -87,6 +82,7 @@ public class AddPositionController {
         if (fund == null) return;
 
         double amount;
+
         try {
             amount = Double.parseDouble(amountField.getText());
         } catch (Exception e) {
@@ -94,40 +90,29 @@ public class AddPositionController {
             return;
         }
 
-        // =========================
-        // BUSCAR POSICIÓN EXISTENTE
-        // =========================
-        Posicion existing = findExistingPosition(fund.getIdFondo());
+        int clientId = client.getClientId();
 
-        if (existing != null) {
+        ClientFundPosition position =
+                clientService.getPositionsByClientId(clientId)
+                        .stream()
+                        .filter(p -> p.getFundId().equals(fund.getFundId()))
+                        .findFirst()
+                        .orElse(null);
 
-            // 🔥 usar existente como estado activo
-            this.posicion = existing;
+        if (position == null) {
 
-        } else {
+            position = new ClientFundPosition();
+            position.setFundId(fund.getFundId());
+            position.setQuantity(amount);
 
-            // 🔥 crear nueva posición
-            this.posicion = new Posicion();
-            this.posicion.setIdFondo(fund.getIdFondo());
-            this.posicion.setCantidad(amount);
-
-            clienteService.addPosition(clienteId, posicion);
-
-            System.out.println("NEW POSITION → " + fund.getIdFondo());
+            clientService.addClientFundPosition(clientId, position);
         }
 
-        // =========================
-        // SIEMPRE: TRANSACCIÓN
-        // =========================
-        Transaccion t = new Transaccion();
-        t.setTipo("BUY");
-        t.setImporte(amount);
+        Transaction transaction = new Transaction();
+        transaction.setType("BUY");
+        transaction.setAmount(amount);
 
-        transactionService.addTransaction(posicion, t);
-
-        clienteService.updatePosition(clienteId, posicion);
-
-        System.out.println("POSITION UPDATED → " + posicion.getIdFondo());
+        clientService.addTransactionToPosition(position.getPositionId(), transaction);
 
         close(true);
     }
@@ -136,9 +121,11 @@ public class AddPositionController {
     @FXML
     private void sell() {
 
-        if (posicion == null) return;
+        Fund fund = fundCombo.getValue();
+        if (fund == null) return;
 
         double amount;
+
         try {
             amount = Double.parseDouble(amountField.getText());
         } catch (Exception e) {
@@ -146,29 +133,24 @@ public class AddPositionController {
             return;
         }
 
-        Transaccion t = new Transaccion();
-        t.setTipo("SELL");
-        t.setImporte(amount);
+        int clientId = client.getClientId();
 
-        transactionService.addTransaction(posicion, t);
+        ClientFundPosition position =
+                clientService.getPositionsByClientId(clientId)
+                        .stream()
+                        .filter(p -> p.getFundId().equals(fund.getFundId()))
+                        .findFirst()
+                        .orElse(null);
 
-        clienteService.updatePosition(clienteId, posicion);
+        if (position == null) return;
 
-        System.out.println("SELL → " + posicion.getIdFondo());
+        Transaction transaction = new Transaction();
+        transaction.setType("SELL");
+        transaction.setAmount(amount);
+
+        clientService.addTransactionToPosition(position.getPositionId(), transaction);
 
         close(true);
-    }
-
-    // ========================= FIND POSITION =========================
-    private Posicion findExistingPosition(String fundId) {
-
-        if (cliente == null) return null;
-
-        return clienteService.getPosicionesByClienteId(clienteId)
-                .stream()
-                .filter(p -> p.getIdFondo().equals(fundId))
-                .findFirst()
-                .orElse(null);
     }
 
     // ========================= CLOSE =========================
@@ -183,17 +165,10 @@ public class AddPositionController {
         }
     }
 
-    // ========================= HELPERS =========================
     private void clearForm() {
 
-        if (fundCombo != null) {
-            fundCombo.getSelectionModel().clearSelection();
-            fundCombo.setValue(null);
-        }
-
-        if (amountField != null) {
-            amountField.clear();
-        }
+        fundCombo.getSelectionModel().clearSelection();
+        amountField.clear();
     }
 
     private void showError(String msg) {
