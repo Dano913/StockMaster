@@ -14,8 +14,7 @@ import javafx.scene.paint.Color;
 
 import org.example.paneljavafx.common.TabDataReceiver;
 import org.example.paneljavafx.model.Fund;
-import org.example.paneljavafx.model.FundPosition;
-import org.example.paneljavafx.service.FundPositionService;
+import org.example.paneljavafx.model.FundAssetPosition;
 import org.example.paneljavafx.service.FundService;
 import org.example.paneljavafx.service.dto.FundMetrics;
 import org.example.paneljavafx.simulation.MarketClock;
@@ -70,7 +69,7 @@ public class FundViewController implements TabDataReceiver<Fund> {
     // STATE
     // =========================
     private Fund currentFund;
-    private List<FundPosition> fundPositions = new ArrayList<>();
+    private List<FundAssetPosition> fundPositions = new ArrayList<>();
 
     private Runnable tickListener;
     private double previousFundValue = 0;
@@ -99,7 +98,7 @@ public class FundViewController implements TabDataReceiver<Fund> {
     // =========================
     // POSITIONS
     // =========================
-    public void loadPositions(List<FundPosition> positions) {
+    public void loadPositions(List<FundAssetPosition> positions) {
         this.fundPositions = (positions != null) ? positions : new ArrayList<>();
         recalculate();
         renderFundPieChart();
@@ -220,7 +219,7 @@ public class FundViewController implements TabDataReceiver<Fund> {
 
         // Log del valor total del fondo en cada tick
         System.out.printf("💰 [%s] NAV total: %s € | Cambio: %+.2f%% | Δ: %+.0f €%n",
-                currentFund != null ? currentFund.getIdFondo() : "?",
+                currentFund != null ? currentFund.getFundId() : "?",
                 DF.format(navTotal),
                 m.getChangePct(),
                 m.getTotalChange()
@@ -235,12 +234,12 @@ public class FundViewController implements TabDataReceiver<Fund> {
     private void renderStaticInfo() {
         if (currentFund == null) return;
 
-        fundName.setText(currentFund.getNombre());
-        fundTicker.setText(currentFund.getIdFondo());
-        fundIsin.setText(currentFund.getCodigoIsin() != null
-                ? currentFund.getCodigoIsin() : "N/A");
-        fundType.setText(currentFund.getTipo());
-        fundCategory.setText(currentFund.getCategoria());
+        fundName.setText(currentFund.getName());
+        fundTicker.setText(currentFund.getFundId());
+        fundIsin.setText(currentFund.getIsinCode() != null
+                ? currentFund.getIsinCode() : "N/A");
+        fundType.setText(currentFund.getType());
+        fundCategory.setText(currentFund.getCategory());
 
         if (exposureRisk != null) exposureRisk.setText("Riesgo: --");
     }

@@ -10,7 +10,7 @@ import javafx.scene.control.*;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import org.example.paneljavafx.model.Gestor;
-import org.example.paneljavafx.service.ClienteService;
+import org.example.paneljavafx.service.ClientService;
 import org.example.paneljavafx.service.GestorService;
 
 public class PersonalViewController {
@@ -19,7 +19,7 @@ public class PersonalViewController {
     // SERVICES
     // =========================
     private final GestorService gestorService = GestorService.getInstance();
-    private final ClienteService clienteService = ClienteService.getInstance();
+    private final ClientService clienteService = ClientService.getInstance();
 
     // =========================
     // UI
@@ -63,7 +63,7 @@ public class PersonalViewController {
     private void setupTable() {
 
         colName.setCellValueFactory(d ->
-                new SimpleStringProperty(d.getValue().getNombre())
+                new SimpleStringProperty(d.getValue().getName())
         );
 
         colEmail.setCellValueFactory(d ->
@@ -72,15 +72,15 @@ public class PersonalViewController {
 
         colExperience.setCellValueFactory(d ->
                 new SimpleStringProperty(
-                        String.valueOf(d.getValue().getAniosExperiencia())
+                        String.valueOf(d.getValue().getYearsOfExperience())
                 )
         );
 
         colRisk.setCellValueFactory(d -> {
-            if (d.getValue().getPerfilRiesgo() == null) {
+            if (d.getValue().getRiskProfile() == null) {
                 return new SimpleStringProperty("SIN PERFIL");
             }
-            return new SimpleStringProperty(d.getValue().getPerfilRiesgo().name());
+            return new SimpleStringProperty(d.getValue().getRiskProfile().name());
         });
 
         filteredGestors = new FilteredList<>(
@@ -133,11 +133,11 @@ public class PersonalViewController {
 
                 if (filter.isEmpty()) return true;
 
-                return g.getNombre().toLowerCase().contains(filter)
+                return g.getName().toLowerCase().contains(filter)
                         || g.getEmail().toLowerCase().contains(filter)
-                        || (g.getPerfilRiesgo() != null &&
-                        g.getPerfilRiesgo().name().toLowerCase().contains(filter))
-                        || String.valueOf(g.getAniosExperiencia()).contains(filter);
+                        || (g.getRiskProfile() != null &&
+                        g.getRiskProfile().name().toLowerCase().contains(filter))
+                        || String.valueOf(g.getYearsOfExperience()).contains(filter);
             });
         });
     }

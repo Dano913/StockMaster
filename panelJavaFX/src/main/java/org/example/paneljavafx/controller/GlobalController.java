@@ -21,7 +21,7 @@ import org.example.paneljavafx.dao.impl.AssetImpl;
 import org.example.paneljavafx.dao.impl.FundImpl;
 import org.example.paneljavafx.model.Asset;
 import org.example.paneljavafx.model.Fund;
-import org.example.paneljavafx.model.FundPosition;
+import org.example.paneljavafx.model.FundAssetPosition;
 import org.example.paneljavafx.service.*;
 import org.example.paneljavafx.service.GlobalService.AssetSnapshot;
 import org.example.paneljavafx.service.GlobalService.FondoSnapshot;
@@ -116,7 +116,7 @@ public class GlobalController {
     // =========================
     @Getter private List<Asset>        assets    = new ArrayList<>();
     @Getter private List<Fund>         funds     = new ArrayList<>();
-    @Getter private List<FundPosition> positions = new ArrayList<>();
+    @Getter private List<FundAssetPosition> positions = new ArrayList<>();
 
     private final ObservableList<Object>         masterData   = FXCollections.observableArrayList();
     private final ObservableList<Object>         filteredData = FXCollections.observableArrayList();
@@ -139,7 +139,7 @@ public class GlobalController {
     FundService    fundService    = FundService.getInstance();
     AssetService   assetService   = AssetService.getInstance();
     GestorService  gestorService  = GestorService.getInstance();
-    ClienteService clienteService = ClienteService.getInstance();
+    ClientService clienteService = ClientService.getInstance();
 
     // =========================
 // INIT
@@ -400,7 +400,7 @@ public class GlobalController {
             protected void updateItem(Object item, boolean empty) {
                 super.updateItem(item, empty);
                 if (empty || item == null) { setText(null); setStyle(""); return; }
-                if (item instanceof Fund f)  setText("FUND   " + f.getNombre());
+                if (item instanceof Fund f)  setText("FUND   " + f.getName());
                 if (item instanceof Asset a) setText("ASSET  " + a.getName());
             }
         });

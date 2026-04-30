@@ -8,17 +8,17 @@ import javafx.scene.Parent;
 import javafx.scene.control.*;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
-import org.example.paneljavafx.model.Cliente;
-import org.example.paneljavafx.service.ClienteService;
+import org.example.paneljavafx.model.Client;
+import org.example.paneljavafx.service.ClientService;
 
 public class ClienteViewController {
 
-    private final ClienteService clienteService = ClienteService.getInstance();
+    private final ClientService clienteService = ClientService.getInstance();
 
-    @FXML private TableView<Cliente> clientsTable;
-    @FXML private TableColumn<Cliente, String> colName;
-    @FXML private TableColumn<Cliente, String> colEmail;
-    @FXML private TableColumn<Cliente, Void> colActions;
+    @FXML private TableView<Client> clientsTable;
+    @FXML private TableColumn<Client, String> colName;
+    @FXML private TableColumn<Client, String> colEmail;
+    @FXML private TableColumn<Client, Void> colActions;
 
     @FXML private TextField searchField;
     @FXML private Label titleLabel;
@@ -28,7 +28,7 @@ public class ClienteViewController {
     @FXML private StackPane rootContainer;
     @FXML private VBox overlayContainer;
 
-    private FilteredList<Cliente> filteredClientes;
+    private FilteredList<Client> filteredClientes;
 
     @FXML
     public void initialize() {
@@ -53,7 +53,7 @@ public class ClienteViewController {
 
         colName.setCellValueFactory(d ->
                 new SimpleStringProperty(
-                        d.getValue().getNombre() + " " + d.getValue().getApellido()
+                        d.getValue().getName() + " " + d.getValue().getSurname()
                 )
         );
 
@@ -67,7 +67,7 @@ public class ClienteViewController {
 
             {
                 btn.setOnAction(event -> {
-                    Cliente cliente = getTableView().getItems().get(getIndex());
+                    Client cliente = getTableView().getItems().get(getIndex());
                     if (cliente != null) {
                         openEditCliente(cliente);
                     }
@@ -122,8 +122,8 @@ public class ClienteViewController {
 
                 if (filter.isEmpty()) return true;
 
-                return c.getNombre().toLowerCase().contains(filter)
-                        || c.getApellido().toLowerCase().contains(filter)
+                return c.getName().toLowerCase().contains(filter)
+                        || c.getSurname().toLowerCase().contains(filter)
                         || c.getEmail().toLowerCase().contains(filter);
             });
         });
@@ -134,11 +134,11 @@ public class ClienteViewController {
         openForm(null);
     }
 
-    private void openEditCliente(Cliente cliente) {
+    private void openEditCliente(Client cliente) {
         openForm(cliente);
     }
 
-    private void openForm(Cliente cliente) {
+    private void openForm(Client cliente) {
 
         try {
             FXMLLoader loader = new FXMLLoader(

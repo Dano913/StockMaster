@@ -1,55 +1,53 @@
 package org.example.paneljavafx.service;
 
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import org.example.paneljavafx.dao.AssetDAO;
 import org.example.paneljavafx.dao.impl.AssetImpl;
-import org.example.paneljavafx.data.AssetDataSource;
 import org.example.paneljavafx.model.Asset;
-import org.example.paneljavafx.model.FundPosition;
+import org.example.paneljavafx.model.FundAssetPosition;
 import org.example.paneljavafx.service.dto.AssetMetrics;
-
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 public class AssetService {
 
-    private static final AssetService INSTANCE = new AssetService();
+    // ========================= SINGLETON =========================
 
+    private static final AssetService INSTANCE = new AssetService();
     public static AssetService getInstance() {
         return INSTANCE;
     }
-
     private AssetService() {}
 
+    // ========================= DAO =========================
 
     private final AssetDAO assetDAO = new AssetImpl();
-    private final FundPositionService positionService = FundPositionService.getInstance();
 
-    public final List<Asset> assets = new ArrayList<>();
+    // ========================= CACHE =========================
 
+    public final ObservableList<Asset> assets = FXCollections.observableArrayList();
     private boolean loaded = false;
 
+    // ========================= LOAD =========================
     public void load() {
         if (loaded) return;
 
-        loaded = true;
+        try {
+            List<Asset> data = assetDAO.findAll();
+            assets.setAll(data);
+            loaded = true;
 
-        List<Asset> assetsFromDao = assetDAO.findAll();
-
-        assets.clear();
-        assets.addAll(assetsFromDao);
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.err.println("Error cargando assets desde BD");
+        }
     }
 
-    public List<Asset> getAll() {
-        return assetDAO.findAll();
-    }
+    // ========================= METRICS =========================
 
-    public Asset getById(String id) {
-        return assetDAO.findById(id).orElse(null);
-    }
-
-    public AssetMetrics calculateMetrics(List<FundPosition> positions, String assetId) {
+    public AssetMetrics calculateMetrics(List<FundAssetPosition> positions, String assetId) {
 
         if (positions == null || assetId == null) {
             return new AssetMetrics(0, 0, 0, 0);
@@ -60,7 +58,7 @@ public class AssetService {
 
         Set<String> uniqueFunds = new HashSet<>();
 
-        for (FundPosition p : positions) {
+        for (FundAssetPosition p : positions) {
 
             double value = p.getInvestedValue();
             totalPortfolioValue += value;
@@ -82,4 +80,22 @@ public class AssetService {
                 exposureRatio
         );
     }
+
+    // ========================= GET =========================
+
+    public ObservableList<Asset> getAll() {
+        return assets;
+    }
+
+    public Asset getById(String id) {
+        return assets.stream()
+                .filter(a -> a.getId().equals(id))
+                .findFirst()
+                .orElse(null);
+    }
+
+    public long count() {
+        return assets.size();
+    }
+
 }

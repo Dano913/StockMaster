@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane
+        stylesheets="@trading-theme.css"
+        xmlns="http://javafx.com/javafx/17"
+        xmlns:fx="http://javafx.com/fxml/1"
+        fx:controller="org.example.paneljavafx.controller.GestorPrivadoViewController">
+
+    <children>
+
+        <VBox spacing="16"
+              AnchorPane.topAnchor="20"
+              AnchorPane.bottomAnchor="20"
+              AnchorPane.leftAnchor="20"
+              AnchorPane.rightAnchor="20">
+
+            <!-- ═══════════════════════
+                 HEADER
+            ═══════════════════════ -->
+            <VBox spacing="4">
+                <Label fx:id="labelNombreGestor" styleClass="cp-nombre"/>
+                <Label fx:id="labelEmailGestor" styleClass="cp-email"/>
+            </VBox>
+
+            <!-- ═══════════════════════
+                 DATOS DEL GESTOR
+            ═══════════════════════ -->
+            <GridPane styleClass="cp-data-card"
+                      hgap="16" vgap="8">
+
+                <columnConstraints>
+                    <ColumnConstraints percentWidth="25"/>
+                    <ColumnConstraints percentWidth="25"/>
+                    <ColumnConstraints percentWidth="25"/>
+                    <ColumnConstraints percentWidth="25"/>
+                </columnConstraints>
+
+                <!-- FILA 0 -->
+                <VBox spacing="4" GridPane.columnIndex="0" GridPane.rowIndex="0">
+                    <Label text="ID GESTOR" styleClass="cp-field-label"/>
+                    <Label fx:id="labelIdGestor" styleClass="cp-field-value"/>
+                </VBox>
+
+                <VBox spacing="4" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                    <Label text="DEPARTAMENTO" styleClass="cp-field-label"/>
+                    <Label fx:id="labelDepartamento" styleClass="cp-field-value"/>
+                </VBox>
+
+                <!-- FILA 1 -->
+                <VBox spacing="4" GridPane.columnIndex="0" GridPane.rowIndex="1">
+                    <Label text="CLIENTES" styleClass="cp-field-label"/>
+                    <Label fx:id="labelNumeroClientes" styleClass="cp-field-value-accent"/>
+                </VBox>
+
+                <VBox spacing="4" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                    <Label text="PATRIMONIO GESTIONADO" styleClass="cp-field-label"/>
+                    <Label fx:id="labelPatrimonio" styleClass="cp-field-value-accent"/>
+                </VBox>
+
+                <!-- FILA 2 -->
+                <VBox spacing="4" GridPane.columnIndex="0" GridPane.rowIndex="2">
+                    <Label text="RENTABILIDAD MEDIA" styleClass="cp-field-label"/>
+                    <Label fx:id="labelRentabilidadMedia" styleClass="cp-field-value-positive"/>
+                </VBox>
+
+            </GridPane>
+
+            <!-- ═══════════════════════
+                 TABLA DE CLIENTES
+            ═══════════════════════ -->
+            <VBox styleClass="cp-data-card" VBox.vgrow="ALWAYS" spacing="12">
+
+                <Label text="👤 CLIENTES DEL GESTOR"
+                       styleClass="cp-pie-title"/>
+
+                <TableView fx:id="clientsTable"
+                           styleClass="cp-table"
+                           VBox.vgrow="ALWAYS">
+
+                    <columnResizePolicy>
+                        <TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
+                    </columnResizePolicy>
+
+                    <columns>
+                        <TableColumn fx:id="colClientName" text="Nombre"/>
+                        <TableColumn fx:id="colClientEmail" text="Email"/>
+                        <TableColumn fx:id="colClientPortfolio" text="Cartera Total"/>
+                        <TableColumn fx:id="colClientFundsCount" text="Nº Fondos"/>
+                    </columns>
+
+                </TableView>
+
+            </VBox>
+
+        </VBox>
+
+    </children>
+</AnchorPane>

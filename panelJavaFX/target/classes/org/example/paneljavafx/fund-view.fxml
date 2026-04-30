@@ -1,0 +1,231 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.chart.PieChart?>
+<?import javafx.scene.canvas.Canvas?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.HBox?>
+
+<!--
+    FundView.fxml — Panel de fondos de inversión
+    CSS externo: trading-theme.css
+    Fondo: #121018 | Acento: #6C63FF | Verde: #00D09C
+-->
+<AnchorPane
+        prefHeight="640.0"
+        prefWidth="860.0"
+        stylesheets="@trading-theme.css"
+        xmlns="http://javafx.com/javafx/17"
+        xmlns:fx="http://javafx.com/fxml/1"
+        fx:controller="org.example.paneljavafx.controller.FundViewController">
+
+    <children>
+
+        <!-- ═══════════════════════════════════════════════════════
+             CONTENEDOR PRINCIPAL
+        ════════════════════════════════════════════════════════ -->
+        <VBox
+                styleClass="main-vbox"
+                AnchorPane.topAnchor="0.0"
+                AnchorPane.bottomAnchor="0.0"
+                AnchorPane.leftAnchor="0.0"
+                AnchorPane.rightAnchor="0.0">
+
+            <!-- ══════════════════════════════════════════════════
+                 HEADER
+            ═══════════════════════════════════════════════════ -->
+            <HBox styleClass="header-box">
+                <children>
+
+                    <!-- Nombre e identificadores -->
+                    <VBox spacing="6.0">
+                        <children>
+                            <Label fx:id="fundName"
+                                   text="Vanguard Global Equity Fund"
+                                   styleClass="fund-name"/>
+
+                            <HBox spacing="8.0" alignment="CENTER_LEFT">
+                                <children>
+                                    <Label fx:id="fundTicker"
+                                           text="VGEF"
+                                           styleClass="fund-ticker"/>
+                                    <Label text="·"
+                                           styleClass="separator-label"/>
+                                    <Label fx:id="fundIsin"
+                                           text="IE00B3RBWM25"
+                                           styleClass="fund-isin"/>
+                                </children>
+                            </HBox>
+                        </children>
+                    </VBox>
+
+                    <!-- Tipo y categoría -->
+                    <VBox spacing="6.0">
+                        <HBox.margin>
+                            <Insets left="20"/>
+                        </HBox.margin>
+                        <children>
+                            <Label fx:id="fundType"
+                                   text="Fondo de Inversión"
+                                   styleClass="fund-type"/>
+                            <Label fx:id="fundCategory"
+                                   text="Renta Variable Global"
+                                   styleClass="fund-category"/>
+                        </children>
+                    </VBox>
+
+                </children>
+            </HBox>
+
+            <!-- ══════════════════════════════════════════════════
+                 GRID DASHBOARD
+            ═══════════════════════════════════════════════════ -->
+            <GridPane styleClass="dashboard-grid" VBox.vgrow="ALWAYS">
+
+                <columnConstraints>
+                    <ColumnConstraints percentWidth="55"/>
+                    <ColumnConstraints percentWidth="45"/>
+                </columnConstraints>
+
+                <rowConstraints>
+                    <RowConstraints vgrow="ALWAYS"/>
+                    <RowConstraints vgrow="ALWAYS"/>
+                </rowConstraints>
+
+                <!-- ── GRÁFICO DE EVOLUCIÓN ──────────────────── -->
+                <VBox styleClass="chart-card"
+                      GridPane.columnIndex="0"
+                      GridPane.rowIndex="0">
+                    <children>
+                        <Label text="EVOLUCIÓN DEL FONDO"
+                               styleClass="card-title"/>
+                        <Canvas fx:id="fundChartCanvas" height="190"/>
+                    </children>
+                </VBox>
+
+                <!-- ── ESTADÍSTICAS ──────────────────────────── -->
+                <VBox fx:id="fundStatsContainer"
+                      styleClass="card"
+                      GridPane.columnIndex="1"
+                      GridPane.rowIndex="0"
+                      spacing="10.0">
+                    <children>
+
+                        <Label text="ESTADÍSTICAS"
+                               styleClass="card-title"/>
+
+                        <!-- Valor liquidativo -->
+                        <Label text="VALOR LIQUIDATIVO"
+                               styleClass="value-label-small"/>
+
+                        <Label fx:id="fundValue"
+                               text="247,83 €"
+                               styleClass="fund-value"/>
+
+                        <!-- Cambio diario -->
+                        <HBox spacing="10.0" alignment="CENTER_LEFT">
+                            <children>
+                                <Label fx:id="fundChange"
+                                       text="+1,42%"
+                                       styleClass="fund-change-positive"/>
+                                <Label fx:id="fundDailyReturn"
+                                       text="(+3,47 € hoy)"
+                                       styleClass="fund-daily-return"/>
+                            </children>
+                        </HBox>
+
+                        <!-- AUM -->
+                        <Label fx:id="totalAUM"
+                               text="4,2B € AUM"
+                               styleClass="aum-label"/>
+
+                        <!-- Métricas rápidas: chips en grid 2x2 -->
+                        <HBox spacing="8.0">
+                            <children>
+                                <VBox styleClass="stat-chip" HBox.hgrow="ALWAYS">
+                                    <children>
+                                        <Label text="SHARPE" styleClass="stat-chip-label"/>
+                                        <Label text="1,24" styleClass="stat-chip-value"/>
+                                    </children>
+                                </VBox>
+                                <VBox styleClass="stat-chip" HBox.hgrow="ALWAYS">
+                                    <children>
+                                        <Label text="VOLATIL." styleClass="stat-chip-label"/>
+                                        <Label text="11,2%" styleClass="stat-chip-value"/>
+                                    </children>
+                                </VBox>
+                                <VBox styleClass="stat-chip" HBox.hgrow="ALWAYS">
+                                    <children>
+                                        <Label text="RENTAB. 1A" styleClass="stat-chip-label"/>
+                                        <Label text="+18,4%" styleClass="stat-chip-value-positive"/>
+                                    </children>
+                                </VBox>
+                                <VBox styleClass="stat-chip" HBox.hgrow="ALWAYS">
+                                    <children>
+                                        <Label text="MAX DD" styleClass="stat-chip-label"/>
+                                        <Label text="-12,3%" styleClass="stat-chip-value-negative"/>
+                                    </children>
+                                </VBox>
+                            </children>
+                        </HBox>
+
+                        <!-- Riesgo -->
+                        <Label fx:id="exposureRisk"
+                               text="Riesgo: Moderado-Alto  (5/7)"
+                               styleClass="exposure-risk"/>
+
+                    </children>
+                </VBox>
+
+                <!-- ── DISTRIBUCIÓN (PieChart) ───────────────── -->
+                <VBox styleClass="card"
+                      GridPane.columnIndex="0"
+                      GridPane.rowIndex="1"
+                      spacing="10.0">
+                    <children>
+                        <Label text="DISTRIBUCIÓN SECTORIAL"
+                               styleClass="card-title"/>
+                        <PieChart fx:id="fundPieChart"
+                                  styleClass="fund-pie-chart"
+                                  prefHeight="200"
+                                  VBox.vgrow="ALWAYS"/>
+                    </children>
+                </VBox>
+
+                <!-- ── POSICIONES ────────────────────────────── -->
+                <VBox styleClass="card"
+                      GridPane.columnIndex="1"
+                      GridPane.rowIndex="1"
+                      spacing="10.0">
+                    <children>
+                        <Label text="POSICIONES PRINCIPALES"
+                               styleClass="card-title"/>
+                        <TableView fx:id="topAssetsTable"
+                                   styleClass="assets-table"
+                                   VBox.vgrow="ALWAYS">
+                            <columns>
+                                <TableColumn fx:id="colNombre"
+                                             text="Nombre"
+                                             styleClass="table-col"/>
+                                <TableColumn fx:id="colPorcentaje"
+                                             text="Peso %"
+                                             styleClass="table-col"
+                                             prefWidth="80"/>
+                            </columns>
+                        </TableView>
+                    </children>
+                </VBox>
+
+            </GridPane>
+
+        </VBox>
+
+    </children>
+</AnchorPane>

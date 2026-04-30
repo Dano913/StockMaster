@@ -4,9 +4,10 @@ import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.beans.property.SimpleStringProperty;
-import org.example.paneljavafx.model.Cliente;
+import org.example.paneljavafx.model.Client;
+import org.example.paneljavafx.model.ClientFundPosition;
 import org.example.paneljavafx.model.Gestor;
-import org.example.paneljavafx.service.ClienteService;
+import org.example.paneljavafx.service.ClientService;
 import org.example.paneljavafx.service.GestorService;
 
 import java.util.List;
@@ -31,14 +32,14 @@ public class GestorPrivadoViewController {
     // ═══════════════════════
     // TABLE CLIENTES
     // ═══════════════════════
-    @FXML private TableView<Cliente> clientsTable;
+    @FXML private TableView<Client> clientsTable;
 
-    @FXML private TableColumn<Cliente, String> colClientName;
-    @FXML private TableColumn<Cliente, String> colClientEmail;
-    @FXML private TableColumn<Cliente, String> colClientPortfolio;
-    @FXML private TableColumn<Cliente, String> colClientFundsCount;
+    @FXML private TableColumn<Client, String> colClientName;
+    @FXML private TableColumn<Client, String> colClientEmail;
+    @FXML private TableColumn<Client, String> colClientPortfolio;
+    @FXML private TableColumn<Client, String> colClientFundsCount;
 
-    private final ClienteService clienteService = ClienteService.getInstance();
+    private final ClientService clientService = ClientService.getInstance();
     private final GestorService gestorService = GestorService.getInstance();
 
     private Gestor gestorActual;
@@ -50,7 +51,7 @@ public class GestorPrivadoViewController {
     public void initialize() {
 
         colClientName.setCellValueFactory(
-                d -> new SimpleStringProperty(d.getValue().getNombre())
+                d -> new SimpleStringProperty(d.getValue().getName())
         );
 
         colClientEmail.setCellValueFactory(
@@ -60,7 +61,7 @@ public class GestorPrivadoViewController {
         colClientPortfolio.setCellValueFactory(d ->
                 new SimpleStringProperty(
                         String.format("€%.2f",
-                                clienteService.calcularCartera(d.getValue())
+                                clientService.calculateWallet((List<ClientFundPosition>) d.getValue())
                         )
                 )
         );
@@ -68,7 +69,7 @@ public class GestorPrivadoViewController {
         colClientFundsCount.setCellValueFactory(d ->
                 new SimpleStringProperty(
                         String.valueOf(
-                                clienteService.contarFondosUnicos(d.getValue())
+                                clientService.countFund((List<ClientFundPosition>) d.getValue())
                         )
                 )
         );
@@ -82,30 +83,29 @@ public class GestorPrivadoViewController {
         this.gestorActual = gestor;
 
         // HEADER
-        labelNombreGestor.setText(gestor.getNombre() + " " + gestor.getApellidos());
+        labelNombreGestor.setText(gestor.getName() + " " + gestor.getSurname());
         labelEmailGestor.setText(gestor.getEmail());
 
         // DATOS
-        labelIdGestor.setText(String.valueOf(gestor.getIdGestor()));
+        labelIdGestor.setText(String.valueOf(gestor.getGestorId()));
 
         labelDepartamento.setText(
-                "Empresa ID: " + gestor.getIdEmpresa()
+                "Empresa ID: " + gestor.getCompanyId()
         );
 
         double patrimonio =
-                gestorService.calcularPatrimonioGestionado(
-                        gestor.getIdGestor(),
-                        clienteService.getAll()
+                gestorService.calculateManagedWallet(
+                        gestor.getGestorId()
                 );
 
         labelPatrimonio.setText(String.format("€%.2f", patrimonio));
 
         labelRentabilidadMedia.setText(
-                gestor.getAniosExperiencia() + " años exp."
+                gestor.getYearsOfExperience() + " años exp."
         );
 
-        List<Cliente> clientesDelGestor = gestorService.getClientesByGestorId(gestor.getIdGestor(),
-                clienteService.getAll());
+        List<Client> clientesDelGestor = gestorService.getClientesByGestorId(gestor.getGestorId(),
+                clientService.getAll());
 
         clientsTable.setItems(FXCollections.observableArrayList(clientesDelGestor));
 

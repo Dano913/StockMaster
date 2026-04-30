@@ -1,7 +1,6 @@
 package org.example.paneljavafx.dao;
 
 import org.example.paneljavafx.model.Asset;
-
 import java.util.List;
 import java.util.Optional;
 

@@ -16,7 +16,7 @@ public class GestorFormController {
     @FXML private TextField dniField;
     @FXML private TextField telefonoField;
     @FXML private TextField experienciaField;
-    @FXML private ComboBox<Gestor.PerfilRiesgo> perfilRiesgoField;
+    @FXML private ComboBox<Gestor.RiskProfile> perfilRiesgoField;
 
     @FXML private Button deleteButton; // 🔥 AÑADIDO
 
@@ -33,7 +33,7 @@ public class GestorFormController {
         this.gestor = new Gestor();
         this.onClose = onClose;
 
-        perfilRiesgoField.setItems(FXCollections.observableArrayList(Gestor.PerfilRiesgo.values()));
+        perfilRiesgoField.setItems(FXCollections.observableArrayList(Gestor.RiskProfile.values()));
 
         applyMode(true, true); // editable + sin delete
         clearFields();
@@ -49,14 +49,14 @@ public class GestorFormController {
         this.onClose = onClose;
 
         perfilRiesgoField.setItems(
-                FXCollections.observableArrayList(Gestor.PerfilRiesgo.values())
+                FXCollections.observableArrayList(Gestor.RiskProfile.values())
         );
 
         loadData();
 
-        applyMode(editable, gestor.getIdGestor() == 0);
+        applyMode(editable, gestor.getGestorId() == 0);
 
-        deleteButton.setVisible(gestor.getIdGestor() != 0 && editable);
+        deleteButton.setVisible(gestor.getGestorId() != 0 && editable);
     }
 
     // =========================
@@ -64,17 +64,17 @@ public class GestorFormController {
     // =========================
     private void loadData() {
 
-        nombreField.setText(gestor.getNombre());
-        apellidosField.setText(gestor.getApellidos());
+        nombreField.setText(gestor.getName());
+        apellidosField.setText(gestor.getSurname());
         emailField.setText(gestor.getEmail());
-        dniField.setText(gestor.getDni());
-        telefonoField.setText(gestor.getTelefono());
+        dniField.setText(gestor.getNationalId());
+        telefonoField.setText(gestor.getPhone());
 
         experienciaField.setText(
-                gestor.getAniosExperiencia() == 0 ? "" : String.valueOf(gestor.getAniosExperiencia())
+                gestor.getYearsOfExperience() == 0 ? "" : String.valueOf(gestor.getYearsOfExperience())
         );
 
-        perfilRiesgoField.setValue(gestor.getPerfilRiesgo());
+        perfilRiesgoField.setValue(gestor.getRiskProfile());
     }
 
     // =========================
@@ -98,20 +98,20 @@ public class GestorFormController {
     @FXML
     private void save() {
 
-        gestor.setNombre(nombreField.getText());
-        gestor.setApellidos(apellidosField.getText());
+        gestor.setName(nombreField.getText());
+        gestor.setSurname(apellidosField.getText());
         gestor.setEmail(emailField.getText());
-        gestor.setDni(dniField.getText());
-        gestor.setTelefono(telefonoField.getText());
+        gestor.setNationalId(dniField.getText());
+        gestor.setPhone(telefonoField.getText());
 
         String exp = experienciaField.getText();
-        gestor.setAniosExperiencia(
+        gestor.setYearsOfExperience(
                 (exp == null || exp.isBlank()) ? 0 : Integer.parseInt(exp)
         );
 
-        gestor.setPerfilRiesgo(perfilRiesgoField.getValue());
+        gestor.setRiskProfile(perfilRiesgoField.getValue());
 
-        if (gestor.getIdGestor() == 0) {
+        if (gestor.getGestorId() == 0) {
             gestorService.save(gestor);
         } else {
             gestorService.update(gestor);
@@ -126,7 +126,7 @@ public class GestorFormController {
     @FXML
     private void delete() {
 
-        Integer id = gestor.getIdGestor();
+        Integer id = gestor.getGestorId();
 
         if (id == null || id == 0) return;
 

@@ -17,7 +17,6 @@ public class MainApp extends Application {
     @Override
     public void start(Stage stage) throws IOException {
 
-        // 🔥 Cargar FXML de forma segura
         FXMLLoader loader = new FXMLLoader(
                 getClass().getResource("/org/example/paneljavafx/admin-view.fxml")
         );
@@ -30,23 +29,10 @@ public class MainApp extends Application {
                 getClass().getResource("/org/example/paneljavafx/trading-theme.css").toExternalForm()
         );
 
-        stage.setTitle("Fund Dashboard");
+        stage.setTitle("StockMaster");
         stage.setScene(scene);
 
-        // 🖥️ Multi-monitor handling
-        List<Screen> screens = Screen.getScreens();
-
-        if (screens.size() > 1) {
-
-            Screen secondScreen = screens.get(1);
-            Rectangle2D bounds = secondScreen.getVisualBounds();
-
-            stage.setX(bounds.getMinX());
-            stage.setY(bounds.getMinY());
-
-        } else {
-            stage.centerOnScreen();
-        }
+        stage.centerOnScreen();
 
         stage.show();
     }

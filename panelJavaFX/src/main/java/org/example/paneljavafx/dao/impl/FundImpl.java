@@ -23,14 +23,14 @@ public class FundImpl implements FundDAO {
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            stmt.setString(1, fund.getIdFondo());
-            stmt.setString(2, fund.getIdEmpresa());
-            stmt.setString(3, fund.getNombre());
-            stmt.setString(4, fund.getCodigoIsin());
-            stmt.setString(5, fund.getTipo());
-            stmt.setString(6, fund.getCategoria());
-            stmt.setString(7, fund.getMonedaBase());
-            stmt.setDate(8, Date.valueOf(fund.getFechaCreacion()));
+            stmt.setString(1, fund.getFundId());
+            stmt.setString(2, fund.getCompanyId());
+            stmt.setString(3, fund.getName());
+            stmt.setString(4, fund.getIsinCode());
+            stmt.setString(5, fund.getType());
+            stmt.setString(6, fund.getCategory());
+            stmt.setString(7, fund.getCurrency());
+            stmt.setDate(8, Date.valueOf(fund.getCreatedAt()));
 
             stmt.executeUpdate();
 
@@ -93,13 +93,13 @@ public class FundImpl implements FundDAO {
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            stmt.setString(1, fund.getIdEmpresa());
-            stmt.setString(2, fund.getNombre());
-            stmt.setString(3, fund.getCodigoIsin());
-            stmt.setString(4, fund.getTipo());
-            stmt.setString(5, fund.getCategoria());
-            stmt.setString(6, fund.getMonedaBase());
-            stmt.setDate(7, Date.valueOf(fund.getFechaCreacion()));
+            stmt.setString(1, fund.getCompanyId());
+            stmt.setString(2, fund.getName());
+            stmt.setString(3, fund.getIsinCode());
+            stmt.setString(4, fund.getType());
+            stmt.setString(5, fund.getCategory());
+            stmt.setString(6, fund.getCurrency());
+            stmt.setDate(7, Date.valueOf(fund.getCreatedAt()));
             stmt.setString(8, idFondo);
 
             return stmt.executeUpdate() > 0;
@@ -134,7 +134,7 @@ public class FundImpl implements FundDAO {
                 rs.getString("tipo"),
                 rs.getString("categoria"),
                 rs.getString("moneda_base"),
-                rs.getString("fecha_creacion")
+                rs.getDate("fecha_creacion").toLocalDate()
         );
     }
 }

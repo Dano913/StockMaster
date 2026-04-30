@@ -1,0 +1,47 @@
+[33md4466b4[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m)[m Merge branch 'recuperacion'
+[33mbbf2acd[m[33m ([m[1;32mrecuperacion[m[33m)[m Borrando archivo pesado
+[33m2cff9e6[m - DAO totalmente funcional
+[33mdc69648[m + Continuamos DAO
+[33m5e04b87[m - JBDC con SELECT CLIENTES funcionando
+[33m5caeb22[m Panel provisional pasa a ser panel principal en la raiz
+[33m26c7fc4[m + Inicio diseño DAO y JBDC
+[33m6b52965[m - Vista clientes funcionando
+[33m52ba103[m + Vistas cliente y gestor
+[33m8fc0d09[m - Vista asset y fund listas
+[33mb14411a[m - Vista asset terminada
+[33m67624d1[m + Pulido de vista asset
+[33mcd2279f[m - Fin refactorizacion controllers
+[33m7bcd55f[m + Inicio refactorizacion controllers
+[33m4ff8bdf[m - Vistas clientes, gestores y fondo funcionando a falta de estilos y detalles
+[33mffff2a4[m + Vista panel gestores y fichajes
+[33mfa9b3ba[m Rama Auxiliar
+[33mfb07e36[m - Grafico, barra de precios y exposicion a fondo funcionando dinamicamente
+[33m6b0d6d9[m He hecho git pull para deshacer cambios
+[33m52b6772[m + Puliendo vista Asset
+[33m569d669[m - Motor de precios con seleccion de activo y precio dinamicamente funcionando en panel provisional
+[33m54eaf89[m + Continuacion construccion panel
+[33m7b414e5[m - Establecimiento de vistas con layout en panel
+[33mc06158c[m + Continuacion panel administracion
+[33m1586711[m - Fin Construcción Global- view
+[33mbe25828[m + Inicio Construcción Panel Interno en modulo
+[33mb3269ed[m - Confirmado motor de precios genera diversos graficos dinamicamente por recursividad
+[33mda9f7e3[m + Continuamos generando motor de precio
+[33mb8496ca[m - Login y vistas de panel  montado y probando el motor de generacion de precio
+[33mca0633e[m + Inicio montaje panel administracion interno gestores
+[33mdc9ce74[m[33m ([m[1;32mversion-estable[m[33m)[m - Fin estilos tailwind landing page
+[33m68a180a[m + Inicio estilos tailwind landing page
+[33ma99df19[m - Tailwind configurado y htmls diseñados con informacion estándar
+[33m2b7073d[m + Inicio diseño de html para landing page
+[33m7c65277[m - 5 Wireframes finalizados
+[33ma2c5216[m + Continuacion Wireframes para landing page
+[33med1f175[m - Fin de 3 Wireframes
+[33mcb5f24e[m + Inicio de Wireframes para landing page
+[33m1e95597[m - Fin Informe Entorno de Ejecucion
+[33ma7cabef[m + Inicio Informe Entorno de Ejecucion
+[33m854dc96[m - Fin Diagrama Relacional + Actualizacion ER
+[33mc379935[m + Inicio Diagrama Relacional
+[33me4e0dbe[m -Fin Diagrama Entidad-Relacion
+[33m609ecdd[m + Inicio Diagrama Entidad-Relacion
+[33m45f8275[m - README, documentacion y estructura, realizados
+[33m475c7f2[m Create README.md
+[33m4d0488d[m + Inicio del proyecto, README, estructura, documentacion
