@@ -4,40 +4,44 @@ import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.stage.Screen;
 import javafx.stage.Stage;
-import javafx.geometry.Rectangle2D;
-import org.example.paneljavafx.service.GestorService;
 
 import java.io.IOException;
-import java.util.List;
 
 public class MainApp extends Application {
 
+    private static Stage primaryStage;
+
     @Override
     public void start(Stage stage) throws IOException {
+        primaryStage = stage;
 
-        FXMLLoader loader = new FXMLLoader(
-                getClass().getResource("/org/example/paneljavafx/admin-view.fxml")
-        );
-
+        FXMLLoader loader = getLoader("/org/example/paneljavafx/login-view.fxml");
         Parent root = loader.load();
 
         Scene scene = new Scene(root, 1900, 900);
-
         scene.getStylesheets().add(
-                getClass().getResource("/org/example/paneljavafx/trading-theme.css").toExternalForm()
+                getClass().getResource("/org/example/paneljavafx/trading-theme.css")
+                        .toExternalForm()
         );
 
         stage.setTitle("StockMaster");
         stage.setScene(scene);
-
         stage.centerOnScreen();
-
         stage.show();
     }
 
-    public static void main(String[] args) {
-        launch();
+    public static void setRoot(String fxmlPath) throws IOException {
+        primaryStage.getScene().setRoot(loadFXML(fxmlPath));
     }
+
+    public static Parent loadFXML(String fxmlPath) throws IOException {
+        return getLoader(fxmlPath).load();
+    }
+
+    public static FXMLLoader getLoader(String fxmlPath) {
+        return new FXMLLoader(MainApp.class.getResource(fxmlPath));
+    }
+
+    public static void main(String[] args) { launch(); }
 }

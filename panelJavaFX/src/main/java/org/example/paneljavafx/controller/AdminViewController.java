@@ -11,12 +11,13 @@ import org.example.paneljavafx.dao.impl.FundPositionImpl;
 import org.example.paneljavafx.model.Asset;
 import org.example.paneljavafx.model.Fund;
 import org.example.paneljavafx.model.FundAssetPosition;
+import org.example.paneljavafx.model.User;
 import org.example.paneljavafx.service.AssetService;
 import org.example.paneljavafx.service.FundService;
 
 import java.util.List;
 
-public class AdminViewController {
+public class AdminViewController implements UserAware{
 
     @FXML private TabPane tabPane;
 
@@ -62,6 +63,19 @@ public class AdminViewController {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    private User currentUser;
+    private MainController mainController;
+
+    @Override
+    public void setUser(User user) {
+        this.currentUser = user;
+    }
+
+    @Override
+    public void setMainController(MainController mc) {
+        this.mainController = mc;
     }
 
     // -------------------------

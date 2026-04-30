@@ -5,10 +5,12 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
-import lombok.Setter;
+import javafx.stage.Stage;
 import org.example.paneljavafx.MainApp;
 import org.example.paneljavafx.model.User;
+import org.example.paneljavafx.service.MainSessionHolder;
 import org.example.paneljavafx.service.UserService;
 
 import java.io.IOException;
@@ -17,97 +19,85 @@ import java.util.ResourceBundle;
 
 public class LoginController implements Initializable {
 
-    // =========================
-    // FXML FIELDS
-    // =========================
-    @FXML private TextField emailField;
+    @FXML private TextField     emailField;
     @FXML private PasswordField passwordField;
-
-    @Setter
-    private MainController mainController;
+    @FXML private Label         lblError;
 
     private final UserService userService = UserService.getInstance();
 
-    // =========================
-    // INIT
-    // =========================
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         passwordField.setOnAction(event -> handleLogin(null));
     }
 
-    // =========================
-    // LOGIN HANDLER
-    // =========================
     @FXML
     private void handleLogin(ActionEvent event) {
+        String email    = emailField.getText().trim();
+        String password = passwordField.getText();
 
-        if (mainController == null) {
-            System.out.println("⚠️ mainController not set yet");
+        if (email.isBlank() || password.isBlank()) {
+            showError("Introduce email y contraseña.");
             return;
         }
-
-        String email = emailField.getText();
-        String password = passwordField.getText();
 
         User user = userService.login(email, password);
 
         if (user == null) {
-            showError("Login failed", "Invalid email or password");
+            showError("Email o contraseña incorrectos.");
             return;
         }
 
-        String profile = user.getProfile();
+        // Guardar sesión
+        MainSessionHolder.getInstance().setCurrentUser(user);
 
-        if (profile == null || profile.isBlank()) {
-            showError("Error", "User has no profile assigned");
-            return;
+        // Navegar según rol
+        String view = resolveView(user.getRole());
+        if (view == null) return;
+
+        loadView(view, user);
+    }
+
+    private String resolveView(String role) {
+        if (role == null || role.isBlank()) {
+            showError("El usuario no tiene rol asignado.");
+            return null;
         }
-
-        String view;
-
-        switch (profile.toLowerCase()) {
-            case "admin" -> view = "/org/example/stockmaster/admin-view.fxml";
-            case "user", "usuario" -> view = "/org/example/stockmaster/gestor-panel-view.fxml";
+        return switch (role.toLowerCase()) {
+            case "admin", "administrador" ->
+                    "/org/example/paneljavafx/admin-view.fxml";
+            case "gestor", "manager" ->
+                    "/org/example/paneljavafx/gestor-view.fxml";
+            case "cliente", "client" ->
+                    "/org/example/paneljavafx/cliente-view.fxml";
             default -> {
-                showError("Error", "Unknown profile: " + profile);
-                return;
+                showError("Rol desconocido: " + role);
+                yield null;
             }
-        }
+        };
+    }
 
+    private void loadView(String fxmlPath, User user) {
         try {
+            URL mainViewResource = getClass().getResource(
+                    "/org/example/paneljavafx/main-view.fxml");
 
-            FXMLLoader loader = new FXMLLoader(
-                    MainApp.class.getResource(view)
-            );
-
+            FXMLLoader loader = new FXMLLoader(mainViewResource);
             Parent root = loader.load();
 
-            Object controller = loader.getController();
+            // Inyectar usuario y primera vista en MainController
+            MainController mainController = loader.getController();
+            mainController.init(user, fxmlPath);
 
-            if (controller instanceof AdminController adminController) {
-                adminController.setUser(user);
-                adminController.setMainController(mainController);
-            } else if (controller instanceof UserController userController) {
-                userController.setUser(user);
-                userController.setMainController(mainController);
-            }
-
-            mainController.setContent(root);
+            Stage stage = (Stage) emailField.getScene().getWindow();
+            stage.getScene().setRoot(root);
 
         } catch (IOException e) {
-            System.out.println("❌ Error loading view");
             e.printStackTrace();
+            showError("No se pudo cargar la pantalla.");
         }
     }
 
-    // =========================
-    // UTILS
-    // =========================
-    private void showError(String title, String message) {
-        Alert alert = new Alert(Alert.AlertType.WARNING);
-        alert.setTitle(title);
-        alert.setContentText(message);
-        alert.show();
+    private void showError(String message) {
+        lblError.setText(message);
     }
 }
