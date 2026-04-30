@@ -93,7 +93,7 @@ public class ClienteViewController {
                     try {
                         FXMLLoader loader = new FXMLLoader(
                                 getClass().getResource(
-                                        "/org/example/paneljavafx/cliente-privado-view.fxml"
+                                        "/org/example/paneljavafx/cliente-view.fxml"
                                 )
                         );
 

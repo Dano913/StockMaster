@@ -9,6 +9,12 @@
     -fx-font-family: "Segoe UI", "SF Pro Display", "Helvetica Neue", sans-serif;
 }
 
+.login-title      { -fx-font-size: 22px; -fx-font-weight: bold; }
+.login-subtitle   { -fx-text-fill: gray; -fx-font-size: 13px; }
+.login-label      { -fx-font-size: 12px; }
+.login-btn        { -fx-background-color: #185FA5; -fx-text-fill: white; -fx-padding: 10; }
+.login-error      { -fx-text-fill: #E24B4A; -fx-font-size: 12px; }
+
 /* ── LAYOUT CONTAINERS ────────────────────────────────────── */
 .main-vbox {
     -fx-background-color: #121018;
