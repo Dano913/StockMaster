@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.canvas.Canvas?>
+<?import javafx.scene.chart.PieChart?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
+
+<AnchorPane minHeight="600.0" minWidth="1000.0" prefHeight="900.0" prefWidth="1900.0" stylesheets="@trading-theme.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.paneljavafx.controller.GlobalController">
+
+   <children>
+
+      <GridPane prefHeight="869.0" prefWidth="1876.0" styleClass="global-grid" AnchorPane.bottomAnchor="19.0" AnchorPane.leftAnchor="12.0" AnchorPane.rightAnchor="12.0" AnchorPane.topAnchor="12.0">
+
+         <!-- COLUMNAS -->
+         <columnConstraints>
+            <ColumnConstraints hgrow="ALWAYS" percentWidth="78.0" />
+            <ColumnConstraints halignment="CENTER" hgrow="ALWAYS" percentWidth="22.0" />
+         </columnConstraints>
+
+         <!-- FILAS AJUSTADAS -->
+         <rowConstraints>
+            <RowConstraints maxHeight="170.0" minHeight="110.0" prefHeight="110.0" vgrow="NEVER" />
+            <RowConstraints maxHeight="350.0" minHeight="300.0" percentHeight="49.0" prefHeight="300.0" vgrow="ALWAYS" />
+            <RowConstraints percentHeight="40.0" vgrow="ALWAYS" />
+         </rowConstraints>
+
+         <!-- ══════════════════════════════════════════════
+              KPI STRIP
+         ═══════════════════════════════════════════════ -->
+         <HBox alignment="CENTER_LEFT" maxHeight="100.0" maxWidth="1480.0" minHeight="100.0" prefHeight="100.0" styleClass="kpi-strip" GridPane.columnIndex="0" GridPane.rowIndex="0">
+
+            <VBox alignment="CENTER_LEFT" maxHeight="70" spacing="1.5" styleClass="kpi-block" HBox.hgrow="ALWAYS">
+               <Label styleClass="kpi-label" text="CAPITAL TOTAL" />
+               <Label fx:id="kpiCapitalTotal" styleClass="kpi-value" text="—" />
+               <Label fx:id="kpiCapitalDelta" styleClass="kpi-delta-positive" text="+0,00%" />
+            </VBox>
+
+            <VBox alignment="CENTER_LEFT" maxHeight="70" spacing="1.5" styleClass="kpi-block" HBox.hgrow="ALWAYS">
+               <Label styleClass="kpi-label" text="RENTABILIDAD" />
+               <Label fx:id="kpiRentabilidad" styleClass="kpi-value" text="—" />
+               <Label fx:id="kpiRentabilidadDelta" styleClass="kpi-delta-positive" text="+0,00%" />
+            </VBox>
+
+            <VBox alignment="CENTER_LEFT" maxHeight="70" spacing="1.5" styleClass="kpi-block" HBox.hgrow="ALWAYS">
+               <Label styleClass="kpi-label" text="GESTORES" />
+               <Label fx:id="kpiGestores" styleClass="kpi-value" text="—" />
+            </VBox>
+
+            <VBox alignment="CENTER_LEFT" maxHeight="70" spacing="1.5" styleClass="kpi-block" HBox.hgrow="ALWAYS">
+               <Label styleClass="kpi-label" text="CLIENTES" />
+               <Label fx:id="kpiClientes" styleClass="kpi-value" text="—" />
+            </VBox>
+
+         </HBox>
+
+         <!-- ══════════════════════════════════════════════
+              GRÁFICOS
+         ═══════════════════════════════════════════════ -->
+         <HBox alignment="CENTER_LEFT" prefHeight="384.0" prefWidth="1482.0" spacing="12.0" GridPane.columnIndex="0" GridPane.rowIndex="1" GridPane.vgrow="ALWAYS">
+
+            <GridPane.margin>
+               <Insets top="6" />
+            </GridPane.margin>
+
+            <!-- BAR CHART -->
+            <VBox maxHeight="410.0" maxWidth="1100.0" minHeight="340.0" prefHeight="340.0" prefWidth="1100.0" spacing="8.0" styleClass="card" HBox.hgrow="ALWAYS">
+
+               <Label styleClass="card-title" text="EVOLUCIÓN CARTERA" />
+
+               <Canvas fx:id="barChartCanvas" height="362.0" style="-fx-min-height: 260;" width="1119.0" VBox.vgrow="ALWAYS" />
+            </VBox>
+
+            <!-- PIE CHART -->
+            <VBox maxHeight="410.0" minHeight="200.0" minWidth="260" prefHeight="200.0" prefWidth="300" spacing="8.0" styleClass="card" HBox.hgrow="NEVER">
+
+               <Label styleClass="card-title" text="DISTRIBUCIÓN POR FONDO" />
+
+               <PieChart fx:id="globalPieChart" labelsVisible="false" legendSide="BOTTOM" legendVisible="true" maxHeight="320" prefHeight="260" styleClass="fund-pie-chart" />
+            </VBox>
+
+         </HBox>
+
+         <!-- ══════════════════════════════════════════════
+              TABLAS
+         ═══════════════════════════════════════════════ -->
+         <HBox alignment="CENTER_LEFT" spacing="12.0" GridPane.columnIndex="0" GridPane.rowIndex="2" GridPane.vgrow="ALWAYS">
+
+            <GridPane.margin>
+               <Insets bottom="6" top="6" />
+            </GridPane.margin>
+
+            <!-- TOP FONDS -->
+            <VBox maxHeight="330.0" minHeight="250.0" prefHeight="250.0" spacing="8.0" styleClass="card" HBox.hgrow="ALWAYS">
+
+               <HBox alignment="CENTER_LEFT" spacing="10.0">
+                  <Label styleClass="card-title" text="MEJORES FONDOS" HBox.hgrow="ALWAYS" />
+                  <Label styleClass="kpi-label" text="NAV TOTAL:" />
+                  <Label fx:id="navTotalLabel" styleClass="fund-change-positive" text="—" />
+               </HBox>
+
+               <TableView fx:id="topFondsTable" maxHeight="250.0" minHeight="250.0" prefHeight="250.0" styleClass="top-table" VBox.vgrow="ALWAYS">
+
+                  <columnResizePolicy>
+                     <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                  </columnResizePolicy>
+
+                  <columns>
+                     <TableColumn fx:id="colFondoNombre" text="Fondo" />
+                     <TableColumn fx:id="colFondoValor" prefWidth="110" text="NAV" />
+                  </columns>
+
+                  <placeholder>
+                     <Label styleClass="kpi-label" text="Sin datos" />
+                  </placeholder>
+
+               </TableView>
+            </VBox>
+
+            <!-- TOP ASSETS -->
+            <VBox maxHeight="330.0" minHeight="240.0" prefHeight="240.0" spacing="8.0" styleClass="card" HBox.hgrow="ALWAYS">
+
+               <Label styleClass="card-title" text="MEJORES ACTIVOS" />
+
+               <TableView fx:id="topAssetsGlobalTable" maxHeight="250.0" minHeight="250.0" prefHeight="250.0" styleClass="top-table" VBox.vgrow="ALWAYS">
+
+                  <columnResizePolicy>
+                     <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                  </columnResizePolicy>
+
+                  <columns>
+                     <TableColumn fx:id="colAssetNombre" text="Activo" />
+                     <TableColumn fx:id="colAssetPrecio" prefWidth="90" text="Precio" />
+                     <TableColumn fx:id="colAssetCambio" prefWidth="80" text="Cambio" />
+                  </columns>
+
+                  <placeholder>
+                     <Label styleClass="kpi-label" text="Sin datos" />
+                  </placeholder>
+
+               </TableView>
+            </VBox>
+
+         </HBox>
+
+         <!-- ══════════════════════════════════════════════
+              SEARCH PANEL
+         ═══════════════════════════════════════════════ -->
+         <VBox maxHeight="865.0" maxWidth="400.0" minHeight="700.0" prefHeight="833.0" prefWidth="400.0" styleClass="search-panel" GridPane.columnIndex="1" GridPane.rowIndex="0" GridPane.rowSpan="3" GridPane.valignment="CENTER" GridPane.vgrow="SOMETIMES">
+
+            <GridPane.margin>
+               <Insets left="6.0" />
+            </GridPane.margin>
+
+            <Label styleClass="kpi-label" text="BUSCAR" />
+
+            <TextField fx:id="searchField" promptText="Fondo, activo, ticker, ISIN..." styleClass="search-field" />
+
+            <Label styleClass="kpi-label" text="RESULTADOS">
+               <VBox.margin>
+                  <Insets top="8" />
+               </VBox.margin>
+            </Label>
+
+            <ListView fx:id="resultsList" maxHeight="700.0" minHeight="700.0" prefHeight="700.0" styleClass="search-results" VBox.vgrow="ALWAYS" />
+
+         </VBox>
+
+      </GridPane>
+
+   </children>
+</AnchorPane>
