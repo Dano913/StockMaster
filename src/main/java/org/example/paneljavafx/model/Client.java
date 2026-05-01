@@ -12,10 +12,11 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 
-public class Client extends User {
+public class Client {
 
     private int clientId;
-    private Integer gestorId;
+    private int userId;
+    private int gestorId;
 
     private String name;
     private String surname;

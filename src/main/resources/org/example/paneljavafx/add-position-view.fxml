@@ -7,64 +7,52 @@
 <VBox xmlns="http://javafx.com/javafx/17"
       xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="org.example.paneljavafx.controller.AddPositionController"
-      spacing="15"
+      spacing="18"
+      prefWidth="500" prefHeight="300"
+      minWidth="340" minHeight="240"
+      maxWidth="600" maxHeight="400"
       alignment="CENTER"
       styleClass="modal-container">
 
     <padding>
-        <Insets top="20" right="20" bottom="20" left="20"/>
+        <Insets top="24" right="24" bottom="24" left="24"/>
     </padding>
 
-    <!-- =========================
-         TITULO
-    ========================== -->
-    <Label text="NUEVA POSICIÓN"
-           styleClass="modal-title"/>
+    <!-- HEADER COMPACTO -->
+    <VBox spacing="8" alignment="CENTER">
+        <Label text="Nueva Posición" styleClass="modal-title"/>
+        <Separator styleClass="modal-separator"/>
+    </VBox>
 
-    <!-- =========================
-         FORM
-    ========================== -->
-    <VBox spacing="10" maxWidth="320">
+    <!-- FORM COMPACTO -->
+    <VBox spacing="14">
 
         <!-- FONDO -->
-        <Label text="Fondo"/>
-
-        <ComboBox fx:id="fundCombo"
-                  prefWidth="300"
-                  promptText="Selecciona un fondo"/>
+        <VBox spacing="4">
+            <Label text="Fondo" styleClass="form-label"/>
+            <ComboBox fx:id="fundCombo"
+                      prefWidth="280"
+                      styleClass="form-combo"
+                      promptText="Selecciona fondo"/>
+        </VBox>
 
         <!-- CANTIDAD -->
-        <Label text="Cantidad"/>
-
-        <TextField fx:id="amountField"
-                   promptText="Introduce cantidad"
-                   maxWidth="300"/>
+        <VBox spacing="4">
+            <Label text="Cantidad" styleClass="form-label"/>
+            <TextField fx:id="amountField"
+                       prefWidth="280"
+                       styleClass="form-field"
+                       promptText="0.00"/>
+        </VBox>
 
     </VBox>
 
-    <!-- =========================
-         BOTONES
-    ========================== -->
-    <HBox spacing="10" alignment="CENTER">
-
-        <Button text="Guardar"
-                onAction="#save"
-                styleClass="btn-primary"
-                minWidth="90"/>
-
-        <Button text="Cancelar"
-                onAction="#cancel"
-                styleClass="btn-secondary"
-                minWidth="90"/>
-
-        <Button fx:id="deleteButton"
-                text="Eliminar"
-                onAction="#sell"
-                styleClass="btn-danger"
-                minWidth="90"
-                visible="false"
-                managed="false"/>
-
+    <!-- BOTONES COMPACTOS -->
+    <HBox spacing="10" alignment="CENTER_RIGHT">
+        <Region HBox.hgrow="ALWAYS"/>
+        <Button text="Cancelar" onAction="#cancel" styleClass="btn-secondary" prefHeight="38"/>
+        <Button fx:id="deleteButton" text="Eliminar" onAction="#sell" styleClass="btn-danger" prefHeight="38" visible="false" managed="false"/>
+        <Button fx:id="saveBtn" text="Crear" onAction="#save" styleClass="btn-primary" prefHeight="38"/>
     </HBox>
 
 </VBox>

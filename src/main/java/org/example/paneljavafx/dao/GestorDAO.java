@@ -13,6 +13,8 @@ public interface GestorDAO {
 
     Optional<Gestor> findById(int id);
 
+    Optional<Gestor> findByUserId(int userId);
+
     void update(Gestor gestor);
 
     void deleteById(int id);

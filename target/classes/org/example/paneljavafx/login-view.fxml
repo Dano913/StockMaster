@@ -6,37 +6,43 @@
 <VBox xmlns:fx="http://javafx.com/fxml"
       fx:controller="org.example.paneljavafx.controller.LoginController"
       alignment="CENTER"
-      spacing="16"
+      spacing="12"
       prefWidth="400"
-      prefHeight="500"
+      prefHeight="360"
+      maxWidth="400"
       styleClass="login-container">
 
-    <padding><Insets top="60" right="60" bottom="60" left="60"/></padding>
+    <padding>
+        <Insets top="30" right="40" bottom="30" left="40"/>
+    </padding>
 
     <!-- TÍTULO -->
     <Label text="StockMaster" styleClass="login-title"/>
     <Label text="Introduce tus credenciales" styleClass="login-subtitle"/>
 
-    <Region prefHeight="16"/>
+    <Region prefHeight="10"/>
 
     <!-- EMAIL -->
     <Label text="Email" styleClass="login-label"/>
     <TextField fx:id="emailField"
                promptText="usuario@empresa.com"
-               maxWidth="Infinity"/>
+               prefWidth="280"
+               maxWidth="280"/>
 
     <!-- CONTRASEÑA -->
     <Label text="Contraseña" styleClass="login-label"/>
     <PasswordField fx:id="passwordField"
                    promptText="••••••••"
-                   maxWidth="Infinity"/>
+                   prefWidth="280"
+                   maxWidth="280"/>
 
-    <Region prefHeight="8"/>
+    <Region prefHeight="6"/>
 
     <!-- BOTÓN -->
     <Button fx:id="btnLogin"
             text="Iniciar sesión"
-            maxWidth="Infinity"
+            prefWidth="280"
+            maxWidth="280"
             onAction="#handleLogin"
             styleClass="login-btn"/>
 
@@ -45,6 +51,5 @@
            text=""
            styleClass="login-error"
            wrapText="true"
-           maxWidth="Infinity"/>
-
+           maxWidth="280"/>
 </VBox>

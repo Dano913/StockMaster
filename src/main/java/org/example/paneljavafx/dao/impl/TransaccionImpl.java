@@ -22,10 +22,10 @@ public class TransaccionImpl implements TransaccionDAO {
         List<Transaction> list = new ArrayList<>();
 
         String sql = """
-            SELECT transaction_id, position_id, type, amount, executed_at
-            FROM transaction
-            WHERE position_id = ?
-            ORDER BY executed_at DESC
+            SELECT id_transaccion, id_posicion, tipo, importe, fecha
+            FROM transaccion
+            WHERE id_posicion = ?
+            ORDER BY fecha DESC
         """;
 
         try (Connection connection = getConnection();
@@ -51,7 +51,7 @@ public class TransaccionImpl implements TransaccionDAO {
     public Transaction save(Transaction transaction) {
 
         String sql = """
-            INSERT INTO transaction (position_id, type, amount, executed_at)
+            INSERT INTO transaccion (id_posicion, tipo, importe, fecha)
             VALUES (?, ?, ?, ?)
         """;
 
@@ -82,17 +82,33 @@ public class TransaccionImpl implements TransaccionDAO {
         }
     }
 
+    @Override
+    public void deleteById(int id) {
+
+        String sql = "DELETE FROM transaccion WHERE id_transaccion = ?";
+
+        try (Connection conn = getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, id);
+            ps.executeUpdate();
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Error deleting transaction", e);
+        }
+    }
+
     // ========================= MAPPER =========================
     private Transaction mapRow(ResultSet rs) throws SQLException {
 
         Transaction t = new Transaction();
 
-        t.setTransactionId(rs.getInt("transaction_id"));
-        t.setPositionId(rs.getInt("position_id"));
-        t.setType(rs.getString("type"));
-        t.setAmount(rs.getDouble("amount"));
+        t.setTransactionId(rs.getInt("id_transaccion"));
+        t.setPositionId(rs.getInt("id_posicion"));
+        t.setType(rs.getString("tipo"));
+        t.setAmount(rs.getDouble("importe"));
 
-        Timestamp ts = rs.getTimestamp("executed_at");
+        Timestamp ts = rs.getTimestamp("fecha");
         if (ts != null) {
             t.setExecutedAt(ts.toInstant());
         }
