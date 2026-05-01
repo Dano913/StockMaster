@@ -2,112 +2,167 @@ package org.example.paneljavafx.service;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import org.example.paneljavafx.dao.ClientDAO;
+import org.example.paneljavafx.dao.*;
+import org.example.paneljavafx.dao.impl.*;
+import org.example.paneljavafx.model.*;
+import org.example.paneljavafx.service.dto.PortfolioSummary;
+import org.example.paneljavafx.model.ClientFundPosition;
 import org.example.paneljavafx.dao.ClientFundPositionDAO;
-import org.example.paneljavafx.dao.GestorDAO;
 import org.example.paneljavafx.dao.impl.ClientFundPositionImpl;
-import org.example.paneljavafx.dao.impl.ClientImpl;
-import org.example.paneljavafx.dao.impl.GestorImpl;
-import org.example.paneljavafx.model.Client;
-import org.example.paneljavafx.model.Gestor;
-import org.example.paneljavafx.model.Transaction;
 
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class GestorService {
 
-    // ========================= SINGLETON =========================
     private static final GestorService INSTANCE = new GestorService();
     public static GestorService getInstance() { return INSTANCE; }
     private GestorService() {}
 
-    // ========================= DAO =========================
     private final GestorDAO gestorDAO = new GestorImpl();
     private final ClientDAO clientDAO = new ClientImpl();
-    private final ClientFundPositionDAO clientFundPositionDAO =
-            new ClientFundPositionImpl();
+    private final ClientFundPositionService positionService =
+            ClientFundPositionService.getInstance();
 
-    // ========================= CACHE =========================
-        private final ObservableList<Gestor> gestores = FXCollections.observableArrayList();
-    private boolean loaded = false;
+    private final ObservableList<Client> myClients =
+            FXCollections.observableArrayList();
 
-    // ========================= LOAD =========================
-    public void load() {
-        if (loaded) return;
-        loaded = true;
+    // ========================= GESTOR LOGUEADO =========================
 
-        gestores.setAll(gestorDAO.findAll());
+    public List<Gestor> load() {
+        return gestorDAO.findAll();
     }
 
-    // ========================= GET GESTOR =========================
-    public ObservableList<Gestor> getAll() {
-        return gestores;
+    private boolean isAdmin() {
+        User user = MainSessionHolder.getInstance().getCurrentUser();
+        return user != null && "ADMIN".equalsIgnoreCase(user.getRole());
     }
 
-    public Optional<Gestor> getById(int id) {
-        return gestorDAO.findById(id);
+    public Optional<Gestor> getLoggedGestor() {
+
+        User user = MainSessionHolder.getInstance().getCurrentUser();
+
+        if (user == null) return Optional.empty();
+
+        return gestorDAO.findByUserId(user.getId());
     }
 
-    public String getGestorFullName(String gestorId) {
-        return getById(Integer.parseInt(gestorId))
+    public int getLoggedGestorId() {
+        return getLoggedGestor()
+                .map(Gestor::getGestorId)
+                .orElse(-1);
+    }
+
+    public List<Gestor> getAll() {
+        return gestorDAO.findAll();
+    }
+
+    public String getGestorFullName(int gestorId) {
+
+        return gestorDAO.findById(gestorId)
                 .map(g -> g.getName() + " " + g.getSurname())
                 .orElse("Sin gestor");
     }
 
-    // ========================= GET CLIENT =========================
-    public List<Client> getClientesByGestorId(int gestorId, List<Client> clientes) {
+    // ========================= CLIENTES =========================
 
-        return clientes.stream()
-                .filter(c -> c.getGestorId() == gestorId)
+    public ObservableList<Client> getVisibleMyClientsObservable() {
+
+        if (isAdmin()) {
+            myClients.setAll(clientDAO.findAll());
+            return myClients;
+        }
+
+        int gestorId = getLoggedGestorId();
+
+        if (gestorId == -1) {
+            myClients.clear();
+            return myClients;
+        }
+
+        myClients.setAll(
+                clientDAO.findAll().stream()
+                        .filter(c -> Objects.equals(c.getGestorId(), gestorId))
+                        .toList()
+        );
+
+        return myClients;
+    }
+
+    public List<Client> getClientsByGestorId(int gestorId) {
+
+        return clientDAO.findAll().stream()
+                .filter(c -> Objects.equals(c.getGestorId(), gestorId))
                 .toList();
     }
 
-    // ========================= GET WALLET ========================
-    public double calculateManagedWallet(int gestorId) {
+    public double getClientTotalValue(int clientId) {
 
-        return clientDAO.findAll().stream()
-                .filter(client -> Objects.equals(client.getGestorId(), gestorId))
-                .map(Client::getClientId)
-                .flatMap(clientId ->
-                        clientFundPositionDAO.findByClientId(clientId).stream()
-                )
-                .filter(position -> position.getTransactions() != null)
-                .flatMap(position -> position.getTransactions().stream())
-                .mapToDouble(Transaction::getAmount)
+        return positionService.getByClientId(clientId).stream()
+                .mapToDouble(ClientFundPosition::getActualValue)
                 .sum();
     }
 
-    // ========================= CRUD GESTOR =========================
+    // ========================= CLIENTE SUMMARY (REUTILIZA MOTOR) =========================
+
+    public Map<Client, PortfolioSummary> getClientSummaries(int gestorId) {
+
+        return clientDAO.findAll().stream()
+                .filter(c -> Objects.equals(c.getGestorId(), gestorId))
+                .collect(Collectors.toMap(
+                        c -> c,
+                        c -> positionService.calculatePortfolio(
+                                positionService.getByClientId(c.getClientId())
+                        )
+                ));
+    }
+
+    public double calculateManagedWalletByGestor(int gestorId) {
+
+        if (gestorId == -1) return 0;
+
+        return getClientSummaries(gestorId).values().stream()
+                .mapToDouble(PortfolioSummary::getTotal)
+                .sum();
+    }
+
+    // ========================= WALLET TOTAL =========================
+
+    public double calculateManagedWallet() {
+
+        int gestorId = getLoggedGestorId();
+
+        if (gestorId == -1) return 0;
+
+        return getClientSummaries(gestorId).values().stream()
+                .mapToDouble(PortfolioSummary::getTotal)
+                .sum();
+    }
+
+    // ========================= CLIENT COUNT =========================
+
+    public int getClientCount() {
+        return getVisibleMyClientsObservable().size();
+    }
+
+    // ========================= CRUD =========================
+
     public void save(Gestor gestor) {
-
+        if (gestor == null) return;
         gestorDAO.save(gestor);
-
-        gestores.add(gestor);
     }
 
     public void update(Gestor gestor) {
-
+        if (gestor == null) return;
         gestorDAO.update(gestor);
-
-        for (int i = 0; i < gestores.size(); i++) {
-
-            if (Objects.equals(gestores.get(i).getGestorId(), gestor.getGestorId())) {
-
-                gestores.set(i, gestor);
-
-                return;
-            }
-        }
     }
 
     public void delete(Integer id) {
-
-        if (id == null || id == 0) return;
-
+        if (id == null) return;
         gestorDAO.deleteById(id);
+    }
 
-        gestores.removeIf(g -> id.equals(g.getGestorId()));
+    public void deleteClient(int clientId) {
+        clientDAO.deleteById(clientId);
     }
 }

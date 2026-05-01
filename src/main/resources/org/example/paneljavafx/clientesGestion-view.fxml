@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.chart.PieChart?>
+<?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
@@ -8,125 +10,146 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.RowConstraints?>
-<?import javafx.scene.layout.VBox?>
 <?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
 
-<?import javafx.scene.control.Button?>
-<StackPane
-        xmlns="http://javafx.com/javafx/17"
-        xmlns:fx="http://javafx.com/fxml/1"
-        fx:controller="org.example.paneljavafx.controller.GestorClientesController"
-        prefHeight="900"
-        prefWidth="1900"
-        stylesheets="@trading-theme.css">
+<StackPane stylesheets="@trading-theme.css"
+           xmlns="http://javafx.com/javafx/25"
+           xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="org.example.paneljavafx.controller.GestorClientesController">
 
     <children>
-        <!-- =========================
-             MAIN UI
-        ========================== -->
-        <AnchorPane>
-            <children>
-                <GridPane
-                        styleClass="cliente-grid"
-                        hgap="16"
-                        AnchorPane.topAnchor="0"
-                        AnchorPane.bottomAnchor="0"
-                        AnchorPane.leftAnchor="0"
-                        AnchorPane.rightAnchor="0">
 
+        <!-- MAIN UI -->
+        <AnchorPane AnchorPane.topAnchor="0" AnchorPane.bottomAnchor="0"
+                    AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0">
+
+            <children>
+
+                <GridPane hgap="16" styleClass="cliente-grid"
+                          AnchorPane.topAnchor="0" AnchorPane.bottomAnchor="0"
+                          AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0">
+
+                    <!-- COLUMNAS RESPONSIVE -->
                     <columnConstraints>
-                        <ColumnConstraints hgrow="ALWAYS" percentWidth="50"/>
-                        <ColumnConstraints hgrow="ALWAYS" percentWidth="50"/>
+                        <ColumnConstraints percentWidth="35" hgrow="ALWAYS"/>
+                        <ColumnConstraints percentWidth="65" hgrow="ALWAYS"/>
                     </columnConstraints>
 
                     <rowConstraints>
                         <RowConstraints vgrow="ALWAYS"/>
                     </rowConstraints>
 
-                    <!-- ═══════════════════════════════════════
-                         PANEL IZQUIERDO — Lista de clientes
-                    ════════════════════════════════════════ -->
-                    <VBox styleClass="cliente-left-panel"
-                          GridPane.columnIndex="0"
-                          GridPane.rowIndex="0">
+                    <!-- ================= LEFT PANEL ================= -->
+                    <VBox spacing="12"
+                          styleClass="cliente-left-panel"
+                          GridPane.columnIndex="0">
 
-                        <!-- Cabecera -->
-                        <Label text="CLIENTES"
-                               styleClass="cliente-panel-title"/>
-                        <Button text="Añadir Cliente" onAction="#openAddCliente"/>
+                        <!-- HEADER + KPIs + PIE -->
+                        <HBox spacing="12">
 
+                            <!-- KPI COLUMN -->
+                            <VBox spacing="12">
 
-                        <!-- Búsqueda -->
+                                <!-- HEADER -->
+                                <HBox alignment="CENTER_LEFT" spacing="10">
+                                    <Label text="CLIENTES"
+                                           styleClass="cliente-panel-title"/>
+                                    <Region HBox.hgrow="ALWAYS"/>
+                                    <Button text="Añadir Cliente"
+                                            onAction="#openAddCliente"
+                                            styleClass="btn-primary"/>
+                                </HBox>
+
+                                <!-- WALLET -->
+                                <VBox style="-fx-padding: 12; -fx-background-color: #1b1f2a; -fx-background-radius: 8;">
+                                    <Label text="WALLET TOTAL"
+                                           style="-fx-text-fill: #9aa4b2; -fx-font-size: 11px;"/>
+                                    <Label fx:id="labelManagedWallet"
+                                           text="€0.00"
+                                           style="-fx-text-fill: #00d4ff; -fx-font-size: 18px; -fx-font-weight: bold;"/>
+                                </VBox>
+
+                                <!-- CLIENTES -->
+                                <VBox style="-fx-padding: 12; -fx-background-color: #1b1f2a; -fx-background-radius: 8;">
+                                    <Label text="TOTAL CLIENTES"
+                                           style="-fx-text-fill: #9aa4b2; -fx-font-size: 11px;"/>
+                                    <Label fx:id="labelTotalClientes"
+                                           text="0"
+                                           style="-fx-text-fill: #00d4ff; -fx-font-size: 18px; -fx-font-weight: bold;"/>
+                                </VBox>
+
+                            </VBox>
+
+                            <!-- PIE CHART -->
+                            <VBox spacing="8"
+                                  style="-fx-padding: 12; -fx-background-color: #141824; -fx-background-radius: 8;"
+                                  HBox.hgrow="ALWAYS">
+
+                                <Label text="DISTRIBUCIÓN"
+                                       style="-fx-text-fill: #9aa4b2; -fx-font-size: 11px;"/>
+
+                                <PieChart fx:id="clientsPieChart"
+                                          legendVisible="false"
+                                          labelsVisible="true"
+                                          VBox.vgrow="ALWAYS"/>
+                            </VBox>
+
+                        </HBox>
+
+                        <!-- SEARCH -->
                         <TextField fx:id="searchField"
-                                   styleClass="cliente-search"
-                                   promptText="Buscar por nombre, email..."/>
+                                   promptText="Buscar por nombre, email..."
+                                   styleClass="cliente-search"/>
 
-                        <!-- Tabla -->
+                        <!-- TABLE -->
                         <TableView fx:id="clientsTable"
-                                   styleClass="cliente-table"
-                                   VBox.vgrow="ALWAYS">
+                                   VBox.vgrow="ALWAYS"
+                                   styleClass="cliente-table">
+
                             <columnResizePolicy>
                                 <TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
                             </columnResizePolicy>
-                            <VBox.margin>
-                                <Insets top="4" left="4" right="4" bottom="4"/>
-                            </VBox.margin>
+
                             <columns>
-                                <TableColumn fx:id="colName"
-                                             text="Nombre Completo"
-                                             prefWidth="300"/>
-                                <TableColumn fx:id="colEmail"
-                                             text="Email"
-                                             prefWidth="250"/>
-                                <TableColumn fx:id="colActions"
-                                             text="Acciones"
-                                             prefWidth="120"/>
+                                <TableColumn fx:id="colName" text="Nombre Completo"/>
+                                <TableColumn fx:id="colEmail" text="Email"/>
+                                <TableColumn fx:id="colActions" text="Acciones"/>
                             </columns>
+
                             <placeholder>
-                                <Label text="Sin clientes" styleClass="kpi-label"/>
+                                <Label text="Sin clientes"/>
                             </placeholder>
+
                         </TableView>
 
                     </VBox>
 
-                    <!-- ═══════════════════════════════════════
-                         PANEL DERECHO — Detalle del cliente
-                    ════════════════════════════════════════ -->
+                    <!-- ================= RIGHT PANEL ================= -->
                     <StackPane fx:id="clienteDetailContainer"
-                          styleClass="cliente-right-panel"
-                          GridPane.columnIndex="1"
-                          GridPane.rowIndex="0">
+                               styleClass="cliente-right-panel"
+                               GridPane.columnIndex="1">
 
-                        <!-- Estado vacío por defecto -->
-                        <VBox styleClass="cliente-detail-empty"
-                              VBox.vgrow="ALWAYS"
-                              alignment="CENTER">
-                            <children>
-                                <Label text="👤" styleClass="cliente-empty-icon"/>
-                                <Label text="Selecciona un cliente para ver su detalle"
-                                       styleClass="cliente-empty-text"/>
-                            </children>
+                        <VBox alignment="CENTER" spacing="10">
+                            <Label text="👤" style="-fx-font-size: 30px;"/>
+                            <Label text="Selecciona un cliente"/>
                         </VBox>
+
                     </StackPane>
+
                 </GridPane>
             </children>
         </AnchorPane>
-        <!-- =========================
-                     OVERLAY CENTRADO
-                ========================== -->
-        <VBox fx:id="overlayContainer"
-              visible="false"
-              managed="false"
-              alignment="CENTER"
-              spacing="10"
-              style="-fx-background-color: rgba(0,0,0,0.4);">
 
-            <!-- aquí se inyecta el formulario -->
-            <VBox alignment="CENTER"/>
-
-        </VBox>
+        <!-- OVERLAY -->
+        <StackPane fx:id="overlayContainer"
+                   alignment="CENTER"
+                   visible="false"
+                   managed="false"
+                   style="-fx-background-color: rgba(0,0,0,0.4);"/>
 
     </children>
-
 </StackPane>

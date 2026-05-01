@@ -13,10 +13,12 @@ import org.example.paneljavafx.model.ClientFundPosition;
 import org.example.paneljavafx.model.Transaction;
 import org.example.paneljavafx.model.User;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.time.LocalDate;
 
 // - INSTANCE CLIENT
 // 0 DAO CLIENT WITH OBSERVABLE CLIENTS AND POSITION
@@ -113,11 +115,13 @@ public class ClientService {
     // ========================= CRUD CLIENT =========================
     public void save(Client client) {
 
-        Client saved = clientDAO.save(client);
+        if (client == null) return;
 
-        if (saved != null) {
-            clients.add(saved);
+        if (client.getJoinDate() == null) {
+            client.setJoinDate(LocalDate.now());
         }
+
+        clientDAO.save(client);
     }
 
     public void update(Client client) {

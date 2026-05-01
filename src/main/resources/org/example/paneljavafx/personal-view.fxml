@@ -1,123 +1,86 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.Insets?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
 
-<StackPane
-        xmlns="http://javafx.com/javafx/17"
-        xmlns:fx="http://javafx.com/fxml/1"
-        fx:controller="org.example.paneljavafx.controller.PersonalViewController"
-        prefHeight="900"
-        prefWidth="1900"
-        stylesheets="@trading-theme.css">
+<StackPane prefHeight="900" prefWidth="1900" stylesheets="@trading-theme.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.paneljavafx.controller.PersonalViewController">
 
    <children>
 
-      <!-- =========================
-           MAIN LAYOUT
-      ========================== -->
+      <!-- ========================= MAIN ========================== -->
       <AnchorPane>
 
          <children>
 
-            <GridPane
-                    styleClass="cliente-grid"
-                    hgap="16"
-                    AnchorPane.topAnchor="0"
-                    AnchorPane.bottomAnchor="0"
-                    AnchorPane.leftAnchor="0"
-                    AnchorPane.rightAnchor="0">
+            <GridPane hgap="16" styleClass="cliente-grid" AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.topAnchor="0">
 
                <columnConstraints>
-                  <ColumnConstraints hgrow="ALWAYS" percentWidth="50"/>
-                  <ColumnConstraints hgrow="ALWAYS" percentWidth="50"/>
+                  <ColumnConstraints hgrow="ALWAYS" percentWidth="30.0" />
+                  <ColumnConstraints hgrow="ALWAYS" percentWidth="70.0" />
                </columnConstraints>
 
                <rowConstraints>
-                  <RowConstraints vgrow="ALWAYS"/>
+                  <RowConstraints vgrow="ALWAYS" />
                </rowConstraints>
 
-               <!-- ═══════════════════════════════
-                    LEFT PANEL
-               ════════════════════════════════ -->
-               <VBox styleClass="cliente-left-panel"
-                     GridPane.columnIndex="0"
-                     GridPane.rowIndex="0">
+               <!-- ═══════════════════════════════ LEFT: GESTORES ═══════════════════════════════ -->
+               <VBox styleClass="cliente-left-panel" GridPane.columnIndex="0" GridPane.rowIndex="0">
 
-                  <Label text="GESTORES"
-                         styleClass="cliente-panel-title"/>
+                  <Label styleClass="cliente-panel-title" text="GESTORES" />
 
-                  <Button text="➕ Añadir Gestor"
-                          onAction="#openAddGestor"
-                          styleClass="btn-primary"/>
+                  <Button onAction="#openAddGestor" styleClass="btn-primary" text="➕ Añadir Gestor" />
 
-                  <TextField fx:id="searchField"
-                             styleClass="cliente-search"
-                             promptText="Buscar gestor..."/>
+                  <TextField fx:id="searchField" promptText="Buscar gestor..." styleClass="cliente-search" />
 
-                  <TableView fx:id="gestorsTable"
-                             styleClass="cliente-table"
-                             VBox.vgrow="ALWAYS">
+                  <TableView fx:id="gestorsTable" styleClass="cliente-table" VBox.vgrow="ALWAYS">
 
                      <columnResizePolicy>
-                        <TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
+                        <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
                      </columnResizePolicy>
 
                      <columns>
 
-                        <TableColumn fx:id="colName"
-                                     text="Nombre"
-                                     prefWidth="220"/>
+                        <TableColumn fx:id="colName" prefWidth="220" text="Nombre" />
 
-                        <TableColumn fx:id="colEmail"
-                                     text="Email"
-                                     prefWidth="200"/>
+                        <TableColumn fx:id="colEmail" prefWidth="200" text="Email" />
 
-                        <TableColumn fx:id="colExperience"
-                                     text="Exp"
-                                     prefWidth="100"/>
+                        <TableColumn fx:id="colExperience" prefWidth="100" text="Exp" />
 
-                        <TableColumn fx:id="colRisk"
-                                     text="Riesgo"
-                                     prefWidth="100"/>
+                        <TableColumn fx:id="colRisk" prefWidth="100" text="Riesgo" />
 
-                        <!-- BOTÓN ACCIÓN (lo crea controller igual que cliente) -->
-                        <TableColumn text="Acciones"
-                                     prefWidth="120"/>
+                        <TableColumn prefWidth="120" text="Acciones" />
 
                      </columns>
 
                      <placeholder>
-                        <Label text="Sin gestores"
-                               styleClass="kpi-label"/>
+                        <Label styleClass="kpi-label" text="Sin gestores" />
                      </placeholder>
 
                   </TableView>
 
                </VBox>
 
-               <!-- ═══════════════════════════════
-                    RIGHT PANEL (detalle opcional)
-               ════════════════════════════════ -->
-               <VBox fx:id="gestorDetailContainer"
-                     styleClass="cliente-right-panel"
-                     GridPane.columnIndex="1"
-                     GridPane.rowIndex="0">
+               <!-- ═══════════════════════════════ RIGHT: SOLO GESTION CLIENTES ═══════════════════════════════ -->
+               <StackPane fx:id="gestorDetailContainer" styleClass="cliente-right-panel" GridPane.columnIndex="1" GridPane.rowIndex="0">
 
-                  <VBox styleClass="cliente-detail-empty"
-                        alignment="CENTER"
-                        VBox.vgrow="ALWAYS">
+                  <VBox alignment="CENTER" styleClass="cliente-detail-empty" VBox.vgrow="ALWAYS">
 
-                     <Label text="👤"
-                            styleClass="cliente-empty-icon"/>
+                     <Label styleClass="cliente-empty-icon" text="👈 Selecciona un gestor" />
 
-                     <Label text="Selecciona un gestor o edítalo"
-                            styleClass="cliente-empty-text"/>
+                     <Label styleClass="cliente-empty-text" text="Se mostrará su gestión de clientes aquí" />
 
                   </VBox>
 
-               </VBox>
+               </StackPane>
 
             </GridPane>
 
@@ -125,17 +88,9 @@
 
       </AnchorPane>
 
-      <!-- =========================
-           OVERLAY MODAL (🔥 CLAVE)
-      ========================== -->
-      <VBox fx:id="overlayContainer"
-            visible="false"
-            managed="false"
-            alignment="CENTER"
-            StackPane.alignment="CENTER"
-            style="-fx-background-color: rgba(0,0,0,0.45);">
+      <!-- OVERLAY -->
+      <VBox fx:id="overlayContainer" alignment="CENTER" managed="false" style="-fx-background-color: rgba(0,0,0,0.45);" visible="false">
 
-         <!-- AQUÍ SE INYECTA EL FORMULARIO -->
       </VBox>
 
    </children>

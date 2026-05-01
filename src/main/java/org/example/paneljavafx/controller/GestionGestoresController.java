@@ -2,6 +2,8 @@ package org.example.paneljavafx.controller;
 
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
+import javafx.collections.transformation.FilteredList;
+import javafx.collections.transformation.SortedList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -9,13 +11,11 @@ import javafx.scene.chart.PieChart;
 import javafx.scene.control.*;
 import javafx.scene.layout.StackPane;
 import org.example.paneljavafx.model.Client;
-
 import org.example.paneljavafx.service.GestorService;
-import javafx.collections.transformation.FilteredList;
-import javafx.collections.transformation.SortedList;
 
-public class GestorClientesController {
+public class GestionGestoresController {
 
+    // ========================= UI =========================
     @FXML private TableView<Client> clientsTable;
     @FXML private TableColumn<Client, String> colName;
     @FXML private TableColumn<Client, String> colEmail;
@@ -23,30 +23,43 @@ public class GestorClientesController {
 
     @FXML private StackPane clienteDetailContainer;
     @FXML private StackPane overlayContainer;
+
     @FXML private Label labelManagedWallet;
     @FXML private Label labelTotalClientes;
     @FXML private PieChart clientsPieChart;
 
-    private final GestorService gestorService = GestorService.getInstance();
     @FXML private TextField searchField;
+
+    // ========================= SERVICE =========================
+    private final GestorService gestorService = GestorService.getInstance();
+
+    // ========================= STATE =========================
+    private int gestorId;
     private FilteredList<Client> filteredClients;
 
+    // ========================= INIT =========================
     @FXML
     public void initialize() {
-
         setupTable();
-        loadClients();
         setupSearch();
-        updateWallet();
-        updateClientsPieChart();
-        updateTotalClientes();
+        // ❌ NO cargar datos aquí
+    }
+
+    // ========================= ENTRY POINT =========================
+    public void initByGestorId(int gestorId) {
+        this.gestorId = gestorId;
+
+        loadClients();
+        refreshUI();
     }
 
     // ========================= LOAD =========================
     private void loadClients() {
 
+        var clients = gestorService.getClientsByGestorId(gestorId);
+
         filteredClients = new FilteredList<>(
-                gestorService.getVisibleMyClientsObservable(),
+                FXCollections.observableArrayList(clients),
                 p -> true
         );
 
@@ -56,70 +69,14 @@ public class GestorClientesController {
         clientsTable.setItems(sorted);
     }
 
-    private int gestorId;
-
-    public void initByGestorId(int gestorId) {
-        this.gestorId = gestorId;
-        loadClientsByGestor();
+    // ========================= UI REFRESH =========================
+    private void refreshUI() {
+        updateWallet();
+        updateTotalClientes();
+        updateClientsPieChart();
     }
 
-    private void loadClientsByGestor() {
-        var clients = gestorService.getClientsByGestorId(gestorId);
-
-        filteredClients = new FilteredList<>(
-                FXCollections.observableArrayList(clients),
-                p -> true
-        );
-
-        clientsTable.setItems(filteredClients);
-    }
-
-    private void setupSearch() {
-
-        searchField.textProperty().addListener((obs, oldVal, newVal) -> {
-
-            String filter = newVal.toLowerCase().trim();
-
-            filteredClients.setPredicate(client -> {
-
-                if (filter.isEmpty()) return true;
-
-                return client.getName().toLowerCase().contains(filter)
-                        || client.getSurname().toLowerCase().contains(filter)
-                        || client.getEmail().toLowerCase().contains(filter);
-            });
-        });
-    }
-
-    private void updateWallet() {
-
-        double wallet = gestorService.calculateManagedWallet();
-
-        labelManagedWallet.setText(String.format("€%.2f", wallet));
-    }
-
-    private void updateTotalClientes() {
-
-        int total = gestorService.getVisibleMyClientsObservable().size();
-
-        labelTotalClientes.setText(String.valueOf(total));
-    }
-
-    private void updateClientsPieChart() {
-
-        var clients = gestorService.getVisibleMyClientsObservable();
-
-        var data = clients.stream()
-                .map(c -> new PieChart.Data(
-                        c.getName() + " " + c.getSurname(),
-                        gestorService.getClientTotalValue(c.getClientId())
-                ))
-                .toList();
-
-        clientsPieChart.setData(FXCollections.observableArrayList(data));
-    }
-
-    // ========================= TABLE SETUP =========================
+    // ========================= TABLE =========================
     private void setupTable() {
 
         colName.setCellValueFactory(d ->
@@ -141,7 +98,55 @@ public class GestorClientesController {
                 });
     }
 
-    // ========================= VIEW CLIENT =========================
+    // ========================= SEARCH =========================
+    private void setupSearch() {
+
+        searchField.textProperty().addListener((obs, oldVal, newVal) -> {
+
+            String filter = newVal == null ? "" : newVal.toLowerCase().trim();
+
+            filteredClients.setPredicate(client -> {
+
+                if (filter.isEmpty()) return true;
+
+                return client.getName().toLowerCase().contains(filter)
+                        || client.getSurname().toLowerCase().contains(filter)
+                        || client.getEmail().toLowerCase().contains(filter);
+            });
+        });
+    }
+
+    // ========================= PIE CHART =========================
+    private void updateClientsPieChart() {
+
+        var clients = gestorService.getClientsByGestorId(gestorId);
+
+        var data = clients.stream()
+                .map(c -> new PieChart.Data(
+                        c.getName() + " " + c.getSurname(),
+                        gestorService.getClientTotalValue(c.getClientId())
+                ))
+                .toList();
+
+        clientsPieChart.setData(FXCollections.observableArrayList(data));
+    }
+
+    // ========================= KPI =========================
+    private void updateWallet() {
+
+        double wallet = gestorService.calculateManagedWalletByGestor(gestorId);
+
+        labelManagedWallet.setText(String.format("€%.2f", wallet));
+    }
+
+    private void updateTotalClientes() {
+
+        int total = gestorService.getClientsByGestorId(gestorId).size();
+
+        labelTotalClientes.setText(String.valueOf(total));
+    }
+
+    // ========================= CLIENT VIEW =========================
     private void openClientView(Client client) {
 
         try {
@@ -181,15 +186,12 @@ public class GestorClientesController {
                             client.getName() + " " + client.getSurname() + "?");
 
                     alert.showAndWait().ifPresent(response -> {
-
                         if (response == ButtonType.OK) {
 
                             gestorService.deleteClient(client.getClientId());
 
-                            System.out.println("🗑 Cliente eliminado: " + client.getEmail());
-
                             loadClients();
-                            updateTotalClientes();
+                            refreshUI();
                         }
                     });
                 });
@@ -198,74 +200,14 @@ public class GestorClientesController {
             @Override
             protected void updateItem(Void item, boolean empty) {
                 super.updateItem(item, empty);
-
                 setGraphic(empty ? null : deleteBtn);
             }
         };
     }
 
-    // ========================= ADD =========================
+    // ========================= ADD CLIENT =========================
     @FXML
     private void openAddCliente() {
-
-        try {
-            FXMLLoader loader = new FXMLLoader(
-                    getClass().getResource("/org/example/paneljavafx/add-cliente-view.fxml")
-            );
-
-            Parent view = loader.load();
-
-            AddClienteController controller = loader.getController();
-
-            controller.init(null, () -> {
-                overlayContainer.setVisible(false);
-                overlayContainer.getChildren().clear();
-                loadClients();
-                updateTotalClientes();
-            });
-
-            overlayContainer.getChildren().setAll(view);
-
-            StackPane.setAlignment(view, javafx.geometry.Pos.CENTER);
-
-            overlayContainer.setVisible(true);
-            overlayContainer.setManaged(true);
-
-            overlayContainer.prefWidthProperty()
-                    .bind(clientsTable.getScene().widthProperty());
-
-            overlayContainer.prefHeightProperty()
-                    .bind(clientsTable.getScene().heightProperty());
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void openEditCliente(Client client) {
-
-        try {
-            FXMLLoader loader = new FXMLLoader(
-                    getClass().getResource("/org/example/paneljavafx/add-cliente-view.fxml")
-            );
-
-            Parent view = loader.load();
-
-            AddClienteController controller = loader.getController();
-
-            controller.init(client, () -> {
-
-                overlayContainer.setVisible(false);
-                overlayContainer.getChildren().clear();
-
-                loadClients();
-            });
-
-            overlayContainer.getChildren().setAll(view);
-            overlayContainer.setVisible(true);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        System.out.println("Add cliente para gestor " + gestorId);
     }
 }

@@ -28,7 +28,7 @@
                 <ColumnConstraints hgrow="ALWAYS" percentWidth="60.0" />
             </columnConstraints>
 
-            <VBox maxWidth="Infinity" spacing="16" styleClass="cliente-left-panel" GridPane.columnIndex="0" GridPane.rowIndex="0">
+            <VBox maxWidth="Infinity" prefHeight="441.0" prefWidth="731.0" spacing="16" styleClass="cliente-left-panel" GridPane.columnIndex="0" GridPane.rowIndex="0">
 
                 <Label styleClass="cliente-panel-title" text="DETALLE CLIENTE" />
 
@@ -45,10 +45,12 @@
                     <VBox spacing="12">
                         <Label styleClass="cliente-panel-title" text="DATOS PERSONALES" />
 
-                        <GridPane hgap="16" vgap="8">
+                        <GridPane hgap="16" maxHeight="100.0" minHeight="120.0" prefHeight="100.0" prefWidth="692.0" vgap="8">
                             <columnConstraints>
                                 <ColumnConstraints hgrow="NEVER" maxWidth="120" prefWidth="100" />
                                 <ColumnConstraints hgrow="SOMETIMES" />
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
                             </columnConstraints>
 
                             <Label styleClass="cp-field-label" text="ID:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
@@ -60,21 +62,21 @@
                             <Label styleClass="cp-field-label" text="Email:" GridPane.columnIndex="0" GridPane.rowIndex="2" />
                             <Label fx:id="labelEmail" styleClass="cp-field-value" GridPane.columnIndex="1" GridPane.rowIndex="2" />
 
-                            <Label styleClass="cp-field-label" text="DNI:" GridPane.columnIndex="0" GridPane.rowIndex="3" />
-                            <Label fx:id="labelDni" styleClass="cp-field-value" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                            <Label styleClass="cp-field-label" text="DNI:" GridPane.columnIndex="2" />
+                            <Label fx:id="labelDni" styleClass="cp-field-value" GridPane.columnIndex="3" />
 
-                            <Label styleClass="cp-field-label" text="País:" GridPane.columnIndex="0" GridPane.rowIndex="4" />
-                            <Label fx:id="labelPais" styleClass="cp-field-value" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+                            <Label styleClass="cp-field-label" text="País:" GridPane.columnIndex="2" GridPane.rowIndex="1" />
+                            <Label fx:id="labelPais" styleClass="cp-field-value" GridPane.columnIndex="3" GridPane.rowIndex="1" />
 
-                            <Label styleClass="cp-field-label" text="Alta:" GridPane.columnIndex="0" GridPane.rowIndex="5" />
-                            <Label fx:id="labelFechaAlta" styleClass="cp-field-value" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+                            <Label styleClass="cp-field-label" text="Alta:" GridPane.columnIndex="2" GridPane.rowIndex="2" />
+                            <Label fx:id="labelFechaAlta" styleClass="cp-field-value" GridPane.columnIndex="3" GridPane.rowIndex="2" />
                      <rowConstraints>
-                        <RowConstraints />
-                        <RowConstraints />
-                        <RowConstraints />
-                        <RowConstraints />
-                        <RowConstraints />
-                        <RowConstraints />
+                        <RowConstraints maxHeight="30.0" minHeight="30.0" prefHeight="30.0" />
+                        <RowConstraints maxHeight="30.0" minHeight="30.0" prefHeight="30.0" />
+                        <RowConstraints maxHeight="30.0" minHeight="30.0" prefHeight="30.0" />
+                        <RowConstraints maxHeight="0.0" minHeight="0.0" prefHeight="0.0" />
+                        <RowConstraints maxHeight="0.0" minHeight="0.0" prefHeight="0.0" />
+                        <RowConstraints maxHeight="0.0" minHeight="0.0" prefHeight="0.0" />
                      </rowConstraints>
                         </GridPane>
                     </VBox>
@@ -166,8 +168,8 @@
 
             </VBox>
          <rowConstraints>
-            <RowConstraints />
-            <RowConstraints />
+            <RowConstraints maxHeight="486.0" minHeight="419.0" prefHeight="419.0" />
+            <RowConstraints maxHeight="409.0" minHeight="342.0" prefHeight="409.0" />
          </rowConstraints>
 
         </GridPane>

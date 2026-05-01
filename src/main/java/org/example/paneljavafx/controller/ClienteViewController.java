@@ -66,6 +66,7 @@ public class ClienteViewController {
 
     // ========================= CURRENT CLIENT =========================
     private Client currentClient;
+    private boolean fromGestorView = false;
 
 
     // ========================= INIT =========================
@@ -91,7 +92,15 @@ public class ClienteViewController {
         loadLoggedClient();
     }
 
+
     // ========================= ENTRY POINTS =========================
+
+    public void initFromGestor(Client client) {
+        this.fromGestorView = true;
+        setCliente(client);
+
+        // opcional: ocultar cosas si quieres
+    }
 
     public void setCliente(Client client) {
         this.currentClient = client;
@@ -122,7 +131,7 @@ public class ClienteViewController {
         labelDni.setText(currentClient.getNationalId());
         labelPais.setText(currentClient.getCountry());
         labelFechaAlta.setText(String.valueOf(currentClient.getJoinDate()));
-        labelGestor.setText(gestorService.getGestorFullName(String.valueOf(currentClient.getGestorId())));
+        labelGestor.setText(gestorService.getGestorFullName(Integer.parseInt(String.valueOf(currentClient.getGestorId()))));
     }
 
     // ========================= REFRESH =========================

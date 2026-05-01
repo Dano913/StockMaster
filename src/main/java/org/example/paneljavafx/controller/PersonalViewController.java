@@ -8,22 +8,15 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.control.*;
 import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
 import org.example.paneljavafx.model.Gestor;
-import org.example.paneljavafx.service.ClientService;
 import org.example.paneljavafx.service.GestorService;
 
 public class PersonalViewController {
 
-    // =========================
-    // SERVICES
-    // =========================
+    // ========================= SERVICES =========================
     private final GestorService gestorService = GestorService.getInstance();
-    private final ClientService clienteService = ClientService.getInstance();
 
-    // =========================
-    // UI
-    // =========================
+    // ========================= UI =========================
     @FXML private TableView<Gestor> gestorsTable;
     @FXML private TableColumn<Gestor, String> colName;
     @FXML private TableColumn<Gestor, String> colEmail;
@@ -32,34 +25,31 @@ public class PersonalViewController {
 
     @FXML private TextField searchField;
 
-    // 🔥 OVERLAY SYSTEM (IGUAL QUE CLIENTE)
-    @FXML private StackPane rootContainer;
-    @FXML private VBox overlayContainer;
+    @FXML private StackPane gestorDetailContainer;
 
-    // =========================
-    // STATE
-    // =========================
+    // ========================= STATE =========================
     private FilteredList<Gestor> filteredGestors;
 
-    // =========================
-    // INIT
-    // =========================
+    // ========================= INIT =========================
     @FXML
     public void initialize() {
-
-        gestorService.load();
-        clienteService.load();
-
         setupTable();
         setupSearch();
-
-        overlayContainer.setVisible(false);
-        overlayContainer.setManaged(false);
+        loadGestors();
     }
 
-    // =========================
-    // TABLE
-    // =========================
+    // ========================= LOAD =========================
+    private void loadGestors() {
+
+        filteredGestors = new FilteredList<>(
+                FXCollections.observableArrayList(gestorService.getAll()),
+                p -> true
+        );
+
+        gestorsTable.setItems(filteredGestors);
+    }
+
+    // ========================= TABLE =========================
     private void setupTable() {
 
         colName.setCellValueFactory(d ->
@@ -76,37 +66,38 @@ public class PersonalViewController {
                 )
         );
 
-        colRisk.setCellValueFactory(d -> {
-            if (d.getValue().getRiskProfile() == null) {
-                return new SimpleStringProperty("SIN PERFIL");
-            }
-            return new SimpleStringProperty(d.getValue().getRiskProfile().name());
-        });
-
-        filteredGestors = new FilteredList<>(
-                FXCollections.observableArrayList(gestorService.getAll())
+        colRisk.setCellValueFactory(d ->
+                new SimpleStringProperty(
+                        d.getValue().getRiskProfile() == null
+                                ? "SIN PERFIL"
+                                : d.getValue().getRiskProfile().name()
+                )
         );
 
-        gestorsTable.setItems(filteredGestors);
-
         addActionColumn();
+
+        gestorsTable.getSelectionModel()
+                .selectedItemProperty()
+                .addListener((obs, oldVal, selected) -> {
+                    if (selected != null) {
+                        openGestionGestores(selected.getGestorId());
+                    }
+                });
     }
 
-    // =========================
-    // ACTION COLUMN
-    // =========================
+    // ========================= ACTION COLUMN =========================
     private void addActionColumn() {
 
         TableColumn<Gestor, Void> colAction = new TableColumn<>("Acciones");
 
         colAction.setCellFactory(param -> new TableCell<>() {
 
-            private final Button btn = new Button("Ver / Editar");
+            private final Button btn = new Button("Abrir");
 
             {
                 btn.setOnAction(e -> {
                     Gestor g = getTableView().getItems().get(getIndex());
-                    openEditGestor(g);
+                    openGestionGestores(g.getGestorId());
                 });
             }
 
@@ -120,102 +111,44 @@ public class PersonalViewController {
         gestorsTable.getColumns().add(colAction);
     }
 
-    // =========================
-    // SEARCH
-    // =========================
+    // ========================= CORE RIGHT PANEL =========================
+    private void openGestionGestores(int gestorId) {
+
+        try {
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/org/example/paneljavafx/gestionGestores-view.fxml")
+            );
+
+            Parent view = loader.load();
+
+            GestionGestoresController controller = loader.getController();
+            controller.initByGestorId(gestorId);
+
+            gestorDetailContainer.getChildren().setAll(view);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    @FXML
+    private void openAddGestor() {
+        System.out.println("Abrir modal añadir gestor");
+    }
+
+    // ========================= SEARCH =========================
     private void setupSearch() {
 
         searchField.textProperty().addListener((obs, oldVal, newVal) -> {
 
-            String filter = (newVal == null) ? "" : newVal.toLowerCase();
+            String filter = newVal == null ? "" : newVal.toLowerCase();
 
             filteredGestors.setPredicate(g -> {
 
                 if (filter.isEmpty()) return true;
 
                 return g.getName().toLowerCase().contains(filter)
-                        || g.getEmail().toLowerCase().contains(filter)
-                        || (g.getRiskProfile() != null &&
-                        g.getRiskProfile().name().toLowerCase().contains(filter))
-                        || String.valueOf(g.getYearsOfExperience()).contains(filter);
+                        || g.getEmail().toLowerCase().contains(filter);
             });
         });
-    }
-
-    // =========================
-    // OPEN CREATE
-    // =========================
-    @FXML
-    private void openAddGestor() {
-
-        try {
-            FXMLLoader loader = new FXMLLoader(
-                    getClass().getResource("/org/example/paneljavafx/gestor-form-view.fxml")
-            );
-
-            Parent form = loader.load();
-
-            GestorFormController controller = loader.getController();
-            controller.init(new Gestor(), true, this::closeOverlay);
-
-            showOverlay(form);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    // =========================
-    // OPEN EDIT
-    // =========================
-    private void openEditGestor(Gestor gestor) {
-
-        try {
-            FXMLLoader loader = new FXMLLoader(
-                    getClass().getResource("/org/example/paneljavafx/gestor-form-view.fxml")
-            );
-
-            Parent form = loader.load();
-
-            GestorFormController controller = loader.getController();
-            controller.init(gestor, true, this::closeOverlay);
-
-            showOverlay(form);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    // =========================
-    // SHOW OVERLAY
-    // =========================
-    private void showOverlay(Parent form) {
-
-        overlayContainer.getChildren().setAll(form);
-        overlayContainer.setVisible(true);
-        overlayContainer.setManaged(true);
-    }
-
-    // =========================
-    // CLOSE OVERLAY
-    // =========================
-    public void closeOverlay() {
-
-        overlayContainer.getChildren().clear();
-        overlayContainer.setVisible(false);
-        overlayContainer.setManaged(false);
-
-        refreshTable();
-    }
-
-    // =========================
-    // REFRESH TABLE
-    // =========================
-    public void refreshTable() {
-
-        filteredGestors.setPredicate(filteredGestors.getPredicate());
-
-        gestorsTable.refresh();
     }
 }

@@ -6,6 +6,10 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import org.example.paneljavafx.model.Client;
 import org.example.paneljavafx.service.ClientService;
+import org.example.paneljavafx.service.GestorService;
+import org.example.paneljavafx.service.MainSessionHolder;
+
+import java.time.LocalDate;
 
 public class AddClienteController {
 
@@ -60,13 +64,33 @@ public class AddClienteController {
     @FXML
     private void saveCliente() {
 
+        if (nombreField.getText().isBlank() ||
+                emailField.getText().isBlank()) {
+            System.out.println("❌ Campos obligatorios vacíos");
+            return;
+        }
+
         if (clienteActual == null) {
+
             Client nuevo = new Client();
+
+            // 🔥 CLAVE: asignar contexto
+            nuevo.setGestorId(GestorService.getInstance().getLoggedGestorId());
+            nuevo.setUserId(MainSessionHolder.getInstance().getCurrentUser().getId());
+            nuevo.setJoinDate(LocalDate.now());
+
             fillCliente(nuevo);
+
             clienteService.save(nuevo);
+
+            System.out.println("✅ CLIENTE CREADO: " + nuevo.getEmail());
+
         } else {
+
             fillCliente(clienteActual);
             clienteService.update(clienteActual);
+
+            System.out.println("✏️ CLIENTE ACTUALIZADO: " + clienteActual.getEmail());
         }
 
         finish();

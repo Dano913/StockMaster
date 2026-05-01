@@ -28,7 +28,9 @@
 
                 <!-- POSICIÓN -->
                 <Tab text="Posición" closable="false">
-                    <fx:include source="global-view.fxml"/>
+                    <content>
+                        <fx:include source="global-view.fxml"/>
+                    </content>
                 </Tab>
 
                 <!-- FONDOS -->
@@ -99,9 +101,11 @@
                     </content>
                 </Tab>
 
-                <!-- CLIENTES (gestor sí puede verlos) -->
                 <Tab text="Clientes" closable="false">
-                    <fx:include source="clientesGestion-view.fxml"/>
+                    <content>
+                        <fx:include fx:id="clientesGestionController"
+                                    source="clientesGestion-view.fxml"/>
+                    </content>
                 </Tab>
 
             </tabs>
