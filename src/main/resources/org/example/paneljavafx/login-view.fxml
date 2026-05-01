@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.Insets?>
+
+<VBox xmlns:fx="http://javafx.com/fxml"
+      fx:controller="org.example.paneljavafx.controller.LoginController"
+      alignment="CENTER"
+      spacing="16"
+      prefWidth="400"
+      prefHeight="500"
+      styleClass="login-container">
+
+    <padding><Insets top="60" right="60" bottom="60" left="60"/></padding>
+
+    <!-- TÍTULO -->
+    <Label text="StockMaster" styleClass="login-title"/>
+    <Label text="Introduce tus credenciales" styleClass="login-subtitle"/>
+
+    <Region prefHeight="16"/>
+
+    <!-- EMAIL -->
+    <Label text="Email" styleClass="login-label"/>
+    <TextField fx:id="emailField"
+               promptText="usuario@empresa.com"
+               maxWidth="Infinity"/>
+
+    <!-- CONTRASEÑA -->
+    <Label text="Contraseña" styleClass="login-label"/>
+    <PasswordField fx:id="passwordField"
+                   promptText="••••••••"
+                   maxWidth="Infinity"/>
+
+    <Region prefHeight="8"/>
+
+    <!-- BOTÓN -->
+    <Button fx:id="btnLogin"
+            text="Iniciar sesión"
+            maxWidth="Infinity"
+            onAction="#handleLogin"
+            styleClass="login-btn"/>
+
+    <!-- ERROR -->
+    <Label fx:id="lblError"
+           text=""
+           styleClass="login-error"
+           wrapText="true"
+           maxWidth="Infinity"/>
+
+</VBox>

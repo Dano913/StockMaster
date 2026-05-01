@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+
+<VBox xmlns:fx="http://javafx.com/fxml"
+      fx:controller="org.example.paneljavafx.controller.ProfileController"
+      spacing="12"
+      style="-fx-padding: 20;">
+
+    <Label text="Perfil de Usuario"
+           style="-fx-font-size: 20px; -fx-font-weight: bold;"/>
+
+    <Separator/>
+
+    <HBox spacing="10">
+        <Label text="Nombre:" style="-fx-font-weight: bold;"/>
+        <Label fx:id="nameLabel"/>
+    </HBox>
+
+    <HBox spacing="10">
+        <Label text="Email:" style="-fx-font-weight: bold;"/>
+        <Label fx:id="emailLabel"/>
+    </HBox>
+
+    <HBox spacing="10">
+        <Label text="Rol:" style="-fx-font-weight: bold;"/>
+        <Label fx:id="roleLabel"/>
+    </HBox>
+
+</VBox>
