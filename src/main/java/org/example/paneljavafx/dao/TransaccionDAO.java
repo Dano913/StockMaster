@@ -9,4 +9,6 @@ public interface TransaccionDAO {
     Transaction save(Transaction transaction);
 
     List<Transaction> findByPositionId(int positionId);
+
+    void deleteById(int id);
 }

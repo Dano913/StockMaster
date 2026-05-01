@@ -9,9 +9,7 @@ import org.example.paneljavafx.service.ClientService;
 
 public class AddClienteController {
 
-    // =========================
-    // UI
-    // =========================
+    // ========================= UI =========================
     @FXML private TextField nombreField;
     @FXML private TextField apellidoField;
     @FXML private TextField emailField;
@@ -21,20 +19,16 @@ public class AddClienteController {
     @FXML private Button deleteButton;
     @FXML private Label titleLabel;
 
-    // =========================
-    // STATE
-    // =========================
+    // ========================= STATE =========================
     private Client clienteActual;
-    private ClienteViewController parent;
+    private Runnable onFinish;
 
     private final ClientService clienteService = ClientService.getInstance();
 
-    // =========================
-    // INIT (ÚNICO PUNTO DE ENTRADA)
-    // =========================
-    public void init(Client cliente, ClienteViewController parent) {
-        this.parent = parent;
+    // ========================= INIT =========================
+    public void init(Client cliente, Runnable onFinish) {
         this.clienteActual = cliente;
+        this.onFinish = onFinish;
 
         if (cliente == null) {
             setupCreateMode();
@@ -43,12 +37,11 @@ public class AddClienteController {
         }
     }
 
-    // =========================
-    // MODES
-    // =========================
+    // ========================= MODES =========================
     private void setupCreateMode() {
         titleLabel.setText("Nuevo Cliente");
         deleteButton.setVisible(false);
+        clearForm();
     }
 
     private void setupEditMode(Client cliente) {
@@ -63,26 +56,20 @@ public class AddClienteController {
         paisField.setText(cliente.getCountry());
     }
 
-    // =========================
-    // ACTIONS
-    // =========================
+    // ========================= ACTIONS =========================
     @FXML
     private void saveCliente() {
 
         if (clienteActual == null) {
-            // CREAR
             Client nuevo = new Client();
             fillCliente(nuevo);
             clienteService.save(nuevo);
-
         } else {
-            // EDITAR
             fillCliente(clienteActual);
             clienteService.update(clienteActual);
         }
 
-        parent.refreshTable();
-        parent.closeAddClienteForm();
+        finish();
     }
 
     @FXML
@@ -90,24 +77,37 @@ public class AddClienteController {
 
         if (clienteActual != null) {
             clienteService.delete(clienteActual.getClientId());
-            parent.refreshTable();
-            parent.closeAddClienteForm();
         }
+
+        finish();
     }
 
     @FXML
     private void cancel() {
-        parent.closeAddClienteForm();
+        finish();
     }
 
-    // =========================
-    // UTIL
-    // =========================
+    // ========================= FINISH =========================
+    private void finish() {
+        if (onFinish != null) {
+            onFinish.run();
+        }
+    }
+
+    // ========================= UTIL =========================
     private void fillCliente(Client c) {
         c.setName(nombreField.getText());
         c.setSurname(apellidoField.getText());
         c.setEmail(emailField.getText());
         c.setNationalId(dniField.getText());
         c.setCountry(paisField.getText());
+    }
+
+    private void clearForm() {
+        nombreField.clear();
+        apellidoField.clear();
+        emailField.clear();
+        dniField.clear();
+        paisField.clear();
     }
 }

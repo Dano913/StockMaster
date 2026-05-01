@@ -151,7 +151,7 @@ public class GlobalController {
         // ← AHORA: carga directa desde DAO
         assets    = assetDAO.findAll();
         funds     = fundDAO.findAll();
-        FundPositionService.getInstance().load();
+        FundAssetPositionService.getInstance().load();
 
         globalService.bootstrapMarket();
 

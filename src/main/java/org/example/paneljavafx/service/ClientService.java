@@ -4,14 +4,19 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import org.example.paneljavafx.dao.ClientDAO;
 import org.example.paneljavafx.dao.ClientFundPositionDAO;
+import org.example.paneljavafx.dao.UserDAO;
 import org.example.paneljavafx.dao.impl.ClientImpl;
 import org.example.paneljavafx.dao.impl.ClientFundPositionImpl;
+import org.example.paneljavafx.dao.impl.UserImpl;
 import org.example.paneljavafx.model.Client;
 import org.example.paneljavafx.model.ClientFundPosition;
 import org.example.paneljavafx.model.Transaction;
+import org.example.paneljavafx.model.User;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 // - INSTANCE CLIENT
 // 0 DAO CLIENT WITH OBSERVABLE CLIENTS AND POSITION
@@ -37,6 +42,8 @@ public class ClientService {
     private final ClientDAO clientDAO = new ClientImpl();
     private final ClientFundPositionDAO clientFundPositionDAO = new ClientFundPositionImpl();
     private final ObservableList<Client> clients = FXCollections.observableArrayList();
+    private final UserDAO userDAO = new UserImpl();
+    private User loggedUser;
 
     // ========================= LOAD =========================
 
@@ -44,6 +51,12 @@ public class ClientService {
 
         try {
             List<Client> clientList = clientDAO.findAll();
+
+            System.out.println("📦 CLIENTES DESDE BD:");
+            clientList.forEach(c ->
+                    System.out.println(c.getClientId() + " - " + c.getName())
+            );
+
             clients.setAll(clientList);
 
         } catch (Exception exception) {
@@ -58,11 +71,25 @@ public class ClientService {
         return clients;
     }
 
-    public Client getById(int clientId) {
-        return clients.stream()
-                .filter(client -> client.getClientId() == clientId)
-                .findFirst()
-                .orElse(null);
+    public Optional<Client> getById(int clientId) {
+
+        System.out.println("🔍 BUSCANDO CLIENTE ID: " + clientId);
+
+        Optional<Client> client = clients.stream()
+                .filter(c -> c.getClientId() == clientId)
+                .findFirst();
+
+        client.ifPresentOrElse(
+                c -> {
+                    System.out.println("✔ CLIENTE ENCONTRADO");
+                    System.out.println("ID: " + c.getClientId());
+                    System.out.println("Nombre: " + c.getName());
+                    System.out.println("Email: " + c.getEmail());
+                },
+                () -> System.out.println("❌ CLIENTE NO ENCONTRADO")
+        );
+
+        return client;
     }
 
     // ========================= POSITIONS =========================
@@ -73,10 +100,12 @@ public class ClientService {
             List<ClientFundPosition> positions =
                     clientFundPositionDAO.findByClientId(clientId);
 
-            return positions != null ? positions : new ArrayList<>();
+            System.out.println("📊 POSICIONES CLIENTE " + clientId + ": " + positions.size());
 
-        } catch (Exception exception) {
-            exception.printStackTrace();
+            return positions;
+
+        } catch (Exception e) {
+            e.printStackTrace();
             return new ArrayList<>();
         }
     }
@@ -161,4 +190,41 @@ public class ClientService {
     public long count() {
         return clients.size();
     }
+
+    public Optional<Client> getLoggedClient() {
+
+        User user = UserService.getInstance().getLoggedUser();
+
+        if (user == null) {
+            System.out.println("❌ No hay usuario logeado");
+            return Optional.empty();
+        }
+
+        int userId = user.getId();
+
+        System.out.println("🔍 BUSCANDO CLIENTE POR USER ID: " + userId);
+
+        try {
+            Optional<Client> clientOpt = clientDAO.findByUserId(userId);
+
+            if (clientOpt.isEmpty()) {
+                System.out.println("❌ NO EXISTE CLIENTE PARA USER ID: " + userId);
+                return Optional.empty();
+            }
+
+            Client client = clientOpt.get();
+
+            System.out.println("✔ CLIENTE ENCONTRADO");
+            System.out.println("ClientId: " + client.getClientId());
+            System.out.println("UserId: " + userId);
+
+            return Optional.of(client);
+
+        } catch (Exception e) {
+            System.out.println("❌ ERROR en findByUserId");
+            e.printStackTrace();
+            return Optional.empty();
+        }
+    }
+
 }

@@ -5,6 +5,7 @@ import org.example.paneljavafx.database.DatabaseConnection;
 import org.example.paneljavafx.model.Client;
 
 import java.sql.*;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -56,6 +57,45 @@ public class ClientImpl implements ClientDAO {
 
         } catch (SQLException e) {
             throw new RuntimeException("Error finding client", e);
+        }
+
+        return Optional.empty();
+    }
+
+    public Optional<Client> findByUserId(int userId) {
+
+        String sql = """
+        SELECT id_cliente, id_gestor, nombre, apellido, email,
+               dni, fecha_alta, pais, user_id
+        FROM cliente
+        WHERE user_id = ?
+    """;
+
+        try (Connection con = DatabaseConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setInt(1, userId);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    Client c = new Client();
+
+                    c.setClientId(rs.getInt("id_cliente"));
+                    c.setGestorId(rs.getInt("id_gestor"));
+                    c.setName(rs.getString("nombre"));
+                    c.setSurname(rs.getString("apellido"));
+                    c.setEmail(rs.getString("email"));
+                    c.setNationalId(rs.getString("dni"));
+                    c.setJoinDate(LocalDate.parse(rs.getString("fecha_alta")));
+                    c.setCountry(rs.getString("pais"));
+                    c.setUserId(rs.getInt("user_id"));
+
+                    return Optional.of(c);
+                }
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Error buscando cliente por userId", e);
         }
 
         return Optional.empty();

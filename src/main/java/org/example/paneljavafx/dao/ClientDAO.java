@@ -13,6 +13,8 @@ public interface ClientDAO {
 
     Optional<Client> findById(int id);
 
+    Optional<Client> findByUserId(int userId);
+
     void update(Client client);
 
     void deleteById(int id);

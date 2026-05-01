@@ -7,7 +7,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 
-public class Gestor extends User {
+public class Gestor {
 
     public enum RiskProfile {
         CONSERVADOR,
@@ -16,6 +16,7 @@ public class Gestor extends User {
     }
 
     private int gestorId;
+    private int userId;
     private int companyId;
     private int fundId;
     private int yearsOfExperience;

@@ -1,154 +1,333 @@
 package org.example.paneljavafx.controller;
 
-import javafx.beans.property.SimpleStringProperty;
-import javafx.collections.transformation.FilteredList;
+import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
+import javafx.scene.chart.PieChart;
 import javafx.scene.control.*;
 import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
-import org.example.paneljavafx.model.Client;
-import org.example.paneljavafx.service.ClientService;
+import org.example.paneljavafx.helper.AlertUtils;
+import org.example.paneljavafx.helper.FormatUtils;
+import org.example.paneljavafx.helper.TransactionMapper;
+import org.example.paneljavafx.model.*;
+import org.example.paneljavafx.service.*;
+import org.example.paneljavafx.service.dto.PortfolioSummary;
+import org.example.paneljavafx.viewmodel.TransactionRowView;
+
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class ClienteViewController {
 
-    private final ClientService clienteService = ClientService.getInstance();
+    // ========================= LABELS DATOS =========================
+    @FXML private Label labelIdCliente;
+    @FXML private Label labelNombre;
+    @FXML private Label labelEmail;
+    @FXML private Label labelDni;
+    @FXML private Label labelPais;
+    @FXML private Label labelFechaAlta;
 
-    @FXML private TableView<Client> clientsTable;
-    @FXML private TableColumn<Client, String> colName;
-    @FXML private TableColumn<Client, String> colEmail;
-    @FXML private TableColumn<Client, Void> colActions;
+    // ========================= LABELS INFO ADICIONAL =========================
+    @FXML private Label labelGestor;
+    @FXML private Label labelValorCartera;
+    @FXML private Label labelRentabilidad;
 
-    @FXML private TextField searchField;
-    @FXML private Label titleLabel;
+    // ========================= TABLA POSICION =========================
+    @FXML private TableView<ClientFundPosition> posicionesTable;
 
-    @FXML private VBox clienteDetailContainer;
+    @FXML private TableColumn<ClientFundPosition, String> colPosFund;
+    @FXML private TableColumn<ClientFundPosition, Double> colPosCantidad;
+    @FXML private TableColumn<ClientFundPosition, Double> colPosValor;
+    @FXML private TableColumn<ClientFundPosition, Double> colPosTotal;
 
-    @FXML private StackPane rootContainer;
-    @FXML private VBox overlayContainer;
+    // ========================= TABLA TRANSACCION =========================
+    @FXML private TableView<TransactionRowView> inversionesTable;
 
-    private FilteredList<Client> filteredClientes;
+    @FXML private TableColumn<TransactionRowView, String> colFund;
+    @FXML private TableColumn<TransactionRowView, String> colTypeTransaction;
+    @FXML private TableColumn<TransactionRowView, Double> colAmountTransaction;
+    @FXML private TableColumn<TransactionRowView, String> colFecha;
+    @FXML private TableColumn<TransactionRowView, Void> colAcciones;
 
+
+    // ========================= ELEMENTOS =========================
+    @FXML private PieChart portfolioPieChart;
+    @FXML private StackPane overlayContainer;
+    @FXML private Button btnVenderPosicion;
+    private Map<String, String> fundNames;
+
+    // ========================= SERVICES =========================
+    private final ClientService clientService = ClientService.getInstance();
+    private final FundService fundService = FundService.getInstance();
+    private final GestorService gestorService = GestorService.getInstance();
+    private final TransactionService transactionService = TransactionService.getInstance();
+    private final ClientFundPositionService clientfundpositionService = ClientFundPositionService.getInstance();
+
+    // ========================= CURRENT CLIENT =========================
+    private Client currentClient;
+
+
+    // ========================= INIT =========================
     @FXML
     public void initialize() {
+        fundService.load();
+        gestorService.load();
 
-        try {
-            clienteService.load(); // 🔥 ahora protegido
-        } catch (Exception e) {
-            e.printStackTrace();
-            System.err.println("Error cargando clientes desde BD");
-        }
+        fundNames = fundService.getAll().stream()
+                .collect(Collectors.toMap(
+                        Fund::getFundId,
+                        Fund::getName,
+                        (a, b) -> a
+                ));
 
-        setupClientsTable();
-        setupSearch();
+        setupPosicionesTable();
+        setupTransaccionesTable();
+        setupPosicionSelectionListener();
 
-        if (overlayContainer != null) {
-            overlayContainer.setVisible(false);
-            overlayContainer.setManaged(false);
-        }
+        overlayContainer.setVisible(false);
+        overlayContainer.setManaged(false);
+
+        loadLoggedClient();
     }
 
-    private void setupClientsTable() {
+    // ========================= ENTRY POINTS =========================
 
-        colName.setCellValueFactory(d ->
-                new SimpleStringProperty(
-                        d.getValue().getName() + " " + d.getValue().getSurname()
+    public void setCliente(Client client) {
+        this.currentClient = client;
+        initClient();
+    }
+
+    private void loadLoggedClient() {
+
+        currentClient = clientService.getLoggedClient().orElse(null);
+
+        if (currentClient == null) return;
+
+        initClient();
+    }
+
+    // ========================= SINGLE FLOW =========================
+    private void initClient() {
+        bindClientToView();
+        refreshData();
+    }
+
+    // ========================= BIND =========================
+    private void bindClientToView() {
+
+        labelIdCliente.setText(String.valueOf(currentClient.getClientId()));
+        labelNombre.setText(currentClient.getName() + " " + currentClient.getSurname());
+        labelEmail.setText(currentClient.getEmail());
+        labelDni.setText(currentClient.getNationalId());
+        labelPais.setText(currentClient.getCountry());
+        labelFechaAlta.setText(String.valueOf(currentClient.getJoinDate()));
+        labelGestor.setText(gestorService.getGestorFullName(String.valueOf(currentClient.getGestorId())));
+    }
+
+    // ========================= REFRESH =========================
+    private void refreshData() {
+
+        if (currentClient == null) return;
+
+        List<ClientFundPosition> posiciones =
+                clientfundpositionService.getByClientId(currentClient.getClientId());
+
+        posicionesTable.setItems(FXCollections.observableArrayList(posiciones));
+
+        PortfolioSummary summary =
+                clientfundpositionService.calculatePortfolio(posiciones);
+
+        labelValorCartera.setText(FormatUtils.euro(summary.getTotal()));
+        labelRentabilidad.setText(FormatUtils.percent(summary.getRentabilidad()));
+
+        inversionesTable.setItems(FXCollections.observableArrayList());
+
+        portfolioPieChart.setData(
+                FXCollections.observableArrayList(
+                        clientfundpositionService.buildPortfolioChart(posiciones, fundNames)
                 )
         );
 
-        colEmail.setCellValueFactory(d ->
-                new SimpleStringProperty(d.getValue().getEmail())
+        portfolioPieChart.setLabelsVisible(true);
+        portfolioPieChart.setLegendVisible(true);
+    }
+
+    public void refresh() {
+        refreshData();
+    }
+
+    // ========================= POSITIONS =========================
+    private void setupPosicionSelectionListener() {
+
+        posicionesTable.getSelectionModel()
+                .selectedItemProperty()
+                .addListener((obs, oldVal, selected) -> {
+
+                    if (selected == null) {
+                        inversionesTable.getItems().clear();
+                        btnVenderPosicion.setDisable(true);
+                        return;
+                    }
+
+                    btnVenderPosicion.setDisable(false);
+                    loadTransactions(selected);
+                });
+
+        btnVenderPosicion.setDisable(true);
+    }
+
+    // ========================= TRANSACTIONS =========================
+    private void loadTransactions(ClientFundPosition position) {
+
+        if (position == null) return;
+
+        Integer positionId = position.getPositionId();
+
+        if (positionId == null) {
+            System.out.println("PositionId es null → no se pueden cargar transacciones");
+            inversionesTable.getItems().clear();
+            return;
+        }
+
+        List<Transaction> tx =
+                transactionService.getTransactions(position);
+
+        if (tx == null || tx.isEmpty()) {
+            inversionesTable.getItems().clear();
+            return;
+        }
+
+        String fundName = fundService.getFundName(position.getFundId());
+
+        List<TransactionRowView> rows =
+                TransactionMapper.toRowView(
+                        tx,
+                        fundName != null ? fundName : position.getFundId(),
+                        position.getActualValue()
+                );
+
+        inversionesTable.setItems(FXCollections.observableArrayList(rows));
+    }
+
+    // ========================= SELL POSITION =========================
+    @FXML
+    private void venderPosicion() {
+
+        ClientFundPosition selected =
+                posicionesTable.getSelectionModel().getSelectedItem();
+
+        if (selected == null) return;
+
+        boolean confirm = AlertUtils.confirm(
+                "Confirmar venta",
+                "¿Liquidar esta posición?"
         );
 
-        colActions.setCellFactory(param -> new TableCell<>() {
+        if (!confirm) return;
 
-            private final Button btn = new Button("Ver / Editar");
+        clientfundpositionService.sellPosition(selected);
+        refreshData();
+    }
+
+    // ========================= TABLAS =========================
+    private void setupPosicionesTable() {
+
+        colPosFund.setCellValueFactory(d ->
+                new javafx.beans.property.SimpleStringProperty(
+                        fundNames.getOrDefault(d.getValue().getFundId(), d.getValue().getFundId())
+                )
+        );
+
+        colPosCantidad.setCellValueFactory(d ->
+                new javafx.beans.property.SimpleObjectProperty<>(d.getValue().getQuantity())
+        );
+
+        colPosValor.setCellValueFactory(d ->
+                new javafx.beans.property.SimpleObjectProperty<>(d.getValue().getActualValue())
+        );
+
+        colPosTotal.setCellValueFactory(d ->
+                new javafx.beans.property.SimpleObjectProperty<>(d.getValue().getActualValue())
+        );
+    }
+
+    private void setupTransaccionesTable() {
+
+        colFund.setCellValueFactory(d ->
+                new javafx.beans.property.SimpleStringProperty(d.getValue().getFundName())
+        );
+
+        colTypeTransaction.setCellValueFactory(d ->
+                new javafx.beans.property.SimpleStringProperty(d.getValue().getType())
+        );
+
+        colAmountTransaction.setCellValueFactory(d ->
+                new javafx.beans.property.SimpleObjectProperty<>(d.getValue().getAmount())
+        );
+
+        colAmountTransaction.setCellFactory(c -> new TableCell<>() {
+            @Override
+            protected void updateItem(Double value, boolean empty) {
+                super.updateItem(value, empty);
+                setText((empty || value == null) ? null : String.format("€%.2f", value));
+            }
+        });
+
+        colFecha.setCellValueFactory(d ->
+                new javafx.beans.property.SimpleStringProperty(d.getValue().getFecha())
+        );
+
+        colAcciones.setCellFactory(col -> new TableCell<>() {
+
+            private final Button btnLiquidar = new Button("🗑 Liquidar");
 
             {
-                btn.setOnAction(event -> {
-                    Client cliente = getTableView().getItems().get(getIndex());
-                    if (cliente != null) {
-                        openEditCliente(cliente);
-                    }
+                btnLiquidar.setOnAction(e -> {
+
+                    TransactionRowView row = getTableView().getItems().get(getIndex());
+
+                    Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
+                    confirm.setTitle("Confirmar");
+                    confirm.setHeaderText("¿Liquidar esta transacción?");
+                    confirm.setContentText("Importe: " + String.format("€%.2f", row.getAmount()));
+
+                    confirm.showAndWait().ifPresent(response -> {
+                        if (response == ButtonType.OK) {
+                            transactionService.deleteById(row.getTransactionId());
+
+                            ClientFundPosition selected =
+                                    posicionesTable.getSelectionModel().getSelectedItem();
+                            loadTransactions(selected);
+                        }
+                    });
                 });
             }
 
             @Override
             protected void updateItem(Void item, boolean empty) {
                 super.updateItem(item, empty);
-                setGraphic(empty ? null : btn);
+                setGraphic(empty ? null : btnLiquidar);
             }
         });
-
-        filteredClientes = new FilteredList<>(clienteService.getAll());
-        clientsTable.setItems(filteredClientes);
-
-        clientsTable.getSelectionModel()
-                .selectedItemProperty()
-                .addListener((obs, oldVal, selected) -> {
-
-                    if (selected == null) return;
-
-                    try {
-                        FXMLLoader loader = new FXMLLoader(
-                                getClass().getResource(
-                                        "/org/example/paneljavafx/cliente-view.fxml"
-                                )
-                        );
-
-                        Parent view = loader.load();
-
-                        ClientePrivadoViewController controller =
-                                loader.getController();
-
-                        controller.loadCliente(selected);
-
-                        clienteDetailContainer.getChildren().setAll(view);
-
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                });
     }
 
-    private void setupSearch() {
-
-        searchField.textProperty().addListener((obs, oldVal, newVal) -> {
-
-            String filter = (newVal == null) ? "" : newVal.toLowerCase();
-
-            filteredClientes.setPredicate(c -> {
-
-                if (filter.isEmpty()) return true;
-
-                return c.getName().toLowerCase().contains(filter)
-                        || c.getSurname().toLowerCase().contains(filter)
-                        || c.getEmail().toLowerCase().contains(filter);
-            });
-        });
-    }
-
+    // ========================= OVERLAY =========================
     @FXML
-    private void openAddCliente() {
-        openForm(null);
-    }
-
-    private void openEditCliente(Client cliente) {
-        openForm(cliente);
-    }
-
-    private void openForm(Client cliente) {
+    private void openAddPosicion() {
 
         try {
             FXMLLoader loader = new FXMLLoader(
-                    getClass().getResource("/org/example/paneljavafx/add-cliente-view.fxml")
+                    getClass().getResource("/org/example/paneljavafx/add-position-view.fxml")
             );
 
             Parent form = loader.load();
 
-            AddClienteController controller = loader.getController();
-            controller.init(cliente, this);
+            AddPositionController controller = loader.getController();
+            controller.setParent(this);
+            controller.setCliente(currentClient);
+            controller.setFunds(fundService.getAll());
+            controller.initCreate();
 
             overlayContainer.getChildren().setAll(form);
             overlayContainer.setVisible(true);
@@ -159,11 +338,7 @@ public class ClienteViewController {
         }
     }
 
-    public void refreshTable() {
-        clientsTable.refresh();
-    }
-
-    public void closeAddClienteForm() {
+    public void closeOverlay() {
 
         overlayContainer.getChildren().clear();
         overlayContainer.setVisible(false);

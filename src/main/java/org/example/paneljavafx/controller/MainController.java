@@ -3,10 +3,13 @@ package org.example.paneljavafx.controller;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.StackPane;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 import org.example.paneljavafx.model.User;
 import org.example.paneljavafx.service.UserService;
 
@@ -29,7 +32,7 @@ public class MainController {
         var resource = getClass().getResource("/images/logo-stockmaster.png");
 
         if (resource == null) {
-            System.err.println("❌ Imagen no encontrada");
+            System.err.println("Imagen no encontrada");
             return;
         }
 
@@ -43,44 +46,11 @@ public class MainController {
 
     public void navigateTo(String fxmlPath) {
         try {
-            URL resource = getClass().getResource(fxmlPath);
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource(fxmlPath)
+            );
 
-            if (resource == null) {
-                System.err.println("❌ FXML no encontrado: " + fxmlPath);
-                return;
-            }
-
-            FXMLLoader loader = new FXMLLoader(resource);
             Parent view = loader.load();
-
-            Object controller = loader.getController();
-            if (controller instanceof UserAware aware) {
-                aware.setUser(currentUser);
-                aware.setMainController(this);
-            }
-
-            contentArea.getChildren().setAll(view);
-
-        } catch (IOException e) {
-            System.err.println("❌ Error cargando: " + fxmlPath);
-            e.printStackTrace();
-        }
-    }
-
-    public void navigateWithTarget(String fxmlPath, User target) {
-        try {
-            URL resource = getClass().getResource(fxmlPath);
-            if (resource == null) return;
-
-            FXMLLoader loader = new FXMLLoader(resource);
-            Parent view = loader.load();
-
-            Object controller = loader.getController();
-            if (controller instanceof UserAware aware) {
-                aware.setUser(currentUser);
-                aware.setMainController(this);
-                aware.setSelectedTarget(target);
-            }
 
             contentArea.getChildren().setAll(view);
 
@@ -90,8 +60,32 @@ public class MainController {
     }
 
     @FXML
-    private void handlePerfil() {
-        navigateTo("/org/example/paneljavafx/perfil.fxml");
+    private void handleProfile() {
+        openProfileModal();
+    }
+
+    public void openProfileModal() {
+        try {
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/org/example/paneljavafx/profile-view.fxml")
+            );
+
+            Parent view = loader.load();
+
+            Stage dialog = new Stage();
+            dialog.initModality(Modality.APPLICATION_MODAL);
+            dialog.initOwner(contentArea.getScene().getWindow());
+            dialog.setTitle("Perfil");
+
+            Scene scene = new Scene(view);
+
+            dialog.setScene(scene);
+            dialog.centerOnScreen();
+            dialog.showAndWait();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @FXML

@@ -1,32 +1,58 @@
 package org.example.paneljavafx.service;
 
+import org.example.paneljavafx.dao.ClientDAO;
+import org.example.paneljavafx.dao.GestorDAO;
+import org.example.paneljavafx.dao.impl.ClientImpl;
+import org.example.paneljavafx.dao.impl.GestorImpl;
 import org.example.paneljavafx.model.User;
+import org.example.paneljavafx.service.dto.ClientProfileDTO;
+import org.example.paneljavafx.service.dto.GestorProfileDTO;
 
 public class ProfileService {
 
-    public User getProfileData(User user) {
+    private final ClientDAO clientDao = new ClientImpl();
+    private final GestorDAO gestorDao = new GestorImpl();
 
-        switch (user.getRole().toLowerCase()) {
-            case "admin":
-                return getAdminData(user);
-            case "gestor":
-                return getGestorData(user);
-            case "cliente":
-                return getClienteData(user);
-            default:
-                return user;
-        }
-    }
+    public Object getProfile(User user) {
 
-    private User getAdminData(User user) {
-        return user;
-    }
+        return switch (user.getRole().toLowerCase()) {
 
-    private User getGestorData(User user) {
-        return user;
-    }
+            case "cliente" -> clientDao.findByUserId(user.getId())
+                    .map(c -> new ClientProfileDTO(
+                            c.getClientId(),
+                            c.getGestorId(),
+                            c.getName(),
+                            c.getSurname(),
+                            c.getEmail(),
+                            c.getNationalId(),
+                            c.getJoinDate(),
+                            c.getCountry(),
+                            c.getUserId()
+                    ))
+                    .orElse(null);
 
-    private User getClienteData(User user) {
-        return user;
+            case "gestor" -> gestorDao.findByUserId(user.getId())
+                    .map(g -> GestorProfileDTO.builder()
+                            .idGestor(g.getGestorId())
+                            .idEmpresa(g.getCompanyId())
+                            .idFondo(g.getFundId())
+                            .nationalId(g.getNationalId())
+                            .name(g.getName())
+                            .surname(g.getSurname())
+                            .yearsOfExperience(g.getYearsOfExperience())
+                            .riskProfile(
+                                    g.getRiskProfile() != null
+                                            ? g.getRiskProfile().name()
+                                            : null
+                            )
+                            .email(g.getEmail())
+                            .phone(g.getPhone())
+                            .userId(g.getUserId())
+                            .build()
+                    )
+                    .orElse(null);
+
+            default -> null;
+        };
     }
 }

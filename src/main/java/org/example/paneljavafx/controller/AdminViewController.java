@@ -7,7 +7,7 @@ import javafx.scene.control.TabPane;
 import javafx.scene.layout.AnchorPane;
 
 import org.example.paneljavafx.dao.FundAssetPositionDAO;
-import org.example.paneljavafx.dao.impl.FundPositionImpl;
+import org.example.paneljavafx.dao.impl.FundAssetPositionImpl;
 import org.example.paneljavafx.model.Asset;
 import org.example.paneljavafx.model.Fund;
 import org.example.paneljavafx.model.FundAssetPosition;
@@ -32,7 +32,7 @@ public class AdminViewController implements UserAware{
 
     private final FundService        fundService        = FundService.getInstance();
     private final AssetService       assetService       = AssetService.getInstance();
-    private final FundAssetPositionDAO fundPositionDAO    = new FundPositionImpl(); // ← sustituye FundPositionDataSource
+    private final FundAssetPositionDAO fundPositionDAO    = new FundAssetPositionImpl(); // ← sustituye FundPositionDataSource
 
     @FXML
     public void initialize() {

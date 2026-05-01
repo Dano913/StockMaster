@@ -17,7 +17,7 @@ public class ClientFundPositionImpl implements ClientFundPositionDAO {
 
         List<ClientFundPosition> positions = new ArrayList<>();
 
-        String sql = "SELECT * FROM position WHERE client_id = ?";
+        String sql = "SELECT * FROM posicion WHERE id_cliente = ?";
 
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -45,7 +45,7 @@ public class ClientFundPositionImpl implements ClientFundPositionDAO {
 
         List<ClientFundPosition> positions = new ArrayList<>();
 
-        String sql = "SELECT * FROM position";
+        String sql = "SELECT * FROM posicion";
 
         try (Connection conn = DatabaseConnection.getConnection();
              Statement stmt = conn.createStatement();
@@ -66,7 +66,7 @@ public class ClientFundPositionImpl implements ClientFundPositionDAO {
     @Override
     public Optional<ClientFundPosition> findById(int id) {
 
-        String sql = "SELECT * FROM position WHERE position_id = ?";
+        String sql = "SELECT * FROM posicion WHERE id_posicion = ?";
 
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -92,7 +92,7 @@ public class ClientFundPositionImpl implements ClientFundPositionDAO {
     public ClientFundPosition save(ClientFundPosition position) {
 
         String sql = """
-            INSERT INTO position (client_id, fund_id, quantity, actual_value)
+            INSERT INTO posicion (id_cliente, id_fondo, cantidad, valor_actual)
             VALUES (?, ?, ?, ?)
         """;
 
@@ -124,9 +124,9 @@ public class ClientFundPositionImpl implements ClientFundPositionDAO {
     public void update(ClientFundPosition position) {
 
         String sql = """
-            UPDATE position
-            SET quantity = ?, actual_value = ?
-            WHERE position_id = ?
+            UPDATE posicion
+            SET cantidad = ?, valor_actual = ?
+            WHERE id_posicion = ?
         """;
 
         try (Connection conn = DatabaseConnection.getConnection();
@@ -147,7 +147,7 @@ public class ClientFundPositionImpl implements ClientFundPositionDAO {
     @Override
     public void deleteById(int id) {
 
-        String sql = "DELETE FROM position WHERE position_id = ?";
+        String sql = "DELETE FROM posicion WHERE id_posicion = ?";
 
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -165,11 +165,11 @@ public class ClientFundPositionImpl implements ClientFundPositionDAO {
 
         ClientFundPosition position = new ClientFundPosition();
 
-        position.setPositionId(rs.getInt("position_id"));
-        position.setClientId(rs.getInt("client_id"));
-        position.setFundId(rs.getString("fund_id"));
-        position.setQuantity(rs.getDouble("quantity"));
-        position.setActualValue(rs.getDouble("actual_value"));
+        position.setPositionId(rs.getInt("id_posicion"));
+        position.setClientId(rs.getInt("id_cliente"));
+        position.setFundId(rs.getString("id_fondo"));
+        position.setQuantity(rs.getDouble("cantidad"));
+        position.setActualValue(rs.getDouble("valor_actual"));
 
         return position;
     }

@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.VBox?>
+
+<AnchorPane
+        prefHeight="1000.0"
+        prefWidth="1800.0"
+        stylesheets="@trading-theme.css"
+        xmlns="http://javafx.com/javafx/17"
+        xmlns:fx="http://javafx.com/fxml/1"
+        fx:controller="org.example.paneljavafx.controller.GestorViewController">
+
+    <children>
+
+        <TabPane fx:id="tabPane"
+                 styleClass="admin-tabpane"
+                 tabClosingPolicy="UNAVAILABLE"
+                 AnchorPane.topAnchor="0"
+                 AnchorPane.bottomAnchor="0"
+                 AnchorPane.leftAnchor="0"
+                 AnchorPane.rightAnchor="0">
+
+            <tabs>
+
+                <!-- POSICIÓN -->
+                <Tab text="Posición" closable="false">
+                    <fx:include source="global-view.fxml"/>
+                </Tab>
+
+                <!-- FONDOS -->
+                <Tab text="Fondos" closable="false">
+                    <content>
+                        <AnchorPane>
+                            <TabPane styleClass="inner-tabpane"
+                                     tabClosingPolicy="ALL_TABS"
+                                     AnchorPane.topAnchor="0"
+                                     AnchorPane.bottomAnchor="0"
+                                     AnchorPane.leftAnchor="0"
+                                     AnchorPane.rightAnchor="0">
+
+                                <tabs>
+                                    <Tab text="" closable="false">
+                                        <content>
+                                            <AnchorPane styleClass="empty-tab-pane">
+                                                <VBox alignment="CENTER"
+                                                      AnchorPane.topAnchor="0"
+                                                      AnchorPane.bottomAnchor="0"
+                                                      AnchorPane.leftAnchor="0"
+                                                      AnchorPane.rightAnchor="0">
+                                                    <Label text="📊" styleClass="cliente-empty-icon"/>
+                                                    <Label text="Selecciona un fondo para abrirlo"
+                                                           styleClass="cliente-empty-text"/>
+                                                </VBox>
+                                            </AnchorPane>
+                                        </content>
+                                    </Tab>
+                                </tabs>
+
+                            </TabPane>
+                        </AnchorPane>
+                    </content>
+                </Tab>
+
+                <!-- ACTIVOS -->
+                <Tab text="Activos" closable="false">
+                    <content>
+                        <AnchorPane>
+                            <TabPane styleClass="inner-tabpane"
+                                     tabClosingPolicy="ALL_TABS"
+                                     AnchorPane.topAnchor="0"
+                                     AnchorPane.bottomAnchor="0"
+                                     AnchorPane.leftAnchor="0"
+                                     AnchorPane.rightAnchor="0">
+
+                                <tabs>
+                                    <Tab text="" closable="false">
+                                        <content>
+                                            <AnchorPane styleClass="empty-tab-pane">
+                                                <VBox alignment="CENTER"
+                                                      AnchorPane.topAnchor="0"
+                                                      AnchorPane.bottomAnchor="0"
+                                                      AnchorPane.leftAnchor="0"
+                                                      AnchorPane.rightAnchor="0">
+                                                    <Label text="📈" styleClass="cliente-empty-icon"/>
+                                                    <Label text="Selecciona un activo para abrirlo"
+                                                           styleClass="cliente-empty-text"/>
+                                                </VBox>
+                                            </AnchorPane>
+                                        </content>
+                                    </Tab>
+                                </tabs>
+
+                            </TabPane>
+                        </AnchorPane>
+                    </content>
+                </Tab>
+
+                <!-- CLIENTES (gestor sí puede verlos) -->
+                <Tab text="Clientes" closable="false">
+                    <fx:include source="clientesGestion-view.fxml"/>
+                </Tab>
+
+            </tabs>
+
+        </TabPane>
+
+    </children>
+
+</AnchorPane>

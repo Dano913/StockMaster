@@ -5,6 +5,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import lombok.Setter;
 import org.example.paneljavafx.model.*;
+import org.example.paneljavafx.service.ClientFundPositionService;
 import org.example.paneljavafx.service.ClientService;
 import org.example.paneljavafx.service.TransactionService;
 
@@ -18,6 +19,7 @@ public class AddPositionController {
 
     private final ClientService clientService = ClientService.getInstance();
     private final TransactionService transactionService = TransactionService.getInstance();
+    private final ClientFundPositionService clientFundPositionService = ClientFundPositionService.getInstance();
 
     private Integer clientId;
     private Client client;
@@ -25,7 +27,7 @@ public class AddPositionController {
     private List<Fund> funds;
 
     @Setter
-    private ClientePrivadoViewController parent;
+    private ClienteViewController parent;
 
     // ========================= INIT =========================
     @FXML
@@ -82,7 +84,6 @@ public class AddPositionController {
         if (fund == null) return;
 
         double amount;
-
         try {
             amount = Double.parseDouble(amountField.getText());
         } catch (Exception e) {
@@ -90,29 +91,30 @@ public class AddPositionController {
             return;
         }
 
-        int clientId = client.getClientId();
-
         ClientFundPosition position =
-                clientService.getPositionsByClientId(clientId)
+                clientFundPositionService.getByClientId(client.getClientId())
                         .stream()
                         .filter(p -> p.getFundId().equals(fund.getFundId()))
                         .findFirst()
                         .orElse(null);
 
+        // 2. Si no existe, crearla → el save() devuelve la posición con su ID generado
         if (position == null) {
-
             position = new ClientFundPosition();
+            position.setClientId(client.getClientId());
             position.setFundId(fund.getFundId());
             position.setQuantity(amount);
-
-            clientService.addClientFundPosition(clientId, position);
+            position.setActualValue(amount);
+            position = clientFundPositionService.save(position); // ← importante: reasignar para tener el positionId
         }
 
+        // 3. Registrar la transacción con el positionId ya disponible
         Transaction transaction = new Transaction();
+        transaction.setPositionId(position.getPositionId());
         transaction.setType("BUY");
         transaction.setAmount(amount);
 
-        clientService.addTransactionToPosition(position.getPositionId(), transaction);
+        transactionService.addTransaction(position.getPositionId(), transaction);
 
         close(true);
     }
@@ -160,9 +162,11 @@ public class AddPositionController {
             parent.closeOverlay();
 
             if (refresh) {
-                parent.reloadCliente();
+                parent.refresh();
             }
         }
+
+        clearForm();
     }
 
     private void clearForm() {

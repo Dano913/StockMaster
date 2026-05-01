@@ -22,7 +22,7 @@ public class FundService {
 
     // ========================= INSTANCE =========================
     private final MarketService marketService = MarketService.getInstance();
-    private final FundPositionService positionService = FundPositionService.getInstance();
+    private final FundAssetPositionService positionService = FundAssetPositionService.getInstance();
 
     // ========================= CACHE =========================
     public final List<Fund> funds = new ArrayList<>();
@@ -45,6 +45,14 @@ public class FundService {
                 .filter(f -> f.getFundId().equals(id))
                 .findFirst()
                 .orElse(null);
+    }
+
+    public String getFundName(String fundId) {
+        return getAll().stream()
+                .filter(f -> f.getFundId().equals(fundId))
+                .map(Fund::getName)
+                .findFirst()
+                .orElse("Unknown fund");
     }
 
     // ========================= GET POSITION =========================

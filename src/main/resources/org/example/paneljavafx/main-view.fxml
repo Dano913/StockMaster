@@ -18,7 +18,7 @@
             <Region HBox.hgrow="ALWAYS"/>
 
             <Button text="Mi perfil"
-                    onAction="#handlePerfil"
+                    onAction="#handleProfile"
                     styleClass="header-btn"/>
 
             <Button text="Cerrar sesión"

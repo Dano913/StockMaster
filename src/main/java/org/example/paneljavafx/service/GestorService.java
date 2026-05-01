@@ -50,11 +50,16 @@ public class GestorService {
         return gestorDAO.findById(id);
     }
 
+    public String getGestorFullName(String gestorId) {
+        return getById(Integer.parseInt(gestorId))
+                .map(g -> g.getName() + " " + g.getSurname())
+                .orElse("Sin gestor");
+    }
+
     // ========================= GET CLIENT =========================
     public List<Client> getClientesByGestorId(int gestorId, List<Client> clientes) {
 
         return clientes.stream()
-                .filter(c -> c.getGestorId() != null)
                 .filter(c -> c.getGestorId() == gestorId)
                 .toList();
     }
