@@ -2,6 +2,7 @@ package org.example.paneljavafx.controller;
 
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.layout.AnchorPane;
@@ -10,92 +11,118 @@ import org.example.paneljavafx.dao.FundAssetPositionDAO;
 import org.example.paneljavafx.dao.impl.FundAssetPositionImpl;
 import org.example.paneljavafx.model.Asset;
 import org.example.paneljavafx.model.Fund;
-import org.example.paneljavafx.model.FundAssetPosition;
-import org.example.paneljavafx.model.User;
+import org.example.paneljavafx.service.AdminService;
 import org.example.paneljavafx.service.AssetService;
 import org.example.paneljavafx.service.FundService;
 
-import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-public class AdminViewController implements UserAware{
+public class AdminViewController {
 
+    private static final Logger logger =
+            Logger.getLogger(AdminViewController.class.getName());
+
+    // ========================= UI =========================
     @FXML private TabPane tabPane;
 
     @FXML private Tab searchTab;
     @FXML private Tab fundTab;
     @FXML private Tab assetTab;
+    @FXML private Tab personalTab;
+    @FXML private Tab clienteTab;
 
     @FXML private TabPane fundTabPane;
     @FXML private TabPane assetTabPane;
 
-    private List<FundAssetPosition> cachedPositions;
+    // ========================= SERVICES =========================
+    private final FundAssetPositionDAO positionDAO =
+            new FundAssetPositionImpl();
 
-    private final FundService        fundService        = FundService.getInstance();
-    private final AssetService       assetService       = AssetService.getInstance();
-    private final FundAssetPositionDAO fundPositionDAO    = new FundAssetPositionImpl(); // ← sustituye FundPositionDataSource
-
-    @FXML
-    public void initialize() {
-        loadGlobalView();
-
-        cachedPositions = fundPositionDAO.findAll();
-
-        fundService.load();
-        assetService.load();
-    }
-
-    // -------------------------
-    // GLOBAL VIEW
-    // -------------------------
-    private void loadGlobalView() {
-        try {
-            FXMLLoader loader = new FXMLLoader(
-                    getClass().getResource("/org/example/paneljavafx/global-view.fxml")
+    private final AdminService viewService =
+            new AdminService(
+                    FundService.getInstance(),
+                    AssetService.getInstance()
             );
 
-            AnchorPane content = loader.load();
+    // ========================= INIT =========================
+    @FXML
+    public void initialize() {
 
-            GlobalController controller = loader.getController();
-            controller.setAdminController(this);
+        viewService.initialize(positionDAO.findAll());
 
-            searchTab.setContent(content);
+        loadGlobalView();
+        loadPersonalView();
+        loadClientesView();
+    }
+
+    // ========================= GENERIC LOADER =========================
+    private <T> T loadView(String fxml, Tab tab) {
+
+        try {
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource(fxml)
+            );
+
+            Parent view = loader.load();
+            tab.setContent(view);
+
+            return loader.getController();
 
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.log(Level.SEVERE,
+                    "Error cargando vista: " + fxml, e);
+            return null;
         }
     }
 
-    private User currentUser;
-    private MainController mainController;
+    // ========================= GLOBAL VIEW =========================
+    private void loadGlobalView() {
 
-    @Override
-    public void setUser(User user) {
-        this.currentUser = user;
+        GlobalController globalController = loadView(
+                "/org/example/paneljavafx/global-view.fxml",
+                searchTab
+        );
+
+        if (globalController != null) {
+            globalController.setAdminController(this);
+        }
     }
 
-    @Override
-    public void setMainController(MainController mc) {
-        this.mainController = mc;
+    // ========================= PERSONAL VIEW =========================
+    private void loadPersonalView() {
+
+        loadView(
+                "/org/example/paneljavafx/personal-view.fxml",
+                personalTab
+        );
     }
 
-    // -------------------------
-    // OPEN FUND
-    // -------------------------
+    // ========================= CLIENTS VIEW =========================
+    private void loadClientesView() {
+
+        loadView(
+                "/org/example/paneljavafx/clientesGestion-view.fxml",
+                clienteTab
+        );
+    }
+
+
+    // ========================= FUNDS VIEW =========================
     public void openFund(Fund fund) {
+
         try {
+            var ctx = viewService.prepareFundView(fund);
+
             FXMLLoader loader = new FXMLLoader(
                     getClass().getResource("/org/example/paneljavafx/fund-view.fxml")
             );
 
-            AnchorPane view = loader.load();
+            Parent view = loader.load();
 
             FundViewController controller = loader.getController();
-
-            List<FundAssetPosition> fundSpecificPositions =
-                    fundService.getPositionsByFund(cachedPositions, fund.getFundId());
-
-            controller.loadData(fund);
-            controller.loadPositions(fundSpecificPositions);
+            controller.loadData(ctx.fund());
+            controller.loadPositions(ctx.positions());
 
             Tab tab = new Tab(fund.getName());
             tab.setContent(view);
@@ -103,42 +130,42 @@ public class AdminViewController implements UserAware{
 
             fundTabPane.getTabs().add(tab);
             fundTabPane.getSelectionModel().select(tab);
-
             tabPane.getSelectionModel().select(fundTab);
 
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.log(Level.SEVERE,
+                    "Error al cargar fondo", e);
         }
     }
 
-    // -------------------------
-    // OPEN ASSET
-    // -------------------------
+    // ========================= ASSETS VIEW =========================
     public void openAsset(Asset asset) {
+
         try {
+            var ctx = viewService.prepareAssetView(asset);
+
             FXMLLoader loader = new FXMLLoader(
                     getClass().getResource("/org/example/paneljavafx/asset-view.fxml")
             );
 
-            AnchorPane view = loader.load();
+            Parent view = loader.load();
 
             AssetViewController controller = loader.getController();
-            controller.loadPositions(cachedPositions);
-            controller.loadData(asset);
+            controller.loadPositions(ctx.positions());
+            controller.loadData(ctx.asset());
 
             Tab tab = new Tab(asset.getName());
             tab.setContent(view);
             tab.setClosable(true);
-
-            tab.setOnClosed(event -> controller.onClose());
+            tab.setOnClosed(e -> controller.onClose());
 
             assetTabPane.getTabs().add(tab);
             assetTabPane.getSelectionModel().select(tab);
-
             tabPane.getSelectionModel().select(assetTab);
 
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.log(Level.SEVERE,
+                    "Error al cargar activo", e);
         }
     }
 }
