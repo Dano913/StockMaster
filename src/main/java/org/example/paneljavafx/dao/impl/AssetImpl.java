@@ -32,6 +32,28 @@ public class AssetImpl implements AssetDAO {
         return list;
     }
 
+    @Override
+    public Optional<Asset> findById(String id) {
+        String sql = "SELECT * FROM asset WHERE id = ?";
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, id);
+
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                return Optional.of(map(rs));
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+        return Optional.empty();
+    }
+
     private Asset map(ResultSet rs) throws SQLException {
         return new Asset(
                 rs.getString("id"),

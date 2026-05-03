@@ -8,4 +8,5 @@ public interface AssetDAO {
 
     List<Asset> findAll();
 
+    Optional<Asset> findById(String id);
 }

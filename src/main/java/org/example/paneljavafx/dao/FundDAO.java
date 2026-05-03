@@ -9,4 +9,7 @@ public interface FundDAO {
 
     List<Fund> findAll();
 
+    Optional<Fund> findById(String idFondo);
+
+
 }

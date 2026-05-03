@@ -4,7 +4,6 @@ StockMaster es un sistema distribuido de simulación y gestión de fondos de inv
 
 - 🧠 Core de lógica financiera en Java
 - 🖥️ Panel de gestores en JavaFX
-- 🔌 API REST en Spring Boot
 - 🌐 Landing web en Node.js
 - 🗄️ Base de datos relacional
 
@@ -16,7 +15,6 @@ StockMaster es un sistema distribuido de simulación y gestión de fondos de inv
 StockMaster/
 │
 ├── src/          → Java (Core + JavaFX)
-├── api/          → Spring Boot REST API
 ├── web/          → Node.js + frontend
 ├── database/     → scripts SQL
 └── docs/         → documentación del sistema
@@ -43,7 +41,7 @@ JavaFX Panel           Web (Node.js)
 
 ## 🧠 Módulo Core (Java)
 
-📁 Ubicación: `src/main/java/com/stockmaster/core`
+📁 Ubicación: `src/main/java/org/example/paneljavafx`
 
 ### Responsabilidades
 
@@ -57,13 +55,13 @@ JavaFX Panel           Web (Node.js)
 
 - Fondos con rendimiento dinámico
 - Activos con características propias
-- Motor de simulación recursiva de tendencias
+- Motor de simulación recursiva de tendencias basado en Fibonacci
 
 ---
 
 ## 🖥️ Módulo JavaFX (Panel de gestores)
 
-📁 Ubicación: `src/main/java/com/stockmaster/javafx`
+📁 Ubicación: `src/main/java/org/example/paneljavafx`
 
 ### Responsabilidades
 
@@ -74,30 +72,7 @@ JavaFX Panel           Web (Node.js)
 
 ### Comunicación
 
-- Consume la API REST mediante HTTP
-- No accede directamente a la base de datos
-
----
-
-## 🔌 API (Spring Boot)
-
-📁 Ubicación: `api/`
-
-### Responsabilidades
-
-- Exponer la lógica del core como servicios REST
-- Gestionar acceso a datos
-- Transformar entidades en DTOs
-- Servir datos a JavaFX y Web
-
-### Endpoints principales
-
-| Método | Endpoint | Descripción |
-|--------|----------|-------------|
-| `GET` | `/api/funds/performance` | Rendimiento de todos los fondos |
-| `GET` | `/api/funds/{id}` | Detalle de un fondo concreto |
-| `POST` | `/api/simulate` | Lanzar simulación |
-
+- El codigo java pide los datosa la BBDD y muestra la informacion en las views
 ---
 
 ## 🌐 Web (Node.js)
@@ -108,13 +83,12 @@ JavaFX Panel           Web (Node.js)
 
 - Servidor web ligero
 - Renderizado de HTML/CSS/JS
-- Consumo de la API REST
-- Filtrado y visualización de datos
+- Visualización de informacion
 
 ### Tecnologías
 
 - Node.js
-- HTML / CSS / JavaScript (Fetch API)
+- HTML / Tailwind / JavaScript 
 
 ---
 
@@ -132,37 +106,23 @@ JavaFX Panel           Web (Node.js)
 
 ## 🚀 Tecnologías utilizadas
 
-|        Capa         |       Tecnología        |
-|---------------------|-------------------------|
-| Core lógica         | Java 17+                |
-| Interfaz escritorio | JavaFX                  |
-| Build tool          | Maven                   |
-| API backend         | Spring Boot             |
-| Servidor web        | Node.js                 |
-| Frontend            | HTML / CSS / JavaScript |
-| Persistencia        | SQL                     |
-
----
-
-## 🔌 Comunicación entre módulos
-
-```
-JavaFX  ─┐
-         ├── HTTP → Spring Boot API → Database
-Node.js ─┘
-```
+|        Capa         | Tecnología                   |
+|---------------------|------------------------------|
+| Core lógica         | Java 17+                     |
+| Interfaz escritorio | JavaFX                       |
+| Build tool          | Maven                        |
+| Servidor web        | Node.js                      |
+| Frontend            | HTML / Tailwind / JavaScript |
+| Persistencia        | MySQL                        |
 
 ---
 
 ## ⚠️ Reglas de arquitectura
 
-|                       Regla                    |     Estado      |
-|------------------------------------------------|-----------------|
-| JavaFX accede a la base de datos directamente  | ❌ Prohibido   |
-| Node.js accede a la base de datos directamente | ❌ Prohibido   |
-| La lógica de negocio vive en la API            | ❌ Prohibido   |
-| Todo acceso a datos pasa por Spring Boot       | ✅ Obligatorio |
-| El core contiene toda la lógica financiera     | ✅ Obligatorio |
+|                       Regla                    |
+|------------------------------------------------|
+| JavaFX accede a la base de datos directamente  |
+| El core contiene toda la lógica financiera     |
 
 ---
 
@@ -174,7 +134,7 @@ Simular un entorno financiero donde:
 - Los activos afectan el rendimiento
 - Las tendencias se calculan mediante simulación recursiva
 - Los datos se exponen a múltiples clientes en tiempo real
-- El panel de inversion interna únicamente es gestionado por los inversores de la empresa
+- El panel de inversion es gestionado por clientes y gestores de la empresa
 
 ---
 
@@ -183,6 +143,6 @@ Simular un entorno financiero donde:
 Proyecto personal enfocado en:
 
 - Arquitectura de software distribuido
-- Java + sistemas backend
+- Java 17 + Maven
 - Simulación financiera
 - Separación de responsabilidades

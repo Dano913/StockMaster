@@ -31,6 +31,28 @@ public class FundImpl implements FundDAO {
         return list;
     }
 
+    @Override
+    public Optional<Fund> findById(String idFondo) {
+        String sql = "SELECT * FROM fund WHERE id_fondo = ?";
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, idFondo);
+
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                return Optional.of(map(rs));
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+        return Optional.empty();
+    }
+
     private Fund map(ResultSet rs) throws SQLException {
         return new Fund(
                 rs.getString("id"),
