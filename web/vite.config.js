@@ -5,8 +5,9 @@ import path from 'path'
 export default defineConfig({
   plugins: [tailwindcss()],
   server: {
-    port: 3000,
-    strictPort: true
+    port: 3001,
+    strictPort: false,
+    open: true
   },
   build: {
     rollupOptions: {
