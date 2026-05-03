@@ -11,7 +11,6 @@ import java.util.Optional;
 
 public class GestorImpl implements GestorDAO {
 
-    // ========================= FIND ALL =========================
     @Override
     public List<Gestor> findAll() {
 
@@ -34,11 +33,10 @@ public class GestorImpl implements GestorDAO {
         return list;
     }
 
-    // ========================= FIND BY ID =========================
     @Override
     public Optional<Gestor> findById(int id) {
 
-        String sql = "SELECT * FROM gestor WHERE id_gestor = ?";
+        String sql = "SELECT * FROM gestor WHERE id = ?";
 
         try (Connection con = DatabaseConnection.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
@@ -58,16 +56,15 @@ public class GestorImpl implements GestorDAO {
         return Optional.empty();
     }
 
-    // ========================= FIND BY USER ID (IMPORTANTE PARA PERFIL) =========================
     public Optional<Gestor> findByUserId(int userId) {
 
         String sql = """
-            SELECT id_gestor, id_empresa, id_fondo,
-                   dni,
-                   nombre, apellidos,
-                   anios_experiencia,
-                   perfil_riesgo,
-                   email, telefono,
+            SELECT id, company_id, fund_id,
+                   national_id,
+                   name, surname,
+                   years_of_experience,
+                   risk_profile,
+                   email, phone,
                    user_id
             FROM gestor
             WHERE user_id = ?
@@ -83,17 +80,17 @@ public class GestorImpl implements GestorDAO {
 
                     Gestor g = new Gestor();
 
-                    g.setGestorId(rs.getInt("id_gestor"));
-                    g.setCompanyId(rs.getInt("id_empresa"));
-                    g.setFundId(rs.getInt("id_fondo"));
-                    g.setNationalId(rs.getString("dni"));
+                    g.setGestorId(rs.getInt("id"));
+                    g.setCompanyId(rs.getInt("company_id"));
+                    g.setFundId(rs.getInt("fund_id"));
+                    g.setNationalId(rs.getString("national_id"));
 
-                    g.setName(rs.getString("nombre"));
-                    g.setSurname(rs.getString("apellidos"));
+                    g.setName(rs.getString("name"));
+                    g.setSurname(rs.getString("surname"));
 
-                    g.setYearsOfExperience(rs.getInt("anios_experiencia"));
+                    g.setYearsOfExperience(rs.getInt("years_of_experience"));
 
-                    String perfilStr = rs.getString("perfil_riesgo");
+                    String perfilStr = rs.getString("risk_profile");
                     g.setRiskProfile(
                             perfilStr != null
                                     ? Gestor.RiskProfile.valueOf(perfilStr.toUpperCase())
@@ -101,7 +98,7 @@ public class GestorImpl implements GestorDAO {
                     );
 
                     g.setEmail(rs.getString("email"));
-                    g.setPhone(rs.getString("telefono"));
+                    g.setPhone(rs.getString("phone"));
                     g.setUserId(rs.getInt("user_id"));
 
                     return Optional.of(g);
@@ -115,14 +112,13 @@ public class GestorImpl implements GestorDAO {
         return Optional.empty();
     }
 
-    // ========================= SAVE =========================
     @Override
     public void save(Gestor g) {
 
         String sql = """
             INSERT INTO gestor
-            (id_empresa, id_fondo, dni, nombre, apellidos,
-             anios_experiencia, perfil_riesgo, email, telefono, user_id)
+            (company_id, fund_id, national_id, name, surname,
+             years_of_experience, risk_profile, email, phone, user_id)
             VALUES (?,?,?,?,?,?,?,?,?,?)
         """;
 
@@ -153,15 +149,14 @@ public class GestorImpl implements GestorDAO {
         }
     }
 
-    // ========================= UPDATE =========================
     @Override
     public void update(Gestor g) {
 
         String sql = """
             UPDATE gestor
-            SET id_empresa=?, id_fondo=?, dni=?, nombre=?, apellidos=?,
-                anios_experiencia=?, perfil_riesgo=?, email=?, telefono=?, user_id=?
-            WHERE id_gestor=?
+            SET company_id=?, fund_id=?, national_id=?, name=?, surname=?,
+                years_of_experience=?, risk_profile=?, email=?, phone=?, user_id=?
+            WHERE id=?
         """;
 
         try (Connection con = DatabaseConnection.getConnection();
@@ -186,11 +181,10 @@ public class GestorImpl implements GestorDAO {
         }
     }
 
-    // ========================= DELETE =========================
     @Override
     public void deleteById(int id) {
 
-        String sql = "DELETE FROM gestor WHERE id_gestor=?";
+        String sql = "DELETE FROM gestor WHERE id=?";
 
         try (Connection con = DatabaseConnection.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
@@ -203,38 +197,37 @@ public class GestorImpl implements GestorDAO {
         }
     }
 
-    // ========================= MAPPER =========================
     private Gestor mapGestor(ResultSet rs) throws SQLException {
 
-        Gestor.RiskProfile perfil;
+        Gestor.RiskProfile profile;
 
-        String perfilStr = rs.getString("perfil_riesgo");
+        String profileStr = rs.getString("risk_profile");
 
         try {
-            perfil = (perfilStr == null)
+            profile = (profileStr == null)
                     ? Gestor.RiskProfile.CONSERVADOR
-                    : Gestor.RiskProfile.valueOf(perfilStr.toUpperCase());
+                    : Gestor.RiskProfile.valueOf(profileStr.toUpperCase());
         } catch (Exception e) {
-            perfil = Gestor.RiskProfile.CONSERVADOR;
+            profile = Gestor.RiskProfile.CONSERVADOR;
         }
 
         Gestor g = new Gestor();
 
-        g.setGestorId(rs.getInt("id_gestor"));
-        g.setCompanyId(rs.getInt("id_empresa"));
-        g.setFundId(rs.getInt("id_fondo"));
+        g.setGestorId(rs.getInt("id"));
+        g.setCompanyId(rs.getInt("company_id"));
+        g.setFundId(rs.getInt("fund_id"));
 
-        g.setNationalId(rs.getString("dni"));
+        g.setNationalId(rs.getString("national_id"));
 
-        g.setName(rs.getString("nombre"));
-        g.setSurname(rs.getString("apellidos"));
+        g.setName(rs.getString("name"));
+        g.setSurname(rs.getString("surname"));
 
-        g.setYearsOfExperience(rs.getInt("anios_experiencia"));
+        g.setYearsOfExperience(rs.getInt("years_of_experience"));
 
-        g.setRiskProfile(perfil);
+        g.setRiskProfile(profile);
 
         g.setEmail(rs.getString("email"));
-        g.setPhone(rs.getString("telefono"));
+        g.setPhone(rs.getString("phone"));
 
         g.setUserId(rs.getInt("user_id"));
 

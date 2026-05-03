@@ -4,7 +4,7 @@ import org.example.paneljavafx.model.Transaction;
 
 import java.util.List;
 
-public interface TransaccionDAO {
+public interface TransactionDAO {
 
     Transaction save(Transaction transaction);
 

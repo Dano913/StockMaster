@@ -12,34 +12,6 @@ import java.util.Optional;
 public class FundImpl implements FundDAO {
 
     @Override
-    public void save(Fund fund) {
-        String sql = """
-            INSERT INTO fund (
-                id_fondo, id_empresa, nombre, codigo_isin,
-                tipo, categoria, moneda_base, fecha_creacion
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-        """;
-
-        try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-
-            stmt.setString(1, fund.getFundId());
-            stmt.setString(2, fund.getCompanyId());
-            stmt.setString(3, fund.getName());
-            stmt.setString(4, fund.getIsinCode());
-            stmt.setString(5, fund.getType());
-            stmt.setString(6, fund.getCategory());
-            stmt.setString(7, fund.getCurrency());
-            stmt.setDate(8, Date.valueOf(fund.getCreatedAt()));
-
-            stmt.executeUpdate();
-
-        } catch (SQLException e) {
-            throw new RuntimeException("Error insertando Fund", e);
-        }
-    }
-
-    @Override
     public List<Fund> findAll() {
         List<Fund> list = new ArrayList<>();
         String sql = "SELECT * FROM fund";
@@ -59,82 +31,16 @@ public class FundImpl implements FundDAO {
         return list;
     }
 
-    @Override
-    public Optional<Fund> findById(String idFondo) {
-        String sql = "SELECT * FROM fund WHERE id_fondo = ?";
-
-        try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-
-            stmt.setString(1, idFondo);
-
-            ResultSet rs = stmt.executeQuery();
-
-            if (rs.next()) {
-                return Optional.of(map(rs));
-            }
-
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-
-        return Optional.empty();
-    }
-
-    @Override
-    public boolean update(String idFondo, Fund fund) {
-        String sql = """
-            UPDATE fund SET
-                id_empresa=?, nombre=?, codigo_isin=?,
-                tipo=?, categoria=?, moneda_base=?, fecha_creacion=?
-            WHERE id_fondo=?
-        """;
-
-        try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-
-            stmt.setString(1, fund.getCompanyId());
-            stmt.setString(2, fund.getName());
-            stmt.setString(3, fund.getIsinCode());
-            stmt.setString(4, fund.getType());
-            stmt.setString(5, fund.getCategory());
-            stmt.setString(6, fund.getCurrency());
-            stmt.setDate(7, Date.valueOf(fund.getCreatedAt()));
-            stmt.setString(8, idFondo);
-
-            return stmt.executeUpdate() > 0;
-
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    @Override
-    public boolean deleteById(String idFondo) {
-        String sql = "DELETE FROM fund WHERE id_fondo=?";
-
-        try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-
-            stmt.setString(1, idFondo);
-
-            return stmt.executeUpdate() > 0;
-
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
     private Fund map(ResultSet rs) throws SQLException {
         return new Fund(
-                rs.getString("id_fondo"),
-                rs.getString("id_empresa"),
-                rs.getString("nombre"),
-                rs.getString("codigo_isin"),
-                rs.getString("tipo"),
-                rs.getString("categoria"),
-                rs.getString("moneda_base"),
-                rs.getDate("fecha_creacion").toLocalDate()
+                rs.getString("id"),
+                rs.getString("company_id"),
+                rs.getString("name"),
+                rs.getString("isin_code"),
+                rs.getString("type"),
+                rs.getString("category"),
+                rs.getString("currency"),
+                rs.getDate("createdAt").toLocalDate()
         );
     }
 }

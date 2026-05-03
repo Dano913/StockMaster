@@ -6,13 +6,6 @@ import java.util.Optional;
 
 public interface AssetDAO {
 
-    void save(Asset asset);
-
     List<Asset> findAll();
 
-    Optional<Asset> findById(String id);
-
-    boolean update(String id, Asset asset);
-
-    boolean deleteById(String id);
 }

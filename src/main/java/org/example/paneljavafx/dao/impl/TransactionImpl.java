@@ -1,6 +1,6 @@
 package org.example.paneljavafx.dao.impl;
 
-import org.example.paneljavafx.dao.TransaccionDAO;
+import org.example.paneljavafx.dao.TransactionDAO;
 import org.example.paneljavafx.database.DatabaseConnection;
 import org.example.paneljavafx.model.Transaction;
 
@@ -9,7 +9,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TransaccionImpl implements TransaccionDAO {
+public class TransactionImpl implements TransactionDAO {
 
     private Connection getConnection() throws SQLException {
         return DatabaseConnection.getConnection();
@@ -22,9 +22,9 @@ public class TransaccionImpl implements TransaccionDAO {
         List<Transaction> list = new ArrayList<>();
 
         String sql = """
-            SELECT id_transaccion, id_posicion, tipo, importe, fecha
-            FROM transaccion
-            WHERE id_posicion = ?
+            SELECT id, position_id, type, amount, date
+            FROM transaction
+            WHERE position_id = ?
             ORDER BY fecha DESC
         """;
 
@@ -51,7 +51,7 @@ public class TransaccionImpl implements TransaccionDAO {
     public Transaction save(Transaction transaction) {
 
         String sql = """
-            INSERT INTO transaccion (id_posicion, tipo, importe, fecha)
+            INSERT INTO transaction (position_id, type, amount, date)
             VALUES (?, ?, ?, ?)
         """;
 
@@ -85,7 +85,7 @@ public class TransaccionImpl implements TransaccionDAO {
     @Override
     public void deleteById(int id) {
 
-        String sql = "DELETE FROM transaccion WHERE id_transaccion = ?";
+        String sql = "DELETE FROM transaction WHERE id = ?";
 
         try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -103,12 +103,12 @@ public class TransaccionImpl implements TransaccionDAO {
 
         Transaction t = new Transaction();
 
-        t.setTransactionId(rs.getInt("id_transaccion"));
-        t.setPositionId(rs.getInt("id_posicion"));
-        t.setType(rs.getString("tipo"));
-        t.setAmount(rs.getDouble("importe"));
+        t.setTransactionId(rs.getInt("id"));
+        t.setPositionId(rs.getInt("position_id"));
+        t.setType(rs.getString("type"));
+        t.setAmount(rs.getDouble("amount"));
 
-        Timestamp ts = rs.getTimestamp("fecha");
+        Timestamp ts = rs.getTimestamp("date");
         if (ts != null) {
             t.setExecutedAt(ts.toInstant());
         }

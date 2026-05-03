@@ -11,8 +11,6 @@ public interface ClientDAO {
 
     List<Client> findAll();
 
-    Optional<Client> findById(int id);
-
     Optional<Client> findByUserId(int userId);
 
     void update(Client client);

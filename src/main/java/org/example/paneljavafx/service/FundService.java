@@ -62,9 +62,13 @@ public class FundService {
     public double calculateTotalNAV(List<FundAssetPosition> positions) {
         if (positions == null) return 0;
 
-        return positions.stream()
+        double total = positions.stream()
                 .mapToDouble(FundAssetPosition::getInvestedValue)
                 .sum();
+
+        System.out.println("Total NAV: " + total);
+
+        return total;
     }
 
     // ========================= POSITION SUMMARY =========================

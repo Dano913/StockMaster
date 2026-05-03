@@ -1,17 +1,12 @@
 package org.example.paneljavafx.service;
 
-import org.example.paneljavafx.dao.TransaccionDAO;
-import org.example.paneljavafx.dao.impl.TransaccionImpl;
+import org.example.paneljavafx.dao.TransactionDAO;
+import org.example.paneljavafx.dao.impl.TransactionImpl;
 import org.example.paneljavafx.model.ClientFundPosition;
 import org.example.paneljavafx.model.Transaction;
-import org.example.paneljavafx.viewmodel.TransactionRowView;
 
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 public class TransactionService {
 
@@ -24,7 +19,7 @@ public class TransactionService {
         return instance;
     }
 
-    private final TransaccionDAO dao = new TransaccionImpl();
+    private final TransactionDAO dao = new TransactionImpl();
 
     // ========================= BASIC CRUD =========================
 

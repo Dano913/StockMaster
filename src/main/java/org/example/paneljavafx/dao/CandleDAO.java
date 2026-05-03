@@ -9,13 +9,5 @@ public interface CandleDAO {
 
     void save(Candle candle);
 
-    List<Candle> findAll();
-
     List<Candle> findByAssetId(String assetId);
-
-    List<Candle> findByAssetIdBetween(String assetId, long from, long to);
-
-    Optional<Candle> findLastByAssetId(String assetId);
-
-    Optional<Candle> findById(long timestamp);
 }

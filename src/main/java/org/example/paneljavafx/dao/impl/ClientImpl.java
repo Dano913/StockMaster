@@ -19,7 +19,7 @@ public class ClientImpl implements ClientDAO {
     public List<Client> findAll() {
 
         List<Client> clients = new ArrayList<>();
-        String sql = "SELECT * FROM cliente";
+        String sql = "SELECT * FROM client";
 
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql);
@@ -36,38 +36,12 @@ public class ClientImpl implements ClientDAO {
         return clients;
     }
 
-    // =========================
-    // FIND BY ID
-    // =========================
-    @Override
-    public Optional<Client> findById(int id) {
-
-        String sql = "SELECT * FROM cliente WHERE id_cliente = ?";
-
-        try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-
-            stmt.setInt(1, id);
-
-            try (ResultSet rs = stmt.executeQuery()) {
-                if (rs.next()) {
-                    return Optional.of(mapClient(rs));
-                }
-            }
-
-        } catch (SQLException e) {
-            throw new RuntimeException("Error finding client", e);
-        }
-
-        return Optional.empty();
-    }
-
     public Optional<Client> findByUserId(int userId) {
 
         String sql = """
-        SELECT id_cliente, id_gestor, nombre, apellido, email,
-               dni, fecha_alta, pais, user_id
-        FROM cliente
+        SELECT id, gestor_id, name, surname, email,
+               national_id, join_date, country, user_id
+        FROM client
         WHERE user_id = ?
     """;
 
@@ -80,14 +54,14 @@ public class ClientImpl implements ClientDAO {
                 if (rs.next()) {
                     Client c = new Client();
 
-                    c.setClientId(rs.getInt("id_cliente"));
-                    c.setGestorId(rs.getInt("id_gestor"));
-                    c.setName(rs.getString("nombre"));
-                    c.setSurname(rs.getString("apellido"));
+                    c.setClientId(rs.getInt("id"));
+                    c.setGestorId(rs.getInt("gestor_id"));
+                    c.setName(rs.getString("name"));
+                    c.setSurname(rs.getString("surname"));
                     c.setEmail(rs.getString("email"));
-                    c.setNationalId(rs.getString("dni"));
-                    c.setJoinDate(LocalDate.parse(rs.getString("fecha_alta")));
-                    c.setCountry(rs.getString("pais"));
+                    c.setNationalId(rs.getString("national_id"));
+                    c.setJoinDate(LocalDate.parse(rs.getString("join_date")));
+                    c.setCountry(rs.getString("country"));
                     c.setUserId(rs.getInt("user_id"));
 
                     return Optional.of(c);
@@ -108,8 +82,8 @@ public class ClientImpl implements ClientDAO {
     public Client save(Client c) {
 
         String sql = """
-            INSERT INTO cliente
-            (id_gestor, nombre, apellido, email, dni, fecha_alta, pais)
+            INSERT INTO client
+            (gestor_id, name, surname, email, national_id, join_date, country)
             VALUES (?, ?, ?, ?, ?, ?, ?)
         """;
 
@@ -146,15 +120,15 @@ public class ClientImpl implements ClientDAO {
     public void update(Client c) {
 
         String sql = """
-            UPDATE cliente SET
-                id_gestor=?,
-                nombre=?,
-                apellido=?,
+            UPDATE client SET
+                gestor_id=?,
+                name=?,
+                surname=?,
                 email=?,
-                dni=?,
-                fecha_alta=?,
-                pais=?
-            WHERE id_cliente=?
+                national_id=?,
+                join_date=?,
+                country=?
+            WHERE id=?
         """;
 
         try (Connection conn = DatabaseConnection.getConnection();
@@ -182,7 +156,7 @@ public class ClientImpl implements ClientDAO {
     @Override
     public void deleteById(int id) {
 
-        String sql = "DELETE FROM cliente WHERE id_cliente = ?";
+        String sql = "DELETE FROM client WHERE id = ?";
 
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -202,18 +176,18 @@ public class ClientImpl implements ClientDAO {
 
         Client c = new Client();
 
-        c.setClientId(rs.getInt("id_cliente"));
-        c.setGestorId(rs.getObject("id_gestor", Integer.class));
+        c.setClientId(rs.getInt("id"));
+        c.setGestorId(rs.getObject("gestor_id", Integer.class));
 
-        c.setName(rs.getString("nombre"));
-        c.setSurname(rs.getString("apellido"));
+        c.setName(rs.getString("name"));
+        c.setSurname(rs.getString("surname"));
         c.setEmail(rs.getString("email"));
-        c.setNationalId(rs.getString("dni"));
-        c.setCountry(rs.getString("pais"));
+        c.setNationalId(rs.getString("national_id"));
+        c.setCountry(rs.getString("country"));
 
-        Date sqlDate = rs.getDate("fecha_alta");
+        Date sqlDate = rs.getDate("join_date");
         c.setJoinDate(sqlDate != null ? sqlDate.toLocalDate() : null);
-
+        c.setUserId(rs.getInt("user_id"));
         return c;
     }
 }
