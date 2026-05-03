@@ -5,7 +5,6 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
-import javafx.scene.layout.AnchorPane;
 
 import org.example.paneljavafx.dao.FundAssetPositionDAO;
 import org.example.paneljavafx.dao.impl.FundAssetPositionImpl;
@@ -93,7 +92,7 @@ public class AdminViewController {
     private void loadPersonalView() {
 
         loadView(
-                "/org/example/paneljavafx/personal-view.fxml",
+                "/org/example/paneljavafx/gestores-admin-view.fxml",
                 personalTab
         );
     }
@@ -102,7 +101,7 @@ public class AdminViewController {
     private void loadClientesView() {
 
         loadView(
-                "/org/example/paneljavafx/clientesGestion-view.fxml",
+                "/org/example/paneljavafx/clientes-gestor-view.fxml",
                 clienteTab
         );
     }

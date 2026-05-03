@@ -7,26 +7,21 @@ import org.example.paneljavafx.dao.impl.AssetImpl;
 import org.example.paneljavafx.model.Asset;
 import org.example.paneljavafx.model.FundAssetPosition;
 import org.example.paneljavafx.service.dto.AssetMetrics;
-import java.util.HashSet;
+
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 public class AssetService {
 
     // ========================= SINGLETON =========================
-
     private static final AssetService INSTANCE = new AssetService();
-    public static AssetService getInstance() {
-        return INSTANCE;
-    }
+    public static AssetService getInstance() { return INSTANCE; }
     private AssetService() {}
 
     // ========================= DAO =========================
-
     private final AssetDAO assetDAO = new AssetImpl();
 
     // ========================= CACHE =========================
-
     public final ObservableList<Asset> assets = FXCollections.observableArrayList();
     private boolean loaded = false;
 
@@ -41,44 +36,75 @@ public class AssetService {
 
         } catch (Exception e) {
             e.printStackTrace();
-            System.err.println("Error cargando assets desde BD");
         }
     }
 
     // ========================= METRICS =========================
-
-    public AssetMetrics calculateMetrics(List<FundAssetPosition> positions, String assetId) {
-
-        if (positions == null || assetId == null) {
-            return new AssetMetrics(0, 0, 0, 0);
-        }
+    public AssetMetrics calculateMetrics(List<FundAssetPosition> positions,
+                                         String assetId) {
 
         double totalExposure = 0;
-        double totalPortfolioValue = 0;
+        long fundsExposed = 0;
 
-        Set<String> uniqueFunds = new HashSet<>();
+        double portfolioTotal = getPortfolioTotal(positions);
 
         for (FundAssetPosition p : positions) {
 
-            double value = p.getInvestedValue();
-            totalPortfolioValue += value;
+            if (!p.getIdAsset().equals(assetId)) continue;
 
-            if (assetId.equals(p.getIdAsset())) {
-                totalExposure += value;
-                uniqueFunds.add(p.getIdFund());
-            }
+            totalExposure += p.getInvestedValue();
+            fundsExposed++;
         }
 
-        double exposureRatio = (totalPortfolioValue == 0)
+        double exposureRatio = portfolioTotal == 0
                 ? 0
-                : totalExposure / totalPortfolioValue;
+                : totalExposure / portfolioTotal;
+
+        double globalWeight = exposureRatio;
+
+        // 🔥 volatilidad simplificada (SIN returns)
+        double volatility = calculateSimpleVolatility(positions, assetId);
 
         return new AssetMetrics(
                 totalExposure,
                 exposureRatio,
-                uniqueFunds.size(),
-                exposureRatio
+                fundsExposed,
+                globalWeight,
+                volatility
         );
+    }
+
+    // ========================= HELPERS =========================
+
+    private double getPortfolioTotal(List<FundAssetPosition> positions) {
+        return positions.stream()
+                .mapToDouble(FundAssetPosition::getInvestedValue)
+                .sum();
+    }
+
+    private double calculateSimpleVolatility(List<FundAssetPosition> positions,
+                                             String assetId) {
+
+        List<Double> values = new ArrayList<>();
+
+        for (FundAssetPosition p : positions) {
+            if (!p.getIdAsset().equals(assetId)) continue;
+            values.add(p.getInvestedValue());
+        }
+
+        if (values.isEmpty()) return 0;
+
+        double mean = values.stream()
+                .mapToDouble(Double::doubleValue)
+                .average()
+                .orElse(0);
+
+        double variance = values.stream()
+                .mapToDouble(v -> Math.pow(v - mean, 2))
+                .average()
+                .orElse(0);
+
+        return Math.sqrt(variance);
     }
 
     // ========================= GET =========================
@@ -87,15 +113,7 @@ public class AssetService {
         return assets;
     }
 
-    public Asset getById(String id) {
-        return assets.stream()
-                .filter(a -> a.getId().equals(id))
-                .findFirst()
-                .orElse(null);
-    }
-
     public long count() {
         return assets.size();
     }
-
 }

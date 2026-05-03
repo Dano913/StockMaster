@@ -1,40 +1,41 @@
-package org.example.paneljavafx.simulation; // Paquete de simulación del mercado
-import lombok.Getter;                           // Genera getter automático para price
+package org.example.paneljavafx.simulation;
 
-import java.util.HashMap;         // Estructura para cache (memoización)
-import java.util.Map;            // Interfaz Map
-import java.util.Random;        // Generador de aleatoriedad
+import lombok.Getter;
 
-public class FibonacciPriceModel {                                   // Modelo que simula precio basado en Fibonacci
-    private static final Map<Integer, Long> memo = new HashMap<>(); // Cache Fibonacci (evita recálculos)
-    @Getter private double price;                                  // Precio actual del activo simulado
-    private int fibIndex = 1;                                     // Índice actual de Fibonacci
-    private static final int MAX_FIB_INDEX = 15;                 // Límite del ciclo Fibonacci
-    private final double baseUnit;                              // Unidad base para escalar movimientos de precio
-    private final Random rand = new Random();                  // Generador de aleatoriedad (dirección del mercado)
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Random;
 
-    public FibonacciPriceModel(double initialPrice, double baseUnit) { // Constructor del modelo
-        this.price = initialPrice;                                    // Inicializa el precio
-        this.baseUnit = baseUnit;                                    // Define escala de movimiento
+public class FibonacciPriceModel {
+
+    private static final Map<Integer, Long> memo = new HashMap<>();
+
+    @Getter private double price;
+    private int fibIndex = 1;
+    private static final int MAX_FIB_INDEX = 15;
+    private final double baseUnit;
+    private final Random rand = new Random();
+
+    public FibonacciPriceModel(double initialPrice, double baseUnit) {
+        this.price = initialPrice;
+        this.baseUnit = Math.max(baseUnit, 0.1); // mínimo 0.1 si viene 0 o null
     }
 
-    public static long fib(int n) {                          // Calcula Fibonacci recursivo con memoización
-        if (n <= 1) return n;                               // Casos base (0, 1)
-        if (memo.containsKey(n)) return memo.get(n);       // Usa cache si ya fue calculado
-        long result = fib(n - 1) + fib(n - 2);            // Fórmula Fibonacci clásica
-        memo.put(n, result);                             // Guarda resultado en cache
-        return result;                                  // Devuelve valor calculado
+    public static long fib(int n) {
+        if (n <= 1) return n;
+        if (memo.containsKey(n)) return memo.get(n);
+        long result = fib(n - 1) + fib(n - 2);
+        memo.put(n, result);
+        return result;
     }
 
     public double tick() {
         long fibValue = fib(fibIndex);
 
-        // normalizar contra el máximo posible → siempre entre 0 y 1
         double normalized = (double) fibValue / fib(MAX_FIB_INDEX);
 
-        // volatilidad controlada — baseUnit ya es pequeño (ej: 0.18)
-        // multiplicamos por un factor fino para que el movimiento sea suave
-        double volatility = baseUnit * normalized * 0.002;
+        // mínimo de volatility efectiva para que siempre haya movimiento
+        double volatility = Math.max(baseUnit * normalized * 0.002, 0.0002);
 
         double direction = (rand.nextDouble() * 2 - 1); // -1 a +1
 

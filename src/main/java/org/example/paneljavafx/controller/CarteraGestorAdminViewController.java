@@ -13,7 +13,7 @@ import javafx.scene.layout.StackPane;
 import org.example.paneljavafx.model.Client;
 import org.example.paneljavafx.service.GestorService;
 
-public class GestionGestoresController {
+public class CarteraGestorAdminViewController {
 
     // ========================= UI =========================
     @FXML private TableView<Client> clientsTable;
@@ -41,9 +41,7 @@ public class GestionGestoresController {
     @FXML
     public void initialize() {
         setupTable();
-        setupSearch();
-        // ❌ NO cargar datos aquí
-    }
+        setupSearch();    }
 
     // ========================= ENTRY POINT =========================
     public void initByGestorId(int gestorId) {

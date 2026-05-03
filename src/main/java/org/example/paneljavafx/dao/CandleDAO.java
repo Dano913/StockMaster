@@ -11,9 +11,11 @@ public interface CandleDAO {
 
     List<Candle> findAll();
 
+    List<Candle> findByAssetId(String assetId);
+
+    List<Candle> findByAssetIdBetween(String assetId, long from, long to);
+
+    Optional<Candle> findLastByAssetId(String assetId);
+
     Optional<Candle> findById(long timestamp);
-
-    boolean update(Candle candle);
-
-    boolean deleteById(long timestamp);
 }

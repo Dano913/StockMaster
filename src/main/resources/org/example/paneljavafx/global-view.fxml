@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.canvas.Canvas?>
+<?import javafx.scene.chart.BarChart?>
+<?import javafx.scene.chart.CategoryAxis?>
+<?import javafx.scene.chart.LineChart?>
+<?import javafx.scene.chart.NumberAxis?>
 <?import javafx.scene.chart.PieChart?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ListView?>
@@ -15,183 +18,190 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 
-<AnchorPane minHeight="600.0" minWidth="1000.0" stylesheets="@trading-theme.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.paneljavafx.controller.GlobalController">
+<AnchorPane minHeight="700.0" minWidth="1100.0" styleClass="root-pane" stylesheets="@trading-theme.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.paneljavafx.controller.GlobalController">
 
    <children>
 
-      <GridPane styleClass="global-grid" AnchorPane.bottomAnchor="12.0" AnchorPane.leftAnchor="12.0" AnchorPane.rightAnchor="12.0" AnchorPane.topAnchor="12.0">
+      <!-- ═══════════════════════════════════════════════════
+           LAYOUT PRINCIPAL: 2 columnas, 3 filas
+           Col 0 (80%) → contenido principal
+           Col 1 (20%) → panel lateral (búsqueda + pie)
+           ═══════════════════════════════════════════════════ -->
+      <GridPane hgap="10.0" styleClass="main-grid" vgap="10.0" AnchorPane.bottomAnchor="12.0" AnchorPane.leftAnchor="12.0" AnchorPane.rightAnchor="12.0" AnchorPane.topAnchor="12.0">
 
          <columnConstraints>
-            <ColumnConstraints hgrow="ALWAYS" percentWidth="78.0" />
-            <ColumnConstraints hgrow="ALWAYS" percentWidth="22.0" />
+            <ColumnConstraints hgrow="ALWAYS" percentWidth="79.0" />
+            <ColumnConstraints hgrow="NEVER" percentWidth="21.0" />
          </columnConstraints>
 
          <rowConstraints>
-            <RowConstraints maxHeight="170.0" minHeight="100.0" prefHeight="110.0" vgrow="NEVER" />
-            <RowConstraints minHeight="220.0" prefHeight="300.0" vgrow="ALWAYS" />
-            <RowConstraints minHeight="200.0" prefHeight="260.0" vgrow="ALWAYS" />
+            <!-- Fila 0: KPI strip — altura fija -->
+            <RowConstraints maxHeight="112.0" minHeight="80.0" prefHeight="109.0" vgrow="NEVER" />
+            <!-- Fila 1: Charts — crecen -->
+            <RowConstraints maxHeight="300.0" minHeight="220.0" prefHeight="290.0" vgrow="ALWAYS" />
+            <!-- Fila 2: Tablas — crecen menos -->
+            <RowConstraints minHeight="180.0" prefHeight="210.0" vgrow="ALWAYS" />
          </rowConstraints>
 
-         <HBox alignment="CENTER_LEFT" styleClass="kpi-strip" GridPane.columnIndex="0" GridPane.rowIndex="0">
+         <!-- ─────────────────────────────────────────────
+              FILA 0 · KPI STRIP
+              ───────────────────────────────────────────── -->
+         <HBox alignment="CENTER_LEFT" spacing="2.0" styleClass="kpi-strip" GridPane.columnIndex="0" GridPane.columnSpan="2" GridPane.rowIndex="0">
 
-            <VBox alignment="CENTER_LEFT" minWidth="70.0" prefHeight="76.0" prefWidth="9.0" spacing="1.5" styleClass="kpi-block" HBox.hgrow="ALWAYS">
+            <!-- Capital Total -->
+            <VBox styleClass="kpi-block" HBox.hgrow="ALWAYS">
                <Label styleClass="kpi-label" text="CAPITAL TOTAL" />
                <Label fx:id="kpiCapitalTotal" styleClass="kpi-value" text="—" />
-               <Label fx:id="kpiCapitalDelta" styleClass="kpi-delta-positive" text="+0,00%" />
             </VBox>
 
-            <VBox alignment="CENTER_LEFT" minWidth="60.0" prefWidth="60.0" spacing="1.5" styleClass="kpi-block" HBox.hgrow="ALWAYS">
-               <Label styleClass="kpi-label" text="RENTABILIDAD" />
-               <Label fx:id="kpiRentabilidad" styleClass="kpi-value" text="—" />
-               <Label fx:id="kpiRentabilidadDelta" styleClass="kpi-delta-positive" text="+0,00%" />
-            </VBox>
+            <VBox styleClass="kpi-separator" />
 
-            <VBox alignment="CENTER_LEFT" minWidth="60.0" prefWidth="60.0" spacing="1.5" styleClass="kpi-block" HBox.hgrow="ALWAYS">
+            <!-- Gestores -->
+            <VBox styleClass="kpi-block" HBox.hgrow="ALWAYS">
                <Label styleClass="kpi-label" text="GESTORES" />
                <Label fx:id="kpiGestores" styleClass="kpi-value" text="—" />
             </VBox>
 
-            <VBox alignment="CENTER_LEFT" minWidth="60.0" prefWidth="60.0" spacing="1.5" styleClass="kpi-block" HBox.hgrow="ALWAYS">
+            <VBox styleClass="kpi-separator" />
+
+            <!-- Clientes -->
+            <VBox styleClass="kpi-block" HBox.hgrow="ALWAYS">
                <Label styleClass="kpi-label" text="CLIENTES" />
                <Label fx:id="kpiClientes" styleClass="kpi-value" text="—" />
             </VBox>
-            <VBox alignment="CENTER_LEFT" minWidth="60.0" prefWidth="250.0" spacing="1.5" styleClass="kpi-block">
-               <children>
-                  <Label styleClass="kpi-label" text="TOTAL FONDOS" />
-                  <Label fx:id="kpiCapitalTotal1" styleClass="kpi-value" text="—" />
-                  <Label fx:id="kpiCapitalDelta1" styleClass="kpi-delta-positive" text="+0,00%" />
-               </children>
+
+            <VBox styleClass="kpi-separator" />
+
+            <!-- Fondos -->
+            <VBox styleClass="kpi-block" HBox.hgrow="ALWAYS">
+               <Label styleClass="kpi-label" text="FONDOS" />
+               <Label fx:id="kpiFunds" styleClass="kpi-value" text="—" />
             </VBox>
-            <VBox alignment="CENTER_LEFT" prefWidth="250.0" spacing="1.5" styleClass="kpi-block">
-               <children>
-                  <Label styleClass="kpi-label" text="TOTAL ACTIVOS" />
-                  <Label fx:id="kpiCapitalTotal11" styleClass="kpi-value" text="—" />
-                  <Label fx:id="kpiCapitalDelta11" styleClass="kpi-delta-positive" text="+0,00%" />
-               </children>
+
+            <VBox styleClass="kpi-separator" />
+
+            <!-- Activos -->
+            <VBox styleClass="kpi-block" HBox.hgrow="ALWAYS">
+               <Label styleClass="kpi-label" text="ACTIVOS" />
+               <Label fx:id="kpiAssets" styleClass="kpi-value" text="—" />
             </VBox>
-            <GridPane.margin>
-               <Insets right="5.0" />
-            </GridPane.margin>
+
+            <padding>
+               <Insets bottom="0" left="4" right="4" top="0" />
+            </padding>
+         </HBox>
+
+         <!-- ─────────────────────────────────────────────
+              FILA 1 · CHARTS  (BarChart + LineChart)
+              ───────────────────────────────────────────── -->
+         <HBox spacing="10.0" GridPane.columnIndex="0" GridPane.rowIndex="1" GridPane.vgrow="ALWAYS">
+
+            <!-- BAR CHART -->
+            <VBox spacing="4.0" styleClass="chart-card" HBox.hgrow="ALWAYS">
+               <Label styleClass="card-title" text="RENTABILIDAD MENSUAL  %" />
+
+               <BarChart fx:id="barChart" animated="false" legendVisible="false" styleClass="clean-chart" VBox.vgrow="ALWAYS">
+                  <xAxis>
+                     <CategoryAxis label="" tickLabelRotation="45" tickMarkVisible="false" />
+                  </xAxis>
+                  <yAxis>
+                     <NumberAxis label="" minorTickVisible="false" />
+                  </yAxis>
+               </BarChart>
+            </VBox>
+
+            <!-- LINE CHART -->
+            <VBox spacing="4.0" styleClass="chart-card" HBox.hgrow="ALWAYS">
+               <Label styleClass="card-title" text="NAV TOTAL MENSUAL" />
+
+               <LineChart fx:id="lineChartNav" animated="false" createSymbols="false" legendVisible="false" styleClass="clean-chart" VBox.vgrow="ALWAYS">
+                  <xAxis>
+                     <CategoryAxis label="" tickLabelRotation="45" tickMarkVisible="false" />
+                  </xAxis>
+                  <yAxis>
+                     <NumberAxis label="" minorTickVisible="false" />
+                  </yAxis>
+               </LineChart>
+            </VBox>
 
          </HBox>
 
-         <HBox alignment="CENTER_LEFT" spacing="12.0" GridPane.columnIndex="0" GridPane.rowIndex="1" GridPane.vgrow="ALWAYS">
+         <!-- ─────────────────────────────────────────────
+              FILA 2 · TABLAS  (Top Fondos + Top Activos)
+              ───────────────────────────────────────────── -->
+         <HBox spacing="10.0" GridPane.columnIndex="0" GridPane.rowIndex="2" GridPane.vgrow="ALWAYS">
 
-            <GridPane.margin>
-               <Insets top="6" />
-            </GridPane.margin>
+            <!-- TOP FONDOS -->
+            <VBox spacing="4.0" styleClass="chart-card" HBox.hgrow="ALWAYS">
 
-            <VBox fx:id="barChartCard" maxWidth="719.0" minHeight="200.0" prefHeight="294.0" prefWidth="1058.0" spacing="8.0" styleClass="card" HBox.hgrow="ALWAYS">
-
-               <Label styleClass="card-title" text="EVOLUCIÓN CARTERA" />
-
-               <Canvas fx:id="barChartCanvas" VBox.vgrow="ALWAYS" />
-               <HBox.margin>
-                  <Insets bottom="10.0" top="10.0" />
-               </HBox.margin>
-
-            </VBox>
-            <VBox fx:id="barChartCard1" maxWidth="719.0" minHeight="200.0" prefHeight="294.0" prefWidth="1058.0" spacing="8.0" styleClass="card">
-               <children>
-                  <Label styleClass="card-title" text="EVOLUCIÓN CARTERA" />
-                  <Canvas fx:id="barChartCanvas1" VBox.vgrow="ALWAYS" />
-               </children>
-               <HBox.margin>
-                  <Insets bottom="10.0" top="10.0" />
-               </HBox.margin>
-            </VBox>
-
-         </HBox>
-
-         <HBox alignment="CENTER_LEFT" spacing="12.0" GridPane.columnIndex="0" GridPane.rowIndex="2" GridPane.vgrow="ALWAYS">
-
-            <GridPane.margin>
-               <Insets bottom="6" top="6" />
-            </GridPane.margin>
-
-            <VBox minHeight="150.0" spacing="8.0" styleClass="card" HBox.hgrow="ALWAYS">
-
-               <HBox alignment="CENTER_LEFT" spacing="10.0">
+               <HBox alignment="CENTER_LEFT" spacing="8.0">
                   <Label styleClass="card-title" text="MEJORES FONDOS" HBox.hgrow="ALWAYS" />
                   <Label styleClass="kpi-label" text="NAV TOTAL:" />
-                  <Label fx:id="navTotalLabel" styleClass="fund-change-positive" text="—" />
+                  <Label fx:id="navTotalLabel" styleClass="accent-value" text="—" />
                </HBox>
 
-               <TableView fx:id="topFondsTable" minHeight="120.0" styleClass="top-table" VBox.vgrow="ALWAYS">
-
+               <TableView fx:id="topFondsTable" styleClass="data-table" VBox.vgrow="ALWAYS">
                   <columnResizePolicy>
                      <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
                   </columnResizePolicy>
-
                   <columns>
-                     <TableColumn fx:id="colFondoNombre" text="Fondo" />
-                     <TableColumn fx:id="colFondoValor" prefWidth="110" text="NAV" />
+                     <TableColumn fx:id="colFondoNombre" text="FONDO" />
+                     <TableColumn fx:id="colFondoValor" prefWidth="90.0" text="RETORNO" />
                   </columns>
-
                   <placeholder>
                      <Label styleClass="kpi-label" text="Sin datos" />
                   </placeholder>
-
                </TableView>
             </VBox>
 
-            <VBox minHeight="150.0" spacing="8.0" styleClass="card" HBox.hgrow="ALWAYS">
+            <!-- TOP ACTIVOS -->
+            <VBox spacing="4.0" styleClass="chart-card" HBox.hgrow="ALWAYS">
 
                <Label styleClass="card-title" text="MEJORES ACTIVOS" />
 
-               <TableView fx:id="topAssetsGlobalTable" minHeight="120.0" styleClass="top-table" VBox.vgrow="ALWAYS">
-
+               <TableView fx:id="topAssetsGlobalTable" styleClass="data-table" VBox.vgrow="ALWAYS">
                   <columnResizePolicy>
                      <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
                   </columnResizePolicy>
-
                   <columns>
-                     <TableColumn fx:id="colAssetNombre" text="Activo" />
-                     <TableColumn fx:id="colAssetPrecio" prefWidth="90" text="Precio" />
-                     <TableColumn fx:id="colAssetCambio" prefWidth="80" text="Cambio" />
+                     <TableColumn fx:id="colAssetNombre" text="ACTIVO" />
+                     <TableColumn fx:id="colAssetCambio" prefWidth="80.0" text="CAMBIO" />
                   </columns>
-
                   <placeholder>
                      <Label styleClass="kpi-label" text="Sin datos" />
                   </placeholder>
-
                </TableView>
-               <HBox.margin>
-                  <Insets right="5.0" />
-               </HBox.margin>
             </VBox>
 
          </HBox>
 
-         <VBox maxHeight="300.0" maxWidth="400.0" minHeight="0" minWidth="200.0" prefWidth="400.0" styleClass="search-panel" GridPane.columnIndex="1" GridPane.rowIndex="0" GridPane.rowSpan="3" GridPane.valignment="TOP" GridPane.vgrow="ALWAYS">
+         <!-- ─────────────────────────────────────────────
+              COLUMNA 1 · PANEL LATERAL
+              Fila 1 → búsqueda    Fila 2 → pie chart
+              ───────────────────────────────────────────── -->
 
-            <GridPane.margin>
-               <Insets left="10.0" />
-            </GridPane.margin>
+         <!-- BÚSQUEDA -->
+         <VBox spacing="6.0" styleClass="side-panel" GridPane.columnIndex="1" GridPane.rowIndex="1" GridPane.vgrow="ALWAYS">
 
-            <Label styleClass="kpi-label" text="BUSCAR" />
+            <Label styleClass="card-title" text="BUSCAR" />
 
-            <TextField fx:id="searchField" promptText="Fondo, activo, ticker, ISIN..." styleClass="search-field" />
+            <TextField fx:id="searchField" promptText="Fondo, activo, ticker…" styleClass="search-field" />
 
             <Label styleClass="kpi-label" text="RESULTADOS">
                <VBox.margin>
-                  <Insets top="8" />
+                  <Insets top="4.0" />
                </VBox.margin>
             </Label>
 
-            <ListView fx:id="resultsList" minHeight="100.0" styleClass="search-results" VBox.vgrow="ALWAYS" />
-
+            <ListView fx:id="resultsList" styleClass="search-results" VBox.vgrow="ALWAYS" />
          </VBox>
 
-         <VBox minHeight="350.0" minWidth="240.0" prefWidth="300.0" spacing="8.0" styleClass="card" GridPane.columnIndex="1" GridPane.rowIndex="2" GridPane.valignment="BOTTOM">
+         <!-- PIE CHART -->
+         <VBox spacing="6.0" styleClass="side-panel" GridPane.columnIndex="1" GridPane.rowIndex="2" GridPane.vgrow="ALWAYS">
 
-            <Label styleClass="card-title" text="DISTRIBUCIÓN POR FONDO" />
+            <Label styleClass="card-title" text="DISTRIBUCIÓN" />
 
-            <PieChart fx:id="globalPieChart" labelsVisible="false" legendSide="BOTTOM" legendVisible="true" styleClass="fund-pie-chart" VBox.vgrow="ALWAYS" />
-            <GridPane.margin>
-               <Insets bottom="6.0" left="10.0" />
-            </GridPane.margin>
-
+            <PieChart fx:id="globalPieChart" animated="false" labelsVisible="false" legendVisible="false" styleClass="fund-pie-chart" VBox.vgrow="ALWAYS" />
          </VBox>
 
       </GridPane>

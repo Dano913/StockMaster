@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.Insets?>
 <?import javafx.scene.canvas.Canvas?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TableColumn?>
@@ -22,68 +21,46 @@
       Col 1 row 1     → tabla exposición
       Col 1 row 2     → info / risk card
 -->
-<AnchorPane
-        prefHeight="800.0"
-        prefWidth="1900.0"
-        stylesheets="@trading-theme.css"
-        xmlns="http://javafx.com/javafx/17"
-        xmlns:fx="http://javafx.com/fxml/1"
-        fx:controller="org.example.paneljavafx.controller.AssetViewController">
+
+<AnchorPane prefHeight="800.0" prefWidth="1900.0" stylesheets="@trading-theme.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.paneljavafx.controller.AssetViewController">
 
     <children>
 
-        <GridPane
-                hgap="14"
-                vgap="14"
-                AnchorPane.topAnchor="14"
-                AnchorPane.bottomAnchor="14"
-                AnchorPane.leftAnchor="14"
-                AnchorPane.rightAnchor="14">
+        <GridPane hgap="14" vgap="14" AnchorPane.bottomAnchor="14" AnchorPane.leftAnchor="14" AnchorPane.rightAnchor="14" AnchorPane.topAnchor="14">
 
             <rowConstraints>
-                <RowConstraints vgrow="ALWAYS" minHeight="348" prefHeight="348"/>
-                <RowConstraints vgrow="ALWAYS" prefHeight="132" maxHeight="132"/>
-                <RowConstraints minHeight="140" prefHeight="140" maxHeight="140"/>
+                <RowConstraints maxHeight="467.0" minHeight="338.0" prefHeight="357.0" vgrow="ALWAYS" />
+                <RowConstraints maxHeight="266.0" minHeight="137.0" prefHeight="247.0" vgrow="ALWAYS" />
+                <RowConstraints maxHeight="140.0" minHeight="140.0" prefHeight="140.0" />
             </rowConstraints>
 
             <columnConstraints>
-                <ColumnConstraints hgrow="ALWAYS"/>
-                <ColumnConstraints hgrow="NEVER" prefWidth="454" minWidth="380" maxWidth="500"/>
+                <ColumnConstraints hgrow="ALWAYS" />
+                <ColumnConstraints hgrow="NEVER" maxWidth="500" minWidth="380" prefWidth="454" />
             </columnConstraints>
 
             <!-- ══════════════════════════════════════════════
                  COL 0 rowSpan 3 — Header + Canvas gráfico
             ═══════════════════════════════════════════════ -->
-            <VBox styleClass="asset-main-card"
-                  GridPane.columnIndex="0"
-                  GridPane.rowIndex="0"
-                  GridPane.rowSpan="3">
+            <VBox styleClass="asset-main-card" GridPane.columnIndex="0" GridPane.rowIndex="0" GridPane.rowSpan="3">
 
                 <!-- Header: nombre/ticker a la izq, precio/cambio a la der -->
-                <HBox spacing="15" alignment="CENTER_LEFT">
+                <HBox alignment="CENTER_LEFT" spacing="15">
                     <children>
 
                         <VBox spacing="5">
                             <children>
-                                <Label fx:id="assetName"
-                                       text="Asset Name"
-                                       styleClass="asset-name"/>
-                                <Label fx:id="assetTicker"
-                                       text="TICKER"
-                                       styleClass="asset-ticker"/>
+                                <Label fx:id="assetName" styleClass="asset-name" text="Asset Name" />
+                                <Label fx:id="assetTicker" styleClass="asset-ticker" text="TICKER" />
                             </children>
                         </VBox>
 
-                        <Region HBox.hgrow="ALWAYS"/>
+                        <Region HBox.hgrow="ALWAYS" />
 
                         <VBox alignment="CENTER_RIGHT" spacing="6">
                             <children>
-                                <Label fx:id="assetPrice"
-                                       text="0,00 €"
-                                       styleClass="asset-price"/>
-                                <Label fx:id="assetChange"
-                                       text="+0,00%"
-                                       styleClass="asset-change-positive"/>
+                                <Label fx:id="assetPrice" styleClass="asset-price" text="0,00 €" />
+                                <Label fx:id="assetChange" styleClass="asset-change-positive" text="+0,00%" />
                             </children>
                         </VBox>
 
@@ -98,30 +75,25 @@
             <!-- ══════════════════════════════════════════════
                  COL 1 ROW 0 — Pie chart (VBox inyectado)
             ═══════════════════════════════════════════════ -->
-            <VBox fx:id="assetPieChart"
-                  styleClass="card"
-                  GridPane.columnIndex="1"
-                  GridPane.rowIndex="0"/>
+            <VBox fx:id="assetPieChart" prefHeight="439.0" prefWidth="454.0" styleClass="card" GridPane.columnIndex="1" GridPane.rowIndex="0" />
 
             <!-- ══════════════════════════════════════════════
                  COL 1 ROW 1 — Tabla de exposición por fondo
             ═══════════════════════════════════════════════ -->
-            <VBox styleClass="card"
-                  spacing="10"
-                  GridPane.columnIndex="1"
-                  GridPane.rowIndex="1">
+            <VBox spacing="10" styleClass="card" GridPane.columnIndex="1" GridPane.rowIndex="1">
                 <children>
-                    <Label text="EXPOSICIÓN" styleClass="card-title"/>
-                    <TableView fx:id="tabla_exposicion"
-                               styleClass="asset-table"
-                               VBox.vgrow="ALWAYS">
+                    <Label styleClass="card-title" text="EXPOSICIÓN" />
+                    <TableView fx:id="tabla_exposicion" styleClass="asset-table" VBox.vgrow="ALWAYS">
                         <columns>
-                            <TableColumn fx:id="colFund"  text="Fondo" />
-                            <TableColumn fx:id="colValue" text="Valor" prefWidth="130"/>
+                            <TableColumn fx:id="colFund" prefWidth="258.0" text="Fondo" />
+                            <TableColumn fx:id="colValue" prefWidth="152.0" text="Valor" />
                         </columns>
                         <placeholder>
-                            <Label text="Sin exposición" styleClass="asset-info-label"/>
+                            <Label styleClass="asset-info-label" text="Sin exposición" />
                         </placeholder>
+                  <columnResizePolicy>
+                     <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                  </columnResizePolicy>
                     </TableView>
                 </children>
             </VBox>
@@ -129,56 +101,52 @@
             <!-- ══════════════════════════════════════════════
                  COL 1 ROW 2 — Info / Risk card
             ═══════════════════════════════════════════════ -->
-            <GridPane styleClass="asset-info-card"
-                      hgap="16"
-                      vgap="0"
-                      GridPane.columnIndex="1"
-                      GridPane.rowIndex="2">
+            <GridPane hgap="16" styleClass="asset-info-card" vgap="0" GridPane.columnIndex="1" GridPane.rowIndex="2">
 
                 <columnConstraints>
-                    <ColumnConstraints percentWidth="25"/>
-                    <ColumnConstraints percentWidth="25"/>
-                    <ColumnConstraints percentWidth="25"/>
-                    <ColumnConstraints percentWidth="25"/>
+                    <ColumnConstraints percentWidth="25" />
+                    <ColumnConstraints percentWidth="25" />
+                    <ColumnConstraints percentWidth="25" />
+                    <ColumnConstraints percentWidth="25" />
                 </columnConstraints>
 
                 <rowConstraints>
-                    <RowConstraints vgrow="ALWAYS"/>
-                    <RowConstraints vgrow="ALWAYS"/>
-                    <RowConstraints vgrow="ALWAYS"/>
+                    <RowConstraints vgrow="ALWAYS" />
+                    <RowConstraints vgrow="ALWAYS" />
+                    <RowConstraints vgrow="ALWAYS" />
                 </rowConstraints>
 
                 <!-- ROW 0 -->
                 <VBox spacing="3" GridPane.columnIndex="0" GridPane.rowIndex="0">
-                    <Label text="MARKET CAP" styleClass="asset-info-label"/>
-                    <Label fx:id="assetMarketCap" styleClass="asset-info-value"/>
+                    <Label styleClass="asset-info-label" text="MARKET CAP" />
+                    <Label fx:id="assetMarketCap" styleClass="asset-info-value" />
                 </VBox>
 
                 <VBox spacing="3" GridPane.columnIndex="2" GridPane.rowIndex="0">
-                    <Label text="RISK" styleClass="asset-info-label"/>
-                    <Label fx:id="assetRisk" styleClass="asset-info-value"/>
+                    <Label styleClass="asset-info-label" text="RISK" />
+                    <Label fx:id="assetRisk" styleClass="asset-info-value" />
                 </VBox>
 
                 <!-- ROW 1 -->
                 <VBox spacing="3" GridPane.columnIndex="0" GridPane.rowIndex="1">
-                    <Label text="TYPE" styleClass="asset-info-label"/>
-                    <Label fx:id="assetType" styleClass="asset-info-value"/>
+                    <Label styleClass="asset-info-label" text="TYPE" />
+                    <Label fx:id="assetType" styleClass="asset-info-value" />
                 </VBox>
 
                 <VBox spacing="3" GridPane.columnIndex="2" GridPane.rowIndex="1">
-                    <Label text="LIQUIDITY" styleClass="asset-info-label"/>
-                    <Label fx:id="assetLiquidity" styleClass="asset-info-value"/>
+                    <Label styleClass="asset-info-label" text="LIQUIDITY" />
+                    <Label fx:id="assetLiquidity" styleClass="asset-info-value" />
                 </VBox>
 
                 <!-- ROW 2 -->
                 <VBox spacing="3" GridPane.columnIndex="0" GridPane.rowIndex="2">
-                    <Label text="SECTOR" styleClass="asset-info-label"/>
-                    <Label fx:id="assetSector" styleClass="asset-info-value"/>
+                    <Label styleClass="asset-info-label" text="SECTOR" />
+                    <Label fx:id="assetSector" styleClass="asset-info-value" />
                 </VBox>
 
                 <VBox spacing="3" GridPane.columnIndex="2" GridPane.rowIndex="2">
-                    <Label text="VOLATILITY" styleClass="asset-info-label"/>
-                    <Label fx:id="assetVolatility" styleClass="asset-info-value"/>
+                    <Label styleClass="asset-info-label" text="VOLATILITY" />
+                    <Label fx:id="assetVolatility" styleClass="asset-info-value" />
                 </VBox>
 
             </GridPane>

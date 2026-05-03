@@ -11,7 +11,7 @@ import javafx.scene.layout.StackPane;
 import org.example.paneljavafx.model.Gestor;
 import org.example.paneljavafx.service.GestorService;
 
-public class PersonalViewController {
+public class GestoresAdminViewController {
 
     // ========================= SERVICES =========================
     private final GestorService gestorService = GestorService.getInstance();
@@ -116,12 +116,12 @@ public class PersonalViewController {
 
         try {
             FXMLLoader loader = new FXMLLoader(
-                    getClass().getResource("/org/example/paneljavafx/gestionGestores-view.fxml")
+                    getClass().getResource("/org/example/paneljavafx/gestor-cartera-admin-view.fxml")
             );
 
             Parent view = loader.load();
 
-            GestionGestoresController controller = loader.getController();
+            CarteraGestorAdminViewController controller = loader.getController();
             controller.initByGestorId(gestorId);
 
             gestorDetailContainer.getChildren().setAll(view);

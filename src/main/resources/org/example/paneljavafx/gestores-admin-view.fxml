@@ -12,11 +12,10 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
-<StackPane prefHeight="900" prefWidth="1900" stylesheets="@trading-theme.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.paneljavafx.controller.PersonalViewController">
+<StackPane prefHeight="900" prefWidth="1900" stylesheets="@trading-theme.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.paneljavafx.controller.GestoresAdminViewController">
 
    <children>
 
-      <!-- ========================= MAIN ========================== -->
       <AnchorPane>
 
          <children>
@@ -32,7 +31,6 @@
                   <RowConstraints vgrow="ALWAYS" />
                </rowConstraints>
 
-               <!-- ═══════════════════════════════ LEFT: GESTORES ═══════════════════════════════ -->
                <VBox styleClass="cliente-left-panel" GridPane.columnIndex="0" GridPane.rowIndex="0">
 
                   <Label styleClass="cliente-panel-title" text="GESTORES" />
@@ -69,12 +67,11 @@
 
                </VBox>
 
-               <!-- ═══════════════════════════════ RIGHT: SOLO GESTION CLIENTES ═══════════════════════════════ -->
                <StackPane fx:id="gestorDetailContainer" styleClass="cliente-right-panel" GridPane.columnIndex="1" GridPane.rowIndex="0">
 
                   <VBox alignment="CENTER" styleClass="cliente-detail-empty" VBox.vgrow="ALWAYS">
 
-                     <Label styleClass="cliente-empty-icon" text="👈 Selecciona un gestor" />
+                     <Label styleClass="cliente-empty-icon" text=" Selecciona un gestor" />
 
                      <Label styleClass="cliente-empty-text" text="Se mostrará su gestión de clientes aquí" />
 
@@ -88,7 +85,6 @@
 
       </AnchorPane>
 
-      <!-- OVERLAY -->
       <VBox fx:id="overlayContainer" alignment="CENTER" managed="false" style="-fx-background-color: rgba(0,0,0,0.45);" visible="false">
 
       </VBox>

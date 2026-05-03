@@ -13,6 +13,8 @@ import javafx.scene.control.TableView;
 import javafx.scene.layout.VBox;
 
 import org.example.paneljavafx.common.TabDataReceiver;
+import org.example.paneljavafx.dao.CandleDAO;
+import org.example.paneljavafx.dao.impl.CandleImpl;
 import org.example.paneljavafx.model.Asset;
 import org.example.paneljavafx.model.Fund;
 import org.example.paneljavafx.model.FundAssetPosition;
@@ -47,6 +49,7 @@ public class AssetViewController implements TabDataReceiver<Asset> {
     @FXML private Label assetMarketCap;
     @FXML private Label assetType;
     @FXML private Label assetSector;
+    @FXML private Label assetVolatility;
 
     @FXML private TableView<Map<String, String>> tabla_exposicion;
     @FXML private TableColumn<Map<String, String>, String> colFund;
@@ -54,6 +57,8 @@ public class AssetViewController implements TabDataReceiver<Asset> {
 
     @FXML private Canvas chartCanvas;
     @FXML private VBox assetPieChart;
+
+    private final CandleDAO candleDAO = new CandleImpl();
 
     // =========================
     // STATE
@@ -107,10 +112,14 @@ public class AssetViewController implements TabDataReceiver<Asset> {
 
         MarketEngine engine = marketService.getEngine(currentAsset.getId());
 
+        System.out.println("ENGINE para " + currentAsset.getId() + ": " + engine);
+
         if (engine != null && chartCanvas != null) {
+
             chartController = new ChartController(
                     chartCanvas,
-                    List.of(engine)
+                    candleDAO,
+                    engine
             );
         }
 
@@ -152,6 +161,10 @@ public class AssetViewController implements TabDataReceiver<Asset> {
 
         double price = marketService.getPrice(currentAsset.getId());
         assetPrice.setText(String.format("%.2f €", price));
+
+        assetVolatility.setText(
+                String.format("%.2f %%", m.getVolatility())
+        );
     }
 
     // =========================

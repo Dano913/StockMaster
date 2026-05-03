@@ -10,15 +10,16 @@ import lombok.NoArgsConstructor;
 
 public class Candle {
 
+    private String assetId;
     private double open;
     private double high;
     private double low;
     private double close;
     private long timestamp;
 
-    public void update(double price) {
-        this.close = price;
-        if (price > high) high = price;
-        if (price < low) low = price;
+    public void update(double newClose) {
+        this.close = newClose;
+        if (newClose > this.high) this.high = newClose;
+        if (newClose < this.low)  this.low  = newClose;
     }
 }

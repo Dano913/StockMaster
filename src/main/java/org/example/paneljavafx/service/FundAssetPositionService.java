@@ -9,16 +9,29 @@ import java.util.List;
 
 public class FundAssetPositionService {
 
-    // ========================= SINGLETON =========================
-    private static final FundAssetPositionService INSTANCE = new FundAssetPositionService();
-    public static FundAssetPositionService getInstance() { return INSTANCE; }
-    private FundAssetPositionService() {}
+    // ========================= SINGLETON (LAZY SAFE) =========================
+    private static FundAssetPositionService INSTANCE;
+
+    public static FundAssetPositionService getInstance() {
+        if (INSTANCE == null) {
+            INSTANCE = new FundAssetPositionService();
+        }
+        return INSTANCE;
+    }
+
+    private FundAssetPositionService() {
+        // ❌ NO tocar MarketService aquí (evita crash de init order)
+    }
+
+    // ========================= DEPENDENCY =========================
+    private MarketService marketService;
+
+    public void init() {
+        this.marketService = MarketService.getInstance();
+    }
 
     // ========================= DAO =========================
-    private final FundAssetPositionDAO positionDAO   = new FundAssetPositionImpl();
-
-    // ========================= INSTANCIA =========================
-    private final MarketService   marketService = MarketService.getInstance();
+    private final FundAssetPositionDAO positionDAO = new FundAssetPositionImpl();
 
     // ========================= CACHE =========================
     private List<FundAssetPosition> positions = new ArrayList<>();
@@ -27,47 +40,58 @@ public class FundAssetPositionService {
     // ========================= LOAD =========================
     public List<FundAssetPosition> load() {
         if (loaded) return positions;
-        loaded = true;
 
+        loaded = true;
         positions = positionDAO.findAll();
         return positions;
     }
 
-    // ========================= GET FUND POSITION =========================
-    public List<FundAssetPosition> getAll() { return positions; }
+    // ========================= GETTERS =========================
+    public List<FundAssetPosition> getAll() {
+        return positions;
+    }
 
     public List<FundAssetPosition> getByFundId(List<FundAssetPosition> all, String fundId) {
         if (all == null || fundId == null) return List.of();
+
         return all.stream()
                 .filter(p -> fundId.equals(p.getIdFund()))
                 .toList();
     }
 
-    // ========================= GET ASSET =========================
     public List<FundAssetPosition> getByAssetId(List<FundAssetPosition> all, String assetId) {
         if (all == null || assetId == null) return List.of();
+
         return all.stream()
                 .filter(p -> assetId.equals(p.getIdAsset()))
                 .toList();
     }
 
-    // ========================= GET POSITION VALUE =========================
+    // ========================= VALUE =========================
     public double getValue(FundAssetPosition p) {
+        if (marketService == null) {
+            throw new IllegalStateException("FundAssetPositionService no inicializado (init() no llamado)");
+        }
+
         return p.getQuantity() * marketService.getPrice(p.getIdAsset());
     }
 
-    // ========================= GET TOTAL NAV =========================
+    // ========================= NAV =========================
     public double calculateNAV(List<FundAssetPosition> positions) {
         if (positions == null || positions.isEmpty()) return 0;
-        return positions.stream()
+
+        double total = positions.stream()
                 .filter(FundAssetPosition::isValid)
                 .mapToDouble(this::getValue)
                 .sum();
+
+        return total;
     }
 
-    // ========================= GET TOPS =========================
+    // ========================= TOP MOVERS =========================
     public List<FundAssetPosition> getTopByMovement(List<FundAssetPosition> positions, int limit) {
         if (positions == null) return List.of();
+
         return positions.stream()
                 .filter(FundAssetPosition::isValid)
                 .sorted((p1, p2) -> Double.compare(

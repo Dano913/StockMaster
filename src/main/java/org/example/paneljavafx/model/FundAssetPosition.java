@@ -45,4 +45,20 @@ public class FundAssetPosition {
                 investedValue
         );
     }
+
+    public String getAssetId() {
+        return idAsset;
+    }
+
+    public String getUnits() {
+        return String.valueOf(quantity);
+    }
+
+    public String getValue() {
+        return String.valueOf(investedValue);
+    }
+
+    public String getPercentage() {
+        return String.format("%.1f", portfolioWeight);
+    }
 }

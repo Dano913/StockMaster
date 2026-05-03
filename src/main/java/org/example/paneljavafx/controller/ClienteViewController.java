@@ -31,7 +31,6 @@ public class ClienteViewController {
     // ========================= LABELS INFO ADICIONAL =========================
     @FXML private Label labelGestor;
     @FXML private Label labelValorCartera;
-    @FXML private Label labelRentabilidad;
 
     // ========================= TABLA POSICION =========================
     @FXML private TableView<ClientFundPosition> posicionesTable;
@@ -148,7 +147,6 @@ public class ClienteViewController {
                 clientfundpositionService.calculatePortfolio(posiciones);
 
         labelValorCartera.setText(FormatUtils.euro(summary.getTotal()));
-        labelRentabilidad.setText(FormatUtils.percent(summary.getRentabilidad()));
 
         inversionesTable.setItems(FXCollections.observableArrayList());
 

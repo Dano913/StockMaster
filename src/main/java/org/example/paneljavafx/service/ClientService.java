@@ -54,11 +54,6 @@ public class ClientService {
         try {
             List<Client> clientList = clientDAO.findAll();
 
-            System.out.println("📦 CLIENTES DESDE BD:");
-            clientList.forEach(c ->
-                    System.out.println(c.getClientId() + " - " + c.getName())
-            );
-
             clients.setAll(clientList);
 
         } catch (Exception exception) {
@@ -75,21 +70,10 @@ public class ClientService {
 
     public Optional<Client> getById(int clientId) {
 
-        System.out.println("🔍 BUSCANDO CLIENTE ID: " + clientId);
 
         Optional<Client> client = clients.stream()
                 .filter(c -> c.getClientId() == clientId)
                 .findFirst();
-
-        client.ifPresentOrElse(
-                c -> {
-                    System.out.println("✔ CLIENTE ENCONTRADO");
-                    System.out.println("ID: " + c.getClientId());
-                    System.out.println("Nombre: " + c.getName());
-                    System.out.println("Email: " + c.getEmail());
-                },
-                () -> System.out.println("❌ CLIENTE NO ENCONTRADO")
-        );
 
         return client;
     }
@@ -101,8 +85,6 @@ public class ClientService {
         try {
             List<ClientFundPosition> positions =
                     clientFundPositionDAO.findByClientId(clientId);
-
-            System.out.println("📊 POSICIONES CLIENTE " + clientId + ": " + positions.size());
 
             return positions;
 
@@ -206,7 +188,6 @@ public class ClientService {
 
         int userId = user.getId();
 
-        System.out.println("🔍 BUSCANDO CLIENTE POR USER ID: " + userId);
 
         try {
             Optional<Client> clientOpt = clientDAO.findByUserId(userId);
@@ -218,9 +199,6 @@ public class ClientService {
 
             Client client = clientOpt.get();
 
-            System.out.println("✔ CLIENTE ENCONTRADO");
-            System.out.println("ClientId: " + client.getClientId());
-            System.out.println("UserId: " + userId);
 
             return Optional.of(client);
 

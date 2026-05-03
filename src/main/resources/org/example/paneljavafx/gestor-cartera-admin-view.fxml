@@ -8,7 +8,7 @@
 <StackPane stylesheets="@trading-theme.css"
            xmlns="http://javafx.com/javafx/25"
            xmlns:fx="http://javafx.com/fxml/1"
-           fx:controller="org.example.paneljavafx.controller.GestionGestoresController">
+           fx:controller="org.example.paneljavafx.controller.CarteraGestorAdminViewController">
 
     <children>
 

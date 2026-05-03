@@ -4,15 +4,9 @@ import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.scene.chart.PieChart;
+import javafx.scene.chart.*;
 import javafx.scene.control.*;
-import lombok.Getter;
 import lombok.Setter;
-
-import org.example.paneljavafx.dao.AssetDAO;
-import org.example.paneljavafx.dao.FundDAO;
-import org.example.paneljavafx.dao.impl.AssetImpl;
-import org.example.paneljavafx.dao.impl.FundImpl;
 import org.example.paneljavafx.model.Asset;
 import org.example.paneljavafx.model.Fund;
 import org.example.paneljavafx.model.FundAssetPosition;
@@ -21,46 +15,34 @@ import org.example.paneljavafx.service.GlobalService.GlobalSnapshot;
 import org.example.paneljavafx.service.GlobalService.FondoSnapshot;
 import org.example.paneljavafx.simulation.MarketClock;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.time.YearMonth;
+import java.util.*;
 
 public class GlobalController {
 
-    // =========================================================
-    // KPI STRIP (UI)
-    // =========================================================
+    // ================= UI =================
     @FXML private Label kpiCapitalTotal;
-    @FXML private Label kpiCapitalDelta;
-    @FXML private Label kpiRentabilidad;
-    @FXML private Label kpiRentabilidadDelta;
     @FXML private Label kpiGestores;
     @FXML private Label kpiClientes;
-    @FXML private Label kpiCapitalTotal1;
-    @FXML private Label kpiCapitalDelta1;
-    @FXML private Label kpiCapitalTotal11;
-    @FXML private Label kpiCapitalDelta11;
+    @FXML private Label kpiFunds;
+    @FXML private Label kpiAssets;
 
-    // =========================================================
-    // PIE CHART
-    // =========================================================
+    @FXML private TableView<Map.Entry<String, Double>> topFondsTable;
+    @FXML private TableColumn<Map.Entry<String, Double>, String> colFondoNombre;
+    @FXML private TableColumn<Map.Entry<String, Double>, String> colFondoValor;
+
+    @FXML private TableView<Map.Entry<String, Double>> topAssetsGlobalTable;
+    @FXML private TableColumn<Map.Entry<String, Double>, String> colAssetNombre;
+    @FXML private TableColumn<Map.Entry<String, Double>, String> colAssetCambio;
+
     @FXML private PieChart globalPieChart;
+    @FXML private BarChart<String, Number> barChart;
+    @FXML private LineChart<String, Number> lineChartNav;
 
-    // =========================================================
-    // SEARCH UI
-    // =========================================================
     @FXML private TextField searchField;
     @FXML private ListView<Object> resultsList;
 
-    @Setter
-    private AdminViewController adminController;
-
-    // =========================================================
-    // STATE (DATA)
-    // =========================================================
-    @Getter private List<Asset> assets = new ArrayList<>();
-    @Getter private List<Fund> funds = new ArrayList<>();
-    @Getter private List<FundAssetPosition> positions = new ArrayList<>();
-
+    // ================= STATE =================
     private final ObservableList<Object> masterData = FXCollections.observableArrayList();
     private final ObservableList<Object> filteredData = FXCollections.observableArrayList();
 
@@ -68,17 +50,22 @@ public class GlobalController {
     private double prevFondos  = 0;
     private double prevActivos = 0;
 
-    // =========================================================
-    // SERVICES
-    // =========================================================
+    // ================= SERVICES =================
     private final GlobalService globalService = new GlobalService();
-    private final AssetDAO assetDAO = new AssetImpl();
-    private final FundDAO fundDAO = new FundImpl();
-
-    private final FundService fundService = FundService.getInstance();
     private final AssetService assetService = AssetService.getInstance();
+    private final FundService fundService = FundService.getInstance();
     private final GestorService gestorService = GestorService.getInstance();
     private final ClientService clienteService = ClientService.getInstance();
+    private final CandleService candleService = CandleService.getInstance();
+
+    @Setter
+    private AdminViewController adminController;
+
+    private List<Asset> assets;
+    private List<Fund> funds;
+    private List<FundAssetPosition> positions;
+
+    private boolean chartsInitialized = false;
 
     // =========================================================
     // INIT
@@ -86,51 +73,89 @@ public class GlobalController {
     @FXML
     public void initialize() {
 
-        // DATA LOAD
-        assets = assetDAO.findAll();
-        funds  = fundDAO.findAll();
+        System.out.println("\n========== GLOBAL CONTROLLER INIT ==========");
+
+        assetService.load();
+        fundService.load();
+
+        assets = assetService.getAll();
+        funds  = fundService.getAll();
+
+        System.out.println("Assets cargados: " + assets.size());
+        System.out.println("Funds cargados: "  + funds.size());
+
         FundAssetPositionService.getInstance().load();
-
         positions = FundAssetPositionService.getInstance().getAll();
+        System.out.println("Positions cargadas: " + positions.size());
 
-        globalService.bootstrapMarket();
+        gestorService.getAll();
+        clienteService.load();
 
-        // KPI STATIC
-        gestorService.getAll(); // asegura carga si lazy
-        clienteService.load();  // ← necesario antes de .size()
+        kpiGestores.setText(String.valueOf(gestorService.getAll().size()));
+        kpiClientes.setText(String.valueOf(clienteService.getAll().size()));
 
-        if (kpiGestores != null)
-            kpiGestores.setText(String.valueOf(gestorService.getAll().size()));
+        System.out.println("Gestores: " + gestorService.getAll().size());
+        System.out.println("Clientes: " + clienteService.getAll().size());
 
-        if (kpiClientes != null)
-            kpiClientes.setText(String.valueOf(clienteService.getAll().size()));
-
-        // SERVICE SYNC
-        assetService.assets.clear();
-        assetService.assets.addAll(assets);
-
-        fundService.funds.clear();
-        fundService.funds.addAll(funds);
-
-        // SEARCH DATA
         masterData.addAll(funds);
         masterData.addAll(assets);
 
+        filteredData.setAll(masterData);
+        resultsList.setItems(filteredData);
+
         setupSearch();
         setupCellFactory();
+        setupTableColumns();
 
-        resultsList.setItems(filteredData);
-        filteredData.setAll(masterData);
+        System.out.println("\nBOOTSTRAP MARKET...");
+        globalService.bootstrapMarket();
+        FundAssetPositionService.getInstance().init();
 
-        Platform.runLater(() -> {
-            tick();
-            MarketClock.getInstance()
-                    .addListener(() -> Platform.runLater(this::tick));
-        });
+        System.out.println("Candle asset sample:");
+        System.out.println(candleService.getCachedAssetRent(assets));
+
+        MarketClock.getInstance()
+                .addListener(() -> Platform.runLater(this::tick));
+
+        initializeCharts();
+
+        tick();
     }
 
     // =========================================================
-    // MAIN LOOP
+    // CHART INIT
+    // =========================================================
+    private void initializeCharts() {
+
+        if (chartsInitialized) return;
+
+        System.out.println("\n========== INIT CHARTS ==========");
+
+        System.out.println("Bar chart data:");
+        var barData = candleService.rentabilidadEmpresaMensual(assets);
+        System.out.println(barData);
+
+        System.out.println("Line chart data:");
+        var lineData = candleService.navEmpresaMensual(assets);
+        System.out.println(lineData);
+
+        renderBarChart(barData);
+        renderLineChart(lineData);
+
+        GlobalSnapshot snap = globalService.calculateSnapshot(
+                funds, assets, positions, 0, 0, 0
+        );
+
+        System.out.println("Pie chart fondos:");
+        System.out.println(snap.fondos());
+
+        renderPieChart(snap.fondos());
+
+        chartsInitialized = true;
+    }
+
+    // =========================================================
+    // TICK
     // =========================================================
     private void tick() {
 
@@ -139,56 +164,132 @@ public class GlobalController {
                 prevCapital, prevFondos, prevActivos
         );
 
+        System.out.println("\n========== TICK ==========");
+        System.out.println("Capital: "      + snap.capitalTotal());
+        System.out.println("Rentabilidad: " + snap.rentabilidad());
+        System.out.println("Fondos: "       + snap.totalFondos());
+        System.out.println("Activos: "      + snap.totalActivos());
+
         prevCapital = snap.capitalTotal();
         prevFondos  = snap.totalFondos();
         prevActivos = snap.totalActivos();
 
         renderKpis(snap);
-        renderPieChart(snap.fondos());
+        renderTopLists();
     }
 
+    // =========================================================
+    // KPI
+    // =========================================================
     private void renderKpis(GlobalSnapshot snap) {
 
-        if (kpiCapitalTotal == null) return;
-
         kpiCapitalTotal.setText(globalService.formatShort(snap.capitalTotal()));
-        setDelta(kpiCapitalDelta, snap.deltaCapital());
-
-        kpiRentabilidad.setText(String.format("%.2f%%", snap.rentabilidad()));
-        setDelta(kpiRentabilidadDelta, snap.rentabilidad());
-
-        if (kpiCapitalTotal1 != null)
-            kpiCapitalTotal1.setText(String.valueOf(funds.size()));
-        if (kpiCapitalDelta1 != null)
-            kpiCapitalDelta1.setVisible(false);
-
-        if (kpiCapitalTotal11 != null)
-            kpiCapitalTotal11.setText(String.valueOf(assets.size()));
-        if (kpiCapitalDelta11 != null)
-            kpiCapitalDelta11.setVisible(false);
+        kpiFunds.setText(String.valueOf(fundService.getAll().size()));
+        kpiAssets.setText(String.valueOf(assetService.count()));
     }
 
-    private void setDelta(Label label, double pct) {
-        if (label == null) return;
+    // =========================================================
+    // TABLES
+    // =========================================================
+    private void setupTableColumns() {
 
-        label.setText(String.format("%+.2f%%", pct));
-
-        label.getStyleClass().removeAll(
-                "kpi-delta-positive",
-                "kpi-delta-negative"
+        colFondoNombre.setCellValueFactory(d ->
+                new javafx.beans.property.SimpleStringProperty(d.getValue().getKey())
+        );
+        colFondoValor.setCellValueFactory(d ->
+                new javafx.beans.property.SimpleStringProperty(
+                        String.format("%+.2f%%", d.getValue().getValue()))
         );
 
-        label.getStyleClass().add(
-                pct >= 0 ? "kpi-delta-positive" : "kpi-delta-negative"
+        colAssetNombre.setCellValueFactory(d ->
+                new javafx.beans.property.SimpleStringProperty(d.getValue().getKey())
         );
+        colAssetCambio.setCellValueFactory(d ->
+                new javafx.beans.property.SimpleStringProperty(
+                        String.format("%+.2f%%", d.getValue().getValue()))
+        );
+    }
+
+    private void renderTopLists() {
+
+        System.out.println("\n========== TOP LISTS ==========");
+
+        Map<String, Double> assetRent = candleService.getCachedAssetRent(assets);
+        System.out.println("Asset rent size: " + assetRent.size());
+
+        topAssetsGlobalTable.setItems(
+                FXCollections.observableArrayList(
+                        assetRent.entrySet().stream()
+                                .sorted((a, b) -> Double.compare(b.getValue(), a.getValue()))
+                                .limit(10)
+                                .toList()
+                )
+        );
+
+        Map<String, Double> fundRent = candleService.getCachedFundRent(funds);
+        System.out.println("Fund rent size: " + fundRent.size());
+
+        topFondsTable.setItems(
+                FXCollections.observableArrayList(
+                        fundRent.entrySet().stream()
+                                .sorted((a, b) -> Double.compare(b.getValue(), a.getValue()))
+                                .limit(10)
+                                .toList()
+                )
+        );
+    }
+
+    // =========================================================
+    // CHARTS
+    // =========================================================
+    private void renderPieChart(List<FondoSnapshot> snapshots) {
+
+        System.out.println("Pie snapshots: " + snapshots.size());
+
+        ObservableList<PieChart.Data> data = FXCollections.observableArrayList();
+
+        snapshots.forEach(s ->
+                data.add(new PieChart.Data(s.nombre(), s.nav()))
+        );
+
+        globalPieChart.setData(data);
+    }
+
+    private void renderBarChart(Map<YearMonth, Double> dataMap) {
+
+        System.out.println("Bar points: " + dataMap.size());
+
+        XYChart.Series<String, Number> series = new XYChart.Series<>();
+
+        dataMap.entrySet().stream()
+                .sorted(Map.Entry.comparingByKey())
+                .forEach(e -> series.getData().add(
+                        new XYChart.Data<>(e.getKey().toString(), e.getValue())
+                ));
+
+        barChart.getData().setAll(series);
+    }
+
+    private void renderLineChart(Map<YearMonth, Double> dataMap) {
+
+        System.out.println("Line points: " + dataMap.size());
+
+        XYChart.Series<String, Number> series = new XYChart.Series<>();
+
+        dataMap.entrySet().stream()
+                .sorted(Map.Entry.comparingByKey())
+                .forEach(e -> series.getData().add(
+                        new XYChart.Data<>(e.getKey().toString(), e.getValue())
+                ));
+
+        lineChartNav.getData().setAll(series);
     }
 
     // =========================================================
     // SEARCH
     // =========================================================
     private void setupSearch() {
-
-        searchField.textProperty().addListener((obs, old, val) -> {
+        searchField.textProperty().addListener((obs, o, val) -> {
             List<Object> result = globalService.filter(
                     new ArrayList<>(masterData),
                     val
@@ -200,67 +301,26 @@ public class GlobalController {
     private void setupCellFactory() {
 
         resultsList.setCellFactory(list -> new ListCell<>() {
-
             @Override
             protected void updateItem(Object item, boolean empty) {
                 super.updateItem(item, empty);
 
                 if (empty || item == null) {
                     setText(null);
-                    setStyle("");
                     return;
                 }
 
-                if (item instanceof Fund f)
-                    setText("FUND   " + f.getName());
-
-                if (item instanceof Asset a)
-                    setText("ASSET  " + a.getName());
+                if (item instanceof Fund f)  setText("FUND  " + f.getName());
+                if (item instanceof Asset a) setText("ASSET " + a.getName());
             }
         });
 
         resultsList.setOnMouseClicked(e -> {
-
             Object selected = resultsList.getSelectionModel().getSelectedItem();
-            if (selected == null) return;
+            if (selected == null || adminController == null) return;
 
-            if (selected instanceof Fund fund)
-                adminController.openFund(fund);
-
-            if (selected instanceof Asset asset)
-                adminController.openAsset(asset);
+            if (selected instanceof Fund fund)   adminController.openFund(fund);
+            if (selected instanceof Asset asset) adminController.openAsset(asset);
         });
-    }
-
-    // =========================================================
-    // PIE CHART
-    // =========================================================
-    private void renderPieChart(List<FondoSnapshot> snapshots) {
-
-        if (globalPieChart == null) return;
-
-        double navTotal = snapshots.stream()
-                .mapToDouble(FondoSnapshot::nav)
-                .sum();
-
-        if (navTotal <= 0) {
-            System.out.println("⚠ PieChart: navTotal = 0, sin datos");
-            return;
-        }
-
-        ObservableList<PieChart.Data> data = FXCollections.observableArrayList();
-
-        snapshots.stream()
-                .filter(s -> s.nav() > 0)
-                .forEach(s -> {
-                    System.out.printf("🍕 Fondo: %s  NAV: %.2f%n", s.nombre(), s.nav());
-                    data.add(new PieChart.Data(
-                            String.format("%s (%.1f%%)", s.nombre(), (s.nav() / navTotal) * 100),
-                            s.nav()
-                    ));
-                });
-
-        globalPieChart.setData(data);
-        globalPieChart.setAnimated(false);
     }
 }

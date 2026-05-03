@@ -88,8 +88,8 @@
 
                         <GridPane alignment="CENTER_LEFT" hgap="24" vgap="8">
                             <columnConstraints>
-                                <ColumnConstraints prefWidth="200" />
-                                <ColumnConstraints prefWidth="200" />
+                                <ColumnConstraints prefWidth="200.0" />
+                                <ColumnConstraints prefWidth="200.0" />
                                 <ColumnConstraints hgrow="SOMETIMES" />
                             </columnConstraints>
 
@@ -103,10 +103,6 @@
                                 <Label fx:id="labelValorCartera" styleClass="kpi-valor" />
                             </VBox>
 
-                            <VBox spacing="2" GridPane.columnIndex="2" GridPane.rowIndex="0" HBox.hgrow="ALWAYS">
-                                <Label styleClass="cp-field-label" text="Rentabilidad" />
-                                <Label fx:id="labelRentabilidad" styleClass="kpi-rentabilidad" />
-                            </VBox>
                      <rowConstraints>
                         <RowConstraints />
                      </rowConstraints>

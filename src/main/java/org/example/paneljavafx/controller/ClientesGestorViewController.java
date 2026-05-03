@@ -5,7 +5,6 @@ import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
-import javafx.scene.chart.PieChart;
 import javafx.scene.control.*;
 import javafx.scene.layout.StackPane;
 import org.example.paneljavafx.model.Client;
@@ -14,7 +13,7 @@ import org.example.paneljavafx.service.GestorService;
 import javafx.collections.transformation.FilteredList;
 import javafx.collections.transformation.SortedList;
 
-public class GestorClientesController {
+public class ClientesGestorViewController {
 
     @FXML private TableView<Client> clientsTable;
     @FXML private TableColumn<Client, String> colName;
@@ -25,7 +24,6 @@ public class GestorClientesController {
     @FXML private StackPane overlayContainer;
     @FXML private Label labelManagedWallet;
     @FXML private Label labelTotalClientes;
-    @FXML private PieChart clientsPieChart;
 
     private final GestorService gestorService = GestorService.getInstance();
     @FXML private TextField searchField;
@@ -38,7 +36,6 @@ public class GestorClientesController {
         loadClients();
         setupSearch();
         updateWallet();
-        updateClientsPieChart();
         updateTotalClientes();
     }
 
@@ -105,19 +102,6 @@ public class GestorClientesController {
         labelTotalClientes.setText(String.valueOf(total));
     }
 
-    private void updateClientsPieChart() {
-
-        var clients = gestorService.getVisibleMyClientsObservable();
-
-        var data = clients.stream()
-                .map(c -> new PieChart.Data(
-                        c.getName() + " " + c.getSurname(),
-                        gestorService.getClientTotalValue(c.getClientId())
-                ))
-                .toList();
-
-        clientsPieChart.setData(FXCollections.observableArrayList(data));
-    }
 
     // ========================= TABLE SETUP =========================
     private void setupTable() {

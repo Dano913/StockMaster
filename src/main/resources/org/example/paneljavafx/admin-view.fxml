@@ -95,11 +95,11 @@
                 </Tab>
 
                 <Tab fx:id="personalTab" text="Personal" closable="false">
-                    <fx:include source="personal-view.fxml"/>
+                    <fx:include source="gestores-admin-view.fxml"/>
                 </Tab>
 
                 <Tab fx:id="clienteTab" text="Clientes" closable="false">
-                    <fx:include source="clientesGestion-view.fxml"/>
+                    <fx:include source="clientes-gestor-view.fxml"/>
                 </Tab>
 
             </tabs>

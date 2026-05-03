@@ -8,230 +8,249 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.chart.BarChart;
 import javafx.scene.chart.PieChart;
+import javafx.scene.chart.XYChart;
 import javafx.scene.control.*;
 import javafx.scene.paint.Color;
 
 import org.example.paneljavafx.common.TabDataReceiver;
 import org.example.paneljavafx.model.Fund;
 import org.example.paneljavafx.model.FundAssetPosition;
-import org.example.paneljavafx.service.FundService;
-import org.example.paneljavafx.service.dto.FundMetrics;
+import org.example.paneljavafx.service.*;
 import org.example.paneljavafx.simulation.MarketClock;
-import org.example.paneljavafx.service.ChartService;
 
 import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.List;
+import java.time.YearMonth;
+import java.util.*;
 
 public class FundViewController implements TabDataReceiver<Fund> {
 
-    // =========================
-    // MODELO INTERNO TABLA
-    // =========================
+    // ========================= TABLE MODEL =========================
     public static class AssetRow {
 
         private final SimpleStringProperty nombre;
-        private final SimpleDoubleProperty porcentaje;
+        private final SimpleDoubleProperty peso;
+        private final SimpleDoubleProperty retorno;
 
-        public AssetRow(String nombre, double porcentaje) {
-            this.nombre     = new SimpleStringProperty(nombre);
-            this.porcentaje = new SimpleDoubleProperty(porcentaje);
+        public AssetRow(String nombre, double peso, double retorno) {
+            this.nombre = new SimpleStringProperty(nombre);
+            this.peso = new SimpleDoubleProperty(peso);
+            this.retorno = new SimpleDoubleProperty(retorno);
         }
 
-        public SimpleStringProperty nombreProperty()     { return nombre; }
-        public SimpleDoubleProperty porcentajeProperty() { return porcentaje; }
+        public String getNombre() { return nombre.get(); }
+        public double getPeso() { return peso.get(); }
+        public double getRetorno() { return retorno.get(); }
 
-        public String getNombre()     { return nombre.get(); }
-        public double getPorcentaje() { return porcentaje.get(); }
+        public SimpleStringProperty nombreProperty() { return nombre; }
+        public SimpleDoubleProperty pesoProperty() { return peso; }
+        public SimpleDoubleProperty retornoProperty() { return retorno; }
     }
 
-    // =========================
-    // FXML - INFO PANEL
-    // =========================
+    // ========================= FXML =========================
     @FXML private Label fundName, fundTicker, fundIsin, fundType, fundCategory;
-    @FXML private Label fundValue, fundChange, fundDailyReturn, totalAUM, exposureRisk;
+    @FXML private Label fundValue;
+    private boolean positionsChanged = true;
 
-    // =========================
-    // FXML - TABLA POSICIONES
-    // =========================
-    @FXML private TableView<AssetRow>           topAssetsTable;
+    @FXML private TableView<AssetRow> topAssetsTable;
     @FXML private TableColumn<AssetRow, String> colNombre;
-    @FXML private TableColumn<AssetRow, Number> colPorcentaje;
+    @FXML private TableColumn<AssetRow, Number> colPeso;
+    @FXML private TableColumn<AssetRow, Number> colRetorno;
 
-    // =========================
-    // FXML - CHART
-    // =========================
-    @FXML private Canvas   fundChartCanvas;
     @FXML private PieChart fundPieChart;
+    @FXML private BarChart<String, Number> monthlyReturnChart;
 
-    // =========================
-    // STATE
-    // =========================
+    // ========================= STATE =========================
     private Fund currentFund;
     private List<FundAssetPosition> fundPositions = new ArrayList<>();
 
-    private Runnable tickListener;
-    private double previousFundValue = 0;
-
-    private final DecimalFormat DF = new DecimalFormat("#,###.##");
     private final ObservableList<AssetRow> tableData = FXCollections.observableArrayList();
+    private final DecimalFormat DF = new DecimalFormat("#,###.##");
 
-    FundService fundService = FundService.getInstance();
-    private final ChartService chartService = new ChartService();
+    private final FundService fundService = FundService.getInstance();
+    private final CandleService candleService = CandleService.getInstance();
 
-    private final List<Double> fundValueHistory = new ArrayList<>();
+    private Runnable tickListener;
 
-    // =========================
-    // ENTRY POINT
-    // =========================
+    // ========================= INIT =========================
     @Override
     public void loadData(Fund fund) {
         this.currentFund = fund;
-        renderStaticInfo();
+
         setupTable();
+        renderStaticInfo();
         bindMarket();
         recalculate();
 
+        recalculate();
     }
 
-    // =========================
-    // POSITIONS
-    // =========================
     public void loadPositions(List<FundAssetPosition> positions) {
         this.fundPositions = (positions != null) ? positions : new ArrayList<>();
+
+        positionsChanged = true;
+
         recalculate();
-        renderFundPieChart();
+        refreshHeavyCharts();
+        recalculate();
+
     }
 
-    // =========================
-    // TABLA — SETUP (se llama una sola vez)
-    // =========================
+    // ========================= TABLE =========================
     private void setupTable() {
-        if (topAssetsTable == null) return;
 
-        // Columna Nombre — bind a la property
-        colNombre.setCellValueFactory(
-                cell -> cell.getValue().nombreProperty()
-        );
+        colNombre.setCellValueFactory(c -> c.getValue().nombreProperty());
+        colPeso.setCellValueFactory(c -> c.getValue().pesoProperty());
+        colRetorno.setCellValueFactory(c -> c.getValue().retornoProperty());
 
-        // Columna Porcentaje — bind a la property + cell factory con color
-        colPorcentaje.setCellValueFactory(
-                cell -> cell.getValue().porcentajeProperty()
-        );
+        colPeso.setCellFactory(col -> new TableCell<>() {
+            @Override
+            protected void updateItem(Number value, boolean empty) {
+                super.updateItem(value, empty);
+                setText(empty || value == null ? null : String.format("%.2f%%", value.doubleValue()));
+            }
+        });
 
-        colPorcentaje.setCellFactory(col -> new TableCell<>() {
+        colRetorno.setCellFactory(col -> new TableCell<>() {
             @Override
             protected void updateItem(Number value, boolean empty) {
                 super.updateItem(value, empty);
                 if (empty || value == null) {
                     setText(null);
-                    setStyle("");
                 } else {
-                    double pct = value.doubleValue();
-                    setText(String.format("%.2f%%", pct));
-                    setStyle(pct >= 0
-                            ? "-fx-text-fill: #00D09C; -fx-font-weight: bold;"
-                            : "-fx-text-fill: #FF5C7A; -fx-font-weight: bold;");
+                    double v = value.doubleValue();
+                    setText(String.format("%+.2f%%", v));
+                    setTextFill(v >= 0 ? Color.web("#00D09C") : Color.web("#FF5C7A"));
                 }
             }
         });
 
         topAssetsTable.setItems(tableData);
-        topAssetsTable.setPlaceholder(new Label("Sin posiciones"));
     }
 
-    // =========================
-    // TABLA — REFRESCO
-    // Usa FundService.getSummaryByFund para obtener valor real de cada posición
-    // en lugar de parsear los strings de topMovers
-    // =========================
-    private void refreshTable(List<String> topMovers) {
-        if (topAssetsTable == null) return;
-
-        tableData.clear();
-
-        // getSummaryByFund devuelve TODAS las posiciones ordenadas por valor,
-        // con el peso real calculado sobre el NAV total del fondo
-        List<FundService.PositionSummary> summaries =
-                fundService.getSummaryByFund(fundPositions);
-
-        summaries.forEach(s ->
-                tableData.add(new AssetRow(s.idAsset(), s.returnPct()))
-        );
-    }
-
-    // =========================
-    // MARKET
-    // =========================
-    private void bindMarket() {
-        tickListener = this::recalculate;
-        MarketClock.getInstance().addListener(tickListener);
-    }
-
-    // =========================
-    // CORE LOOP
-    // =========================
+    // ========================= CORE UPDATE =========================
     private void recalculate() {
+
         if (currentFund == null) return;
 
-        FundMetrics metrics = fundService.calculateMetrics(
-                currentFund,
-                fundPositions,
-                previousFundValue
-        );
+        List<FundService.PositionSummary> summary =
+                fundService.getSummaryByFund(fundPositions);
 
-        previousFundValue = metrics.getTotalValue();
-        fundValueHistory.add(metrics.getTotalValue());
+        double totalValue = summary.stream()
+                .mapToDouble(FundService.PositionSummary::valorActual)
+                .sum();
+
+        fundValueHistory.add(totalValue);
 
         Platform.runLater(() -> {
-            updateUI(metrics);
-            drawChart();
+            updateUI(summary, totalValue);
         });
     }
 
-    // =========================
-    // UI UPDATE
-    // =========================
-    private void updateUI(FundMetrics m) {
-        if (fundValue == null || fundChange == null) return;
+    // ========================= UI =========================
+    private void updateUI(List<FundService.PositionSummary> summary, double totalValue) {
 
-        // NAV total real (todas las posiciones, no solo top 5)
-        double navTotal = fundService.calculateTotalNAV(fundPositions);
-
-        fundValue.setText(DF.format(navTotal) + " €");
-
-        fundChange.setText(String.format("%+.2f%%", m.getChangePct()));
-        fundChange.setTextFill(m.getChangePct() >= 0
-                ? Color.web("#00D09C")
-                : Color.web("#FF5C7A"));
-
-        if (fundDailyReturn != null) {
-            fundDailyReturn.setText(String.format("(%+.0f € hoy)", m.getTotalChange()));
-            fundDailyReturn.setTextFill(m.getTotalChange() >= 0
-                    ? Color.web("#00D09C")
-                    : Color.web("#FF5C7A"));
-        }
-
-        if (totalAUM != null) {
-            totalAUM.setText(DF.format(navTotal) + " AUM");
-        }
-
-        // Log del valor total del fondo en cada tick
-        System.out.printf("💰 [%s] NAV total: %s € | Cambio: %+.2f%% | Δ: %+.0f €%n",
-                currentFund != null ? currentFund.getFundId() : "?",
-                DF.format(navTotal),
-                m.getChangePct(),
-                m.getTotalChange()
-        );
-
-        refreshTable(m.getTopMovers());
+        fundValue.setText(DF.format(totalValue) + " €");
+        refreshTable(summary);
     }
 
-    // =========================
-    // STATIC INFO
-    // =========================
+    // ========================= TABLE DATA =========================
+    private void refreshTable(List<FundService.PositionSummary> summary) {
+
+        tableData.clear();
+
+        double total = summary.stream()
+                .mapToDouble(FundService.PositionSummary::valorActual)
+                .sum();
+
+
+        for (FundService.PositionSummary s : summary) {
+
+            double weight = total > 0
+                    ? (s.valorActual() / total) * 100
+                    : 0;
+
+            tableData.add(new AssetRow(
+                    s.idAsset(),
+                    weight,
+                    s.returnPct()
+            ));
+        }
+    }
+
+    private void refreshHeavyCharts() {
+
+        if (!positionsChanged) return;
+
+        Platform.runLater(() -> {
+            renderPieChart();
+            render6MonthBarChart();
+        });
+
+        positionsChanged = false;
+    }
+
+    // ========================= PIE CHART =========================
+    private void renderPieChart() {
+
+        if (fundPieChart == null) return;
+
+        List<FundService.PositionSummary> summary =
+                fundService.getSummaryByFund(fundPositions);
+
+        double total = summary.stream()
+                .mapToDouble(FundService.PositionSummary::valorActual)
+                .sum();
+
+        ObservableList<PieChart.Data> data = FXCollections.observableArrayList();
+
+        for (FundService.PositionSummary s : summary) {
+
+            double weight = total > 0
+                    ? (s.valorActual() / total) * 100
+                    : 0;
+
+            data.add(new PieChart.Data(
+                    s.idAsset(),
+                    s.valorActual()
+            ));
+        }
+
+        fundPieChart.setData(data);
+    }
+
+    // ========================= BAR CHART (6M) =========================
+    private void render6MonthBarChart() {
+
+        if (currentFund == null || monthlyReturnChart == null) return;
+
+        Map<YearMonth, Double> data =
+                candleService.rentabilidadUltimos6MesesFondo(currentFund);
+
+        XYChart.Series<String, Number> series = new XYChart.Series<>();
+        series.setName("6M Return");
+
+        for (Map.Entry<YearMonth, Double> e : data.entrySet()) {
+
+            String label = e.getKey().getMonth().toString().substring(0, 3);
+
+            series.getData().add(
+                    new XYChart.Data<>(label, e.getValue())
+            );
+        }
+
+        monthlyReturnChart.getData().clear();
+        monthlyReturnChart.getData().add(series);
+    }
+
+    // ========================= NAV CHART =========================
+    private final List<Double> fundValueHistory = new ArrayList<>();
+
+
+    // ========================= STATIC INFO =========================
     private void renderStaticInfo() {
+
         if (currentFund == null) return;
 
         fundName.setText(currentFund.getName());
@@ -240,50 +259,17 @@ public class FundViewController implements TabDataReceiver<Fund> {
                 ? currentFund.getIsinCode() : "N/A");
         fundType.setText(currentFund.getType());
         fundCategory.setText(currentFund.getCategory());
-
-        if (exposureRisk != null) exposureRisk.setText("Riesgo: --");
     }
 
-    // =========================
-    // CHART RENDER
-    // =========================
-    private void drawChart() {
-        if (fundChartCanvas == null) return;
-        if (fundChartCanvas.getWidth() == 0) return;
-        if (fundValueHistory.size() < 2) return;
-
-        GraphicsContext g = fundChartCanvas.getGraphicsContext2D();
-        g.clearRect(0, 0, fundChartCanvas.getWidth(), fundChartCanvas.getHeight());
-
-        chartService.drawFundEquity(
-                g,
-                fundValueHistory,
-                fundChartCanvas.getWidth(),
-                fundChartCanvas.getHeight()
-        );
+    // ========================= MARKET BIND =========================
+    private void bindMarket() {
+        tickListener = this::recalculate;
+        MarketClock.getInstance().addListener(tickListener);
     }
 
-    // =========================
-    // PIE CHART
-    // =========================
-    private void renderFundPieChart() {
-        if (currentFund == null || fundPositions == null) return;
-        if (fundPieChart == null) return;
-
-        ObservableList<PieChart.Data> pieData = FXCollections.observableArrayList();
-        fundPositions.forEach(p ->
-                pieData.add(new PieChart.Data(p.getIdAsset(), p.getInvestedValue()))
-        );
-        fundPieChart.setData(pieData);
-    }
-
-    // =========================
-    // LIFECYCLE
-    // =========================
     public void onClose() {
         if (tickListener != null) {
             MarketClock.getInstance().removeListener(tickListener);
-            tickListener = null;
         }
     }
 }

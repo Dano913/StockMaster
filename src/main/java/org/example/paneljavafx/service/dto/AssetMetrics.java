@@ -6,15 +6,18 @@ public class AssetMetrics {
     private double exposureRatio;   // 0..1 para ProgressBar
     private long fundsExposed;      // nº de fondos
     private double globalWeight;    // peso relativo
+    private double volatility;
 
     public AssetMetrics(double totalExposure,
                         double exposureRatio,
                         long fundsExposed,
-                        double globalWeight) {
+                        double globalWeight,
+                        double volatility) {
         this.totalExposure = totalExposure;
         this.exposureRatio = exposureRatio;
         this.fundsExposed = fundsExposed;
         this.globalWeight = globalWeight;
+        this.volatility = volatility;
     }
 
     public double getTotalExposure() {
@@ -32,4 +35,6 @@ public class AssetMetrics {
     public double getGlobalWeight() {
         return globalWeight;
     }
+
+    public double getVolatility() { return volatility; }
 }

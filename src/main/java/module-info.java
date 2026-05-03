@@ -7,6 +7,7 @@ module org.example.paneljavafx {
     requires com.google.gson;
     requires jdk.compiler;
     requires java.sql;
+    requires com.zaxxer.hikari;
 
     // ── Abiertos para reflexión ──────────────────────────────────────────
     opens org.example.paneljavafx to javafx.fxml;

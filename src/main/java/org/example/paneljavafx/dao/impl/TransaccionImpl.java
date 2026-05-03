@@ -11,7 +11,7 @@ import java.util.List;
 
 public class TransaccionImpl implements TransaccionDAO {
 
-    private Connection getConnection() {
+    private Connection getConnection() throws SQLException {
         return DatabaseConnection.getConnection();
     }
 

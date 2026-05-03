@@ -1,17 +1,14 @@
 package org.example.paneljavafx.service;
 
-import org.example.paneljavafx.model.Asset;
-import org.example.paneljavafx.model.Fund;
-import org.example.paneljavafx.model.FundAssetPosition;
-import org.example.paneljavafx.simulation.MarketEngine;
+import org.example.paneljavafx.model.*;
+import org.example.paneljavafx.dao.CandleDAO;
 
 import java.text.DecimalFormat;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class GlobalService {
 
-    // ========================= DATA =========================
+    // ========================= SNAPSHOTS =========================
     public record FondoSnapshot(
             String id,
             String nombre,
@@ -39,18 +36,20 @@ public class GlobalService {
     ) {}
 
     // ========================= SERVICES =========================
-    MarketService marketService = MarketService.getInstance();
-    FundService fundService = FundService.getInstance();
-    AssetService assetService = AssetService.getInstance();
+    private final MarketService marketService = MarketService.getInstance();
+    private final FundService fundService = FundService.getInstance();
+    private final AssetService assetService = AssetService.getInstance();
     private final ExposureService exposureService = new ExposureService();
+    private final SnapshotService snapshotService = new SnapshotService();
 
     private final DecimalFormat DF = new DecimalFormat("#,###.##");
 
+    // ========================= BOOTSTRAP =========================
     public void bootstrapMarket() {
         marketService.bootstrapMarket();
     }
 
-    // ========================= CALCULATION =========================
+    // ========================= SNAPSHOT PRINCIPAL =========================
     public GlobalSnapshot calculateSnapshot(
             List<Fund> funds,
             List<Asset> assets,
@@ -100,61 +99,9 @@ public class GlobalService {
                 deltaFondos,
                 deltaActivos,
                 rentabilidad,
-                buildFondoSnapshots(funds, positions),
-                buildAssetSnapshots(assets)
+                snapshotService.buildFondoSnapshots(funds, positions),
+                snapshotService.buildAssetSnapshots(assets)
         );
-    }
-
-    // ========================= SNAPSHOTS =========================
-    public List<FondoSnapshot> buildFondoSnapshots(
-            List<Fund> funds,
-            List<FundAssetPosition> positions
-    ) {
-        return funds.stream()
-                .map(fund -> {
-                    List<FundAssetPosition> posFund =
-                            fundService.getPositionsByFund(positions, fund.getFundId());
-
-                    double nav = fundService.calculateTotalNAV(posFund);
-
-                    double invertido = posFund.stream()
-                            .filter(FundAssetPosition::isValid)
-                            .mapToDouble(FundAssetPosition::getInvestedValue)
-                            .sum();
-
-                    double rentabilidad = invertido > 0
-                            ? ((nav - invertido) / invertido) * 100
-                            : 0;
-
-                    return new FondoSnapshot(
-                            fund.getFundId(),
-                            fund.getName(),
-                            nav,
-                            invertido,
-                            rentabilidad
-                    );
-                })
-                .toList();
-    }
-
-    public List<AssetSnapshot> buildAssetSnapshots(List<Asset> assets) {
-        return assets.stream()
-                .map(asset -> {
-                    MarketEngine engine = marketService.getEngine(asset.getId());
-                    if (engine == null) return null;
-
-                    String label = asset.getTicker() != null
-                            ? asset.getTicker()
-                            : asset.getName();
-
-                    return new AssetSnapshot(
-                            label,
-                            engine.getLastPrice(),
-                            engine.getChange()
-                    );
-                })
-                .filter(java.util.Objects::nonNull)
-                .toList();
     }
 
     // ========================= SEARCH =========================
@@ -166,7 +113,7 @@ public class GlobalService {
 
         return masterData.stream()
                 .filter(item -> matches(item, q))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private boolean matches(Object item, String q) {

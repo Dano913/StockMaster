@@ -104,7 +104,7 @@
                 <Tab text="Clientes" closable="false">
                     <content>
                         <fx:include fx:id="clientesGestionController"
-                                    source="clientesGestion-view.fxml"/>
+                                    source="clientes-gestor-view.fxml"/>
                     </content>
                 </Tab>
 
